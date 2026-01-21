@@ -116,8 +116,38 @@ internal static class UnitMetadata
     };
 
     /// <summary>
+    /// Gets the unit string for a locale, unit ID, width, and numeric value.
+    /// Uses the locale's plural rules to select the correct form.
+    /// </summary>
+    public static string GetUnitString(ref FormatterContext ctx, string unitId, string width, double value)
+    {
+        // Get the plural category using locale's plural rules
+        var count = PluralHelper.GetPluralCategory(ref ctx, value);
+
+        // Map short unit name to full CLDR unit ID
+        var cldrUnitId = MapToCldrUnitId(unitId);
+
+        if (TryGetUnit(ref ctx, cldrUnitId, out var data))
+        {
+            if (data.TryGetDisplayName(width, count, out var displayName))
+            {
+                return displayName;
+            }
+
+            // Try "long" width as fallback
+            if (width != "long" && data.TryGetDisplayName("long", count, out displayName))
+            {
+                return displayName;
+            }
+        }
+
+        return unitId; // Fallback to original unit ID
+    }
+
+    /// <summary>
     /// Gets the unit string for a locale, unit ID, width, and plurality.
     /// </summary>
+    [Obsolete("Use the overload that accepts a numeric value for proper plural form selection.")]
     public static string GetUnitString(ref FormatterContext ctx, string unitId, string width, bool isPlural)
     {
         var count = isPlural ? "other" : "one";

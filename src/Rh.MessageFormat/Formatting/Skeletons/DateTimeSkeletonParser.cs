@@ -241,18 +241,18 @@ internal static class DateTimeSkeletonParser
                 _ => Formats.EraLong
             },
 
-            // Quarter (not directly supported in .NET, return placeholder)
-            SkeletonChars.Quarter or SkeletonChars.StandaloneQuarter => "Q" + count,
+            // Quarter (not directly supported in .NET, pass through as literal)
+            SkeletonChars.Quarter or SkeletonChars.StandaloneQuarter => $"'Q'{count}",
 
-            // Week of year
-            SkeletonChars.WeekOfYear => count >= 2 ? "ww" : "w", // Note: .NET uses different calculation
+            // Week of year (not directly supported in .NET, pass through as literal)
+            SkeletonChars.WeekOfYear => count >= 2 ? "'ww'" : "'w'",
 
-            // Day of year
+            // Day of year (not directly supported in .NET standard format, pass through as literal)
             SkeletonChars.DayOfYear => count switch
             {
-                1 => "D",
-                2 => "DD",
-                _ => "DDD"
+                1 => "'D'",
+                2 => "'DD'",
+                _ => "'DDD'"
             },
 
             // Timezone
@@ -267,7 +267,7 @@ internal static class DateTimeSkeletonParser
             {
                 1 or 2 or 3 => Formats.Timezone,
                 4 => Formats.Timezone,
-                5 => "zzzzz",
+                5 => Formats.Timezone, // .NET max is zzz
                 _ => Formats.Timezone
             },
 

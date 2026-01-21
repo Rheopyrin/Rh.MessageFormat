@@ -1,5 +1,4 @@
 using System;
-using Rh.MessageFormat.Abstractions;
 using Rh.MessageFormat.Abstractions.Models;
 using Rh.MessageFormat.Ast;
 
@@ -35,8 +34,31 @@ internal static class CurrencyMetadata
     }
 
     /// <summary>
+    /// Gets the currency display name for a locale and currency code using the correct plural form.
+    /// </summary>
+    public static string GetDisplayName(ref FormatterContext ctx, string currencyCode, double value)
+    {
+        if (TryGetCurrency(ref ctx, currencyCode, out var data))
+        {
+            // Get the plural category using locale's plural rules
+            var category = PluralHelper.GetPluralCategory(ref ctx, value);
+
+            return category switch
+            {
+                "one" when !string.IsNullOrEmpty(data.DisplayNameOne) => data.DisplayNameOne,
+                "few" when !string.IsNullOrEmpty(data.DisplayNameFew) => data.DisplayNameFew,
+                "many" when !string.IsNullOrEmpty(data.DisplayNameMany) => data.DisplayNameMany,
+                "other" when !string.IsNullOrEmpty(data.DisplayNameOther) => data.DisplayNameOther,
+                _ => !string.IsNullOrEmpty(data.DisplayNameOther) ? data.DisplayNameOther : data.DisplayName
+            };
+        }
+        return currencyCode; // Fallback to code
+    }
+
+    /// <summary>
     /// Gets the currency display name for a locale and currency code.
     /// </summary>
+    [Obsolete("Use the overload that accepts a numeric value for proper plural form selection.")]
     public static string GetDisplayName(ref FormatterContext ctx, string currencyCode, bool isPlural = false)
     {
         if (TryGetCurrency(ref ctx, currencyCode, out var data))
@@ -53,6 +75,7 @@ internal static class CurrencyMetadata
         }
         return currencyCode; // Fallback to code
     }
+
 
     private static bool TryGetCurrency(ref FormatterContext ctx, string currencyCode, out CurrencyData data)
     {

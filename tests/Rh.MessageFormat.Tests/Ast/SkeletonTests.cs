@@ -181,6 +181,135 @@ public class SkeletonTests
         Assert.Equal("005", result);
     }
 
+    [Fact]
+    public void NumberSkeleton_Engineering()
+    {
+        var args = new Dictionary<string, object?> { { "n", 12345 } };
+
+        var result = _formatter.FormatMessage("{n, number, ::engineering}", args);
+
+        // Engineering notation uses exponents that are multiples of 3
+        Assert.Contains("E", result);
+        Assert.True(result.Contains("E+3") || result.Contains("E3"),
+            $"Expected engineering notation with E+3 but got: {result}");
+    }
+
+    [Fact]
+    public void NumberSkeleton_Permille()
+    {
+        var args = new Dictionary<string, object?> { { "n", 0.5 } };
+
+        var result = _formatter.FormatMessage("{n, number, ::permille}", args);
+
+        Assert.Contains("500", result);
+        Assert.Contains("\u2030", result); // Permille sign ‰
+    }
+
+    [Fact]
+    public void NumberSkeleton_SignNever()
+    {
+        var args = new Dictionary<string, object?> { { "n", -42 } };
+
+        var result = _formatter.FormatMessage("{n, number, ::sign-never}", args);
+
+        Assert.DoesNotContain("-", result);
+        Assert.Contains("42", result);
+    }
+
+    [Fact]
+    public void NumberSkeleton_SignExceptZero_Positive()
+    {
+        var args = new Dictionary<string, object?> { { "n", 42 } };
+
+        var result = _formatter.FormatMessage("{n, number, ::sign-except-zero}", args);
+
+        Assert.StartsWith("+", result);
+    }
+
+    [Fact]
+    public void NumberSkeleton_SignExceptZero_Zero()
+    {
+        var args = new Dictionary<string, object?> { { "n", 0 } };
+
+        var result = _formatter.FormatMessage("{n, number, ::sign-except-zero}", args);
+
+        Assert.DoesNotContain("+", result);
+        Assert.DoesNotContain("-", result);
+    }
+
+    [Fact]
+    public void NumberSkeleton_SignAccounting_Negative()
+    {
+        var args = new Dictionary<string, object?> { { "n", -100 } };
+
+        var result = _formatter.FormatMessage("{n, number, ::sign-accounting}", args);
+
+        // Accounting format uses parentheses for negative numbers
+        Assert.Contains("(", result);
+        Assert.Contains(")", result);
+    }
+
+    [Fact]
+    public void NumberSkeleton_GroupMin2()
+    {
+        var args = new Dictionary<string, object?> { { "n", 1000 } };
+
+        var result = _formatter.FormatMessage("{n, number, ::group-min2}", args);
+
+        // Should group when there are 2+ digits in the group
+        Assert.Contains(",", result);
+    }
+
+    [Fact]
+    public void NumberSkeleton_UnitMeter()
+    {
+        var args = new Dictionary<string, object?> { { "n", 5 } };
+
+        var result = _formatter.FormatMessage("{n, number, ::unit/meter}", args);
+
+        Assert.Contains("5", result);
+    }
+
+    [Fact]
+    public void NumberSkeleton_UnitWithWidthLong()
+    {
+        var args = new Dictionary<string, object?> { { "n", 5 } };
+
+        var result = _formatter.FormatMessage("{n, number, ::unit/kilometer unit-width-full-name}", args);
+
+        Assert.Contains("5", result);
+    }
+
+    [Fact]
+    public void NumberSkeleton_IntegerWidth()
+    {
+        var args = new Dictionary<string, object?> { { "n", 42 } };
+
+        var result = _formatter.FormatMessage("{n, number, ::integer-width/*0000 group-off}", args);
+
+        Assert.Equal("0042", result);
+    }
+
+    [Fact]
+    public void NumberSkeleton_ConciseGroupOff()
+    {
+        var args = new Dictionary<string, object?> { { "n", 1000000 } };
+
+        var result = _formatter.FormatMessage("{n, number, ::,_}", args);
+
+        Assert.DoesNotContain(",", result);
+    }
+
+    [Fact]
+    public void NumberSkeleton_ConciseGroupAlways()
+    {
+        var args = new Dictionary<string, object?> { { "n", 1000 } };
+
+        var result = _formatter.FormatMessage("{n, number, ::,!}", args);
+
+        Assert.Contains(",", result);
+    }
+
     #endregion
 
     #region DateTime Skeleton Tests
@@ -297,6 +426,116 @@ public class SkeletonTests
         Assert.Contains("January", result);
         Assert.Contains("14", result);
         Assert.Contains("30", result);
+    }
+
+    [Fact]
+    public void DateSkeleton_Quarter_OutputsLiteral()
+    {
+        var date = new DateTime(2026, 1, 15);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
+        // Quarter is not supported in .NET, should output as literal
+        var result = _formatter.FormatMessage("{d, date, ::Q}", args);
+
+        // Should contain 'Q' as literal since .NET doesn't support quarter formatting
+        Assert.Contains("Q", result);
+    }
+
+    [Fact]
+    public void DateSkeleton_WeekOfYear_OutputsLiteral()
+    {
+        var date = new DateTime(2026, 1, 15);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
+        // Week of year is not supported in .NET, should output as literal
+        var result = _formatter.FormatMessage("{d, date, ::w}", args);
+
+        // Should contain 'w' as literal since .NET doesn't support week of year
+        Assert.Contains("w", result);
+    }
+
+    [Fact]
+    public void DateSkeleton_DayOfYear_OutputsLiteral()
+    {
+        var date = new DateTime(2026, 1, 15);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
+        // Day of year is not supported in .NET, should output as literal
+        var result = _formatter.FormatMessage("{d, date, ::D}", args);
+
+        // Should contain 'D' as literal since .NET doesn't support day of year directly
+        Assert.Contains("D", result);
+    }
+
+    [Fact]
+    public void TimeSkeleton_FractionalSeconds()
+    {
+        var time = new DateTime(2026, 1, 15, 14, 30, 45, 123);
+        var args = new Dictionary<string, object?> { { "t", time } };
+
+        var result = _formatter.FormatMessage("{t, time, ::HmmssSSS}", args);
+
+        Assert.Contains("14", result);
+        Assert.Contains("30", result);
+        Assert.Contains("45", result);
+        Assert.Contains("123", result);
+    }
+
+    [Fact]
+    public void DateSkeleton_Era()
+    {
+        var date = new DateTime(2026, 1, 15);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
+        var result = _formatter.FormatMessage("{d, date, ::yG}", args);
+
+        // Should contain era (AD or A.D.)
+        Assert.True(result.Contains("AD") || result.Contains("A.D.") || result.Contains("A.D"),
+            $"Expected era in result but got: {result}");
+    }
+
+    [Fact]
+    public void DateSkeleton_StandaloneMonth()
+    {
+        var date = new DateTime(2026, 1, 15);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
+        var result = _formatter.FormatMessage("{d, date, ::LLLL}", args);
+
+        Assert.Contains("January", result);
+    }
+
+    [Fact]
+    public void TimeSkeleton_AmPm()
+    {
+        var time = new DateTime(2026, 1, 15, 14, 30, 0);
+        var args = new Dictionary<string, object?> { { "t", time } };
+
+        var result = _formatter.FormatMessage("{t, time, ::hmma}", args);
+
+        Assert.Contains("PM", result);
+    }
+
+    [Fact]
+    public void TimeSkeleton_24Hour_Midnight()
+    {
+        var time = new DateTime(2026, 1, 15, 0, 0, 0);
+        var args = new Dictionary<string, object?> { { "t", time } };
+
+        var result = _formatter.FormatMessage("{t, time, ::HHmm}", args);
+
+        Assert.Equal("00:00", result);
+    }
+
+    [Fact]
+    public void TimeSkeleton_24Hour_Noon()
+    {
+        var time = new DateTime(2026, 1, 15, 12, 0, 0);
+        var args = new Dictionary<string, object?> { { "t", time } };
+
+        var result = _formatter.FormatMessage("{t, time, ::HHmm}", args);
+
+        Assert.Equal("12:00", result);
     }
 
     #endregion

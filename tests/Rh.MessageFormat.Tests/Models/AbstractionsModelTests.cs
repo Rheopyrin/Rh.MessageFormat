@@ -504,6 +504,8 @@ public class AbstractionsModelTests
         Assert.Null(data.NarrowSymbol);
         Assert.Null(data.DisplayName);
         Assert.Null(data.DisplayNameOne);
+        Assert.Null(data.DisplayNameFew);
+        Assert.Null(data.DisplayNameMany);
         Assert.Null(data.DisplayNameOther);
     }
 
@@ -516,6 +518,8 @@ public class AbstractionsModelTests
             narrowSymbol: "$",
             displayName: "US Dollar",
             displayNameOne: "US dollar",
+            displayNameFew: null,
+            displayNameMany: null,
             displayNameOther: "US dollars"
         );
 
@@ -524,7 +528,33 @@ public class AbstractionsModelTests
         Assert.Equal("$", data.NarrowSymbol);
         Assert.Equal("US Dollar", data.DisplayName);
         Assert.Equal("US dollar", data.DisplayNameOne);
+        Assert.Null(data.DisplayNameFew);
+        Assert.Null(data.DisplayNameMany);
         Assert.Equal("US dollars", data.DisplayNameOther);
+    }
+
+    [Fact]
+    public void CurrencyData_Constructor_WithFewAndMany()
+    {
+        var data = new CurrencyData(
+            code: "UAH",
+            symbol: "₴",
+            narrowSymbol: "₴",
+            displayName: "Ukrainian hryvnia",
+            displayNameOne: "гривня",
+            displayNameFew: "гривні",
+            displayNameMany: "гривень",
+            displayNameOther: "гривні"
+        );
+
+        Assert.Equal("UAH", data.Code);
+        Assert.Equal("₴", data.Symbol);
+        Assert.Equal("₴", data.NarrowSymbol);
+        Assert.Equal("Ukrainian hryvnia", data.DisplayName);
+        Assert.Equal("гривня", data.DisplayNameOne);
+        Assert.Equal("гривні", data.DisplayNameFew);
+        Assert.Equal("гривень", data.DisplayNameMany);
+        Assert.Equal("гривні", data.DisplayNameOther);
     }
 
     #endregion

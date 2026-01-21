@@ -142,8 +142,8 @@ internal static class NumberSkeletonFormatter
                     symbol = currencyCode.ToUpperInvariant() + Common.Space;
                     break;
                 case CurrencyDisplay.Name:
-                    // Use plural form for currency names (e.g., "US dollars")
-                    symbol = CurrencyMetadata.GetDisplayName(ref ctx, currencyCode, isPlural: true) + Common.Space;
+                    // Use proper plural form based on the value and locale's plural rules
+                    symbol = CurrencyMetadata.GetDisplayName(ref ctx, currencyCode, value) + Common.Space;
                     break;
                 case CurrencyDisplay.NarrowSymbol:
                     symbol = CurrencyMetadata.GetNarrowSymbol(ref ctx, currencyCode);
@@ -169,9 +169,8 @@ internal static class NumberSkeletonFormatter
         var formattedNumber = value.ToString(format, nfi);
         var unit = options.Unit!;
 
-        // Get unit display string based on display option and plurality
-        var isPlural = Math.Abs(value) != 1;
-        var unitString = GetUnitString(unit, options.UnitDisplay, isPlural, ref ctx);
+        // Get unit display string based on display option and locale's plural rules
+        var unitString = GetUnitString(unit, options.UnitDisplay, value, ref ctx);
 
         // CLDR patterns contain {0} placeholder for the number
         if (!string.IsNullOrEmpty(unitString) && unitString.Contains(List.Placeholders.First))
@@ -183,7 +182,7 @@ internal static class NumberSkeletonFormatter
         return $"{formattedNumber} {unitString ?? unit}";
     }
 
-    private static string GetUnitString(string unit, UnitDisplay display, bool isPlural, ref FormatterContext ctx)
+    private static string GetUnitString(string unit, UnitDisplay display, double value, ref FormatterContext ctx)
     {
         // Get unit display string from generated CLDR metadata
         // The metadata handles:
@@ -197,7 +196,7 @@ internal static class NumberSkeletonFormatter
             _ => Styles.Short
         };
 
-        return UnitMetadata.GetUnitString(ref ctx, unit, width, isPlural);
+        return UnitMetadata.GetUnitString(ref ctx, unit, width, value);
     }
 
     private static string FormatScientific(double value, NumberFormatOptions options, CultureInfo culture)

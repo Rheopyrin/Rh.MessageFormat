@@ -112,6 +112,21 @@ public class CurrencyDataGenerationTests : IDisposable
     }
 
     [Fact]
+    public void Arabic_USD_HasFewAndManyForms()
+    {
+        Assert.NotNull(_validator);
+        var currency = _validator.TestGetCurrency("ar", "USD");
+
+        Assert.NotNull(currency);
+        Assert.Equal("USD", currency.Value.Code);
+        // Arabic uses few and many plural categories
+        Assert.NotNull(currency.Value.DisplayNameFew);
+        Assert.NotNull(currency.Value.DisplayNameMany);
+        Assert.Contains("دولارات", currency.Value.DisplayNameFew); // few form
+        Assert.Contains("دولارًا", currency.Value.DisplayNameMany); // many form
+    }
+
+    [Fact]
     public void TryGetCurrency_IsCaseInsensitive()
     {
         Assert.NotNull(_validator);

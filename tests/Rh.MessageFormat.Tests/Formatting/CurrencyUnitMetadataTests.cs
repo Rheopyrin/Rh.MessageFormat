@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Rh.MessageFormat.Tests.Mocks;
 using Xunit;
@@ -96,6 +97,39 @@ public class CurrencyUnitMetadataTests
         var result = _formatter.FormatMessage("{n, number, ::currency/USD currency-narrow-symbol}", args);
 
         Assert.Contains("$", result);
+    }
+
+    [Fact]
+    public void Currency_DisplayAsFullName_Singular()
+    {
+        var args = new Dictionary<string, object?> { { "n", 1 } };
+
+        var result = _formatter.FormatMessage("{n, number, ::currency/USD unit-width-full-name}", args);
+
+        Assert.Contains("1", result);
+        Assert.Contains("US dollar", result, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void Currency_DisplayAsFullName_Plural()
+    {
+        var args = new Dictionary<string, object?> { { "n", 100 } };
+
+        var result = _formatter.FormatMessage("{n, number, ::currency/USD unit-width-full-name}", args);
+
+        Assert.Contains("100", result);
+        Assert.Contains("US dollars", result, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void Currency_DisplayAsFullName_EUR()
+    {
+        var args = new Dictionary<string, object?> { { "n", 50 } };
+
+        var result = _formatter.FormatMessage("{n, number, ::currency/EUR unit-width-full-name}", args);
+
+        Assert.Contains("50", result);
+        Assert.Contains("euro", result, StringComparison.OrdinalIgnoreCase);
     }
 
     #endregion

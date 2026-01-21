@@ -84,7 +84,8 @@ public class MockCldrLocaleData : ICldrLocaleData
     /// Adds a currency to this locale data.
     /// </summary>
     public MockCldrLocaleData WithCurrency(string code, string symbol, string displayName,
-        string? narrowSymbol = null, string? displayNameOne = null, string? displayNameOther = null)
+        string? narrowSymbol = null, string? displayNameOne = null, string? displayNameOther = null,
+        string? displayNameFew = null, string? displayNameMany = null)
     {
         _currencies[code.ToUpperInvariant()] = new CurrencyData(
             code.ToUpperInvariant(),
@@ -92,6 +93,8 @@ public class MockCldrLocaleData : ICldrLocaleData
             narrowSymbol ?? symbol,
             displayName,
             displayNameOne ?? displayName,
+            displayNameFew,
+            displayNameMany,
             displayNameOther ?? displayName + "s"
         );
         return this;

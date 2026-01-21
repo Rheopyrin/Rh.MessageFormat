@@ -109,9 +109,11 @@ public class LocaleClassGenerator
             var narrow = EscapeString(currency.NarrowSymbol ?? currency.Symbol ?? currency.Code);
             var displayName = EscapeString(currency.DisplayName ?? currency.Code);
             var one = EscapeString(currency.DisplayNameOne ?? currency.DisplayName ?? currency.Code);
+            var few = currency.DisplayNameFew != null ? $"\"{EscapeString(currency.DisplayNameFew)}\"" : "null";
+            var many = currency.DisplayNameMany != null ? $"\"{EscapeString(currency.DisplayNameMany)}\"" : "null";
             var other = EscapeString(currency.DisplayNameOther ?? currency.DisplayName ?? currency.Code);
 
-            sb.AppendLine($"        new CurrencyData(\"{code}\", \"{symbol}\", \"{narrow}\", \"{displayName}\", \"{one}\", \"{other}\"),");
+            sb.AppendLine($"        new CurrencyData(\"{code}\", \"{symbol}\", \"{narrow}\", \"{displayName}\", \"{one}\", {few}, {many}, \"{other}\"),");
         }
 
         return sb.ToString().TrimEnd();

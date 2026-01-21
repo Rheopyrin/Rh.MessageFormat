@@ -284,6 +284,8 @@ public class LocaleDataCollector
                                 NarrowSymbol = GetStringProperty(value, "symbol-alt-narrow"),
                                 DisplayName = GetStringProperty(value, "displayName"),
                                 DisplayNameOne = GetStringProperty(value, "displayName-count-one"),
+                                DisplayNameFew = GetStringProperty(value, "displayName-count-few"),
+                                DisplayNameMany = GetStringProperty(value, "displayName-count-many"),
                                 DisplayNameOther = GetStringProperty(value, "displayName-count-other")
                             };
                         }

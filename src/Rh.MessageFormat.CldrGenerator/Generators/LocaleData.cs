@@ -53,6 +53,8 @@ public class LocaleCurrencyData
     public string? NarrowSymbol { get; set; }
     public string? DisplayName { get; set; }
     public string? DisplayNameOne { get; set; }
+    public string? DisplayNameFew { get; set; }
+    public string? DisplayNameMany { get; set; }
     public string? DisplayNameOther { get; set; }
 }
 

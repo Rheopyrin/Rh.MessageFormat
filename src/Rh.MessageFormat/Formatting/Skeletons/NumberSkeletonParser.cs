@@ -297,6 +297,7 @@ internal static class NumberSkeletonParser
         if (token.SequenceEqual(UnitWidthFullName.AsSpan()))
         {
             options.UnitDisplay = UnitDisplay.Long;
+            options.CurrencyDisplay = CurrencyDisplay.Name;
             return;
         }
 
