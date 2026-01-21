@@ -1,6 +1,6 @@
 using Rh.MessageFormat.Abstractions.Models;
 
-namespace Rh.MessageFormat.Abstractions;
+namespace Rh.MessageFormat.Abstractions.Interfaces;
 
 /// <summary>
 /// Provides access to CLDR data for a specific locale.

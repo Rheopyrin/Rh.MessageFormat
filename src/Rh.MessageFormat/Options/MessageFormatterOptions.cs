@@ -1,19 +1,25 @@
 using System;
 using System.Collections.Generic;
 using Rh.MessageFormat.Abstractions;
+using Rh.MessageFormat.Abstractions.Interfaces;
+using Rh.MessageFormat.Caches;
 using Rh.MessageFormat.CldrData.Services;
+using Rh.MessageFormat.Custom;
 
-namespace Rh.MessageFormat;
+namespace Rh.MessageFormat.Options;
 
 /// <summary>
 /// Options for configuring the MessageFormatter.
 /// </summary>
 public sealed class MessageFormatterOptions : IMessageFormatterOptions
 {
+    private static readonly MessageFormatterOptions _default = new();
+
     /// <summary>
-    /// Gets the default options with default values.
+    /// Gets the default options instance (singleton).
+    /// Do not modify this instance; create a new <see cref="MessageFormatterOptions"/> for custom configuration.
     /// </summary>
-    public static MessageFormatterOptions Default => new();
+    public static MessageFormatterOptions Default => _default;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MessageFormatterOptions"/> class with default values.
@@ -22,7 +28,7 @@ public sealed class MessageFormatterOptions : IMessageFormatterOptions
     {
         CldrDataProvider = new CldrDataProvider();
         CultureInfoCache = new CultureInfoCache();
-        DefaultFallbackLocale = "en";
+        DefaultFallbackLocale = null;
         CustomFormatters = new Dictionary<string, CustomFormatterDelegate>(StringComparer.OrdinalIgnoreCase);
         TagHandlers = new Dictionary<string, TagHandler>(StringComparer.OrdinalIgnoreCase);
     }
@@ -34,7 +40,7 @@ public sealed class MessageFormatterOptions : IMessageFormatterOptions
     public ICultureInfoCache CultureInfoCache { get; set; }
 
     /// <inheritdoc />
-    public string DefaultFallbackLocale { get; set; }
+    public string? DefaultFallbackLocale { get; set; }
 
     /// <inheritdoc />
     public IDictionary<string, CustomFormatterDelegate> CustomFormatters { get; set; }

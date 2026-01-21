@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Rh.MessageFormat.Exceptions;
+using Rh.MessageFormat.Options;
 using Rh.MessageFormat.Tests.Mocks;
 using Xunit;
 
@@ -154,7 +156,7 @@ public class LocaleFallbackTests
     #region No Locale Data Available Tests
 
     [Fact]
-    public void Locale_NoDataAvailable_UsesFallbackRules()
+    public void Locale_NoDataAvailable_ThrowsInvalidLocaleException()
     {
         var provider = MockCldrDataProvider.CreateEmpty();
         var options = new MessageFormatterOptions
@@ -163,13 +165,10 @@ public class LocaleFallbackTests
             DefaultFallbackLocale = "en"
         };
 
-        var formatter = new MessageFormatter("en", options);
-        var args = new Dictionary<string, object?> { { "n", 1 } };
+        // No locale data at all, should throw exception
+        var exception = Assert.Throws<InvalidLocaleException>(() => new MessageFormatter("en", options));
 
-        // No locale data at all, should use "other" as default
-        var result = formatter.FormatMessage("{n, plural, one {item} other {items}}", args);
-
-        Assert.Equal("items", result);
+        Assert.Contains("en", exception.Message);
     }
 
     #endregion

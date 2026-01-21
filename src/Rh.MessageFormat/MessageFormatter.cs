@@ -3,8 +3,14 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using Rh.MessageFormat.Abstractions;
+using Rh.MessageFormat.Abstractions.Interfaces;
+using Rh.MessageFormat.Abstractions.Models;
 using Rh.MessageFormat.Ast;
+using Rh.MessageFormat.Custom;
+using Rh.MessageFormat.Exceptions;
 using Rh.MessageFormat.Formatting;
+using Rh.MessageFormat.Options;
+using Rh.MessageFormat.Pools;
 
 namespace Rh.MessageFormat;
 
@@ -239,8 +245,12 @@ public class MessageFormatter : IMessageFormatter
 
     /// <summary>
     ///     Resolves locale data using the fallback chain: exact → base → fallback locale.
+    ///     Throws <see cref="InvalidLocaleException"/> if no locale data can be resolved.
     /// </summary>
-    private ICldrLocaleData? ResolveLocaleData(string locale, string fallbackLocale)
+    /// <exception cref="InvalidLocaleException">
+    ///     Thrown when neither the requested locale nor the fallback locale is supported.
+    /// </exception>
+    private ICldrLocaleData ResolveLocaleData(string locale, string? fallbackLocale)
     {
         var provider = _options.CldrDataProvider;
 
@@ -259,49 +269,22 @@ public class MessageFormatter : IMessageFormatter
                 return data;
         }
 
-        // 3. Try fallback locale (configurable, default: "en")
-        if (!locale.Equals(fallbackLocale, StringComparison.OrdinalIgnoreCase))
+        // 3. Try fallback locale if configured
+        if (fallbackLocale != null && !locale.Equals(fallbackLocale, StringComparison.OrdinalIgnoreCase))
         {
             if (provider.TryGetLocaleData(fallbackLocale, out data) && data != null)
                 return data;
         }
 
-        return null;  // No data available
+        // 4. No locale resolved - throw exception
+        throw new InvalidLocaleException(locale, provider.AvailableLocales);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private PluralRuleDelegate GetPluralizer(ICldrLocaleData? localeData)
-    {
-        if (localeData != null)
-        {
-            return ctx => localeData.GetPluralCategory(ToPluralContext(ctx));
-        }
-
-        // Ultimate fallback - return "other" for all
-        return _ => "other";
-    }
+    private PluralRuleDelegate GetPluralizer(ICldrLocaleData localeData) => localeData.GetPluralCategory;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private OrdinalRuleDelegate GetOrdinalizer(ICldrLocaleData? localeData)
-    {
-        if (localeData != null)
-        {
-            return ctx => localeData.GetOrdinalCategory(ToPluralContext(ctx));
-        }
-
-        // Ultimate fallback - return "other" for all
-        return _ => "other";
-    }
-
-    /// <summary>
-    ///     Converts internal PluralContext to Abstractions.Models.PluralContext.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static Abstractions.Models.PluralContext ToPluralContext(Formatting.Formatters.PluralContext ctx)
-    {
-        // Create from the Number value to ensure all operands are properly computed
-        return new Abstractions.Models.PluralContext(ctx.Number);
-    }
+    private OrdinalRuleDelegate GetOrdinalizer(ICldrLocaleData localeData) => localeData.GetOrdinalCategory;
 
     #endregion
 }

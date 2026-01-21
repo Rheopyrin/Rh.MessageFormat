@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using Rh.MessageFormat.Abstractions;
+using Rh.MessageFormat.Abstractions.Interfaces;
+using Rh.MessageFormat.Custom;
 
-namespace Rh.MessageFormat;
+namespace Rh.MessageFormat.Options;
 
 /// <summary>
 /// Options for configuring the MessageFormatter.
@@ -20,8 +22,9 @@ public interface IMessageFormatterOptions
 
     /// <summary>
     /// Gets the default fallback locale when requested locale is not found.
+    /// When null, an exception is thrown for unsupported locales.
     /// </summary>
-    string DefaultFallbackLocale { get; }
+    string? DefaultFallbackLocale { get; }
 
     /// <summary>
     /// Gets the custom formatters registered by the consumer.

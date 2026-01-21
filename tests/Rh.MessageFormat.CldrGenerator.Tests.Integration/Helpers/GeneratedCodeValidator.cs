@@ -1,5 +1,6 @@
 using System.Reflection;
 using Rh.MessageFormat.Abstractions;
+using Rh.MessageFormat.Abstractions.Interfaces;
 using Rh.MessageFormat.Abstractions.Models;
 
 namespace Rh.MessageFormat.CldrGenerator.Tests.Integration.Helpers;

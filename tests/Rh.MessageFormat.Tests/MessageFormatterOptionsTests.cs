@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Rh.MessageFormat.Abstractions;
+using Rh.MessageFormat.Caches;
+using Rh.MessageFormat.Custom;
+using Rh.MessageFormat.Exceptions;
+using Rh.MessageFormat.Options;
 using Rh.MessageFormat.Tests.Mocks;
 using Xunit;
 
@@ -15,13 +19,13 @@ public class MessageFormatterOptionsTests
     #region Default Options Tests
 
     [Fact]
-    public void Default_ReturnsNewInstance()
+    public void Default_ReturnsSameInstance()
     {
         var options1 = MessageFormatterOptions.Default;
         var options2 = MessageFormatterOptions.Default;
 
-        // Each call creates a new instance
-        Assert.NotSame(options1, options2);
+        // Default is a singleton
+        Assert.Same(options1, options2);
     }
 
     [Fact]
@@ -41,11 +45,12 @@ public class MessageFormatterOptionsTests
     }
 
     [Fact]
-    public void Default_HasDefaultFallbackLocale()
+    public void Default_HasNullDefaultFallbackLocale()
     {
         var options = MessageFormatterOptions.Default;
 
-        Assert.Equal("en", options.DefaultFallbackLocale);
+        // Default is null - strict validation mode
+        Assert.Null(options.DefaultFallbackLocale);
     }
 
     [Fact]

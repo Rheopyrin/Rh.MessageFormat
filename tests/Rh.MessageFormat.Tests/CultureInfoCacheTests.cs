@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
+using Rh.MessageFormat.Caches;
 using Xunit;
 
 namespace Rh.MessageFormat.Tests;

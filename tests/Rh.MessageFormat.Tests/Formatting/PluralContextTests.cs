@@ -179,6 +179,21 @@ public class PluralContextTests
     #region Edge Case Tests
 
     [Fact]
+    public void PluralContext_AllTrailingZeros_DoesNotThrow()
+    {
+        // "1.000" has fractionPart = "000", fractionPartTrimmed = "" (empty after TrimEnd('0'))
+        // This should not throw when parsing T operand
+        var args = new Dictionary<string, object?> { { "n", "1.000" } };
+
+        var result = _formatter.FormatMessage(
+            "{n, plural, one {# item} other {# items}}",
+            args);
+
+        // 1.000 should be treated as 1, using "one" category
+        Assert.Equal("1 item", result);
+    }
+
+    [Fact]
     public void PluralContext_Zero_UsesZeroOrOther()
     {
         var args = new Dictionary<string, object?> { { "n", 0 } };

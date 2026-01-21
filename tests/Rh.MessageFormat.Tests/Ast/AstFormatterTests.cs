@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Rh.MessageFormat.Exceptions;
+using Rh.MessageFormat.Options;
 using Rh.MessageFormat.Tests.Mocks;
 using Xunit;
 
@@ -527,7 +529,9 @@ public class AstFormatterTests
     [InlineData("zz", 5, "items")]
     public void PluralLocaleFallback_UnknownLocale_FallsBackToEnglish(string locale, double n, string expected)
     {
-        var formatter = new MessageFormatter(locale, MessageFormatterOptions.Default);
+        // Use options with fallback locale configured to enable fallback behavior
+        var options = new MessageFormatterOptions { DefaultFallbackLocale = "en" };
+        var formatter = new MessageFormatter(locale, options);
         var pattern = "{test, plural, one {item} other {items}}";
         var args = new Dictionary<string, object?> { { "test", n } };
 

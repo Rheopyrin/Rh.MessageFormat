@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Rh.MessageFormat.Abstractions;
+using Rh.MessageFormat.Abstractions.Interfaces;
+using Rh.MessageFormat.Exceptions;
+using Rh.MessageFormat.Options;
 
 namespace Rh.MessageFormat.Tests.Mocks;
 
@@ -101,12 +104,38 @@ public static class TestOptions
     /// <summary>
     /// Creates options with an empty provider (no CLDR data).
     /// </summary>
-    public static MessageFormatterOptions WithEmptyProvider(string defaultLocale = "en")
+    public static MessageFormatterOptions WithEmptyProvider(string? defaultLocale = "en")
     {
         return new MessageFormatterOptions
         {
             CldrDataProvider = MockCldrDataProvider.CreateEmpty(),
             DefaultFallbackLocale = defaultLocale
+        };
+    }
+
+    /// <summary>
+    /// Creates options with English locale and strict validation (no fallback).
+    /// Unsupported locales will throw <see cref="InvalidLocaleException"/>.
+    /// </summary>
+    public static MessageFormatterOptions WithEnglishStrict()
+    {
+        return new MessageFormatterOptions
+        {
+            CldrDataProvider = MockCldrDataProvider.CreateWithEnglish(),
+            DefaultFallbackLocale = null
+        };
+    }
+
+    /// <summary>
+    /// Creates options with common locales (en, de, fr) and strict validation (no fallback).
+    /// Unsupported locales will throw <see cref="InvalidLocaleException"/>.
+    /// </summary>
+    public static MessageFormatterOptions WithCommonLocalesStrict()
+    {
+        return new MessageFormatterOptions
+        {
+            CldrDataProvider = MockCldrDataProvider.CreateWithCommonLocales(),
+            DefaultFallbackLocale = null
         };
     }
 }

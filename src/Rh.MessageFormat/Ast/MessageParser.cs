@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using Rh.MessageFormat.Exceptions;
 using Rh.MessageFormat.Formatting.Skeletons;
+using Rh.MessageFormat.Pools;
 using static Rh.MessageFormat.Constants;
 using static Rh.MessageFormat.Constants.Parser;
 
@@ -68,7 +70,7 @@ internal sealed class MessageParser
             }
         }
 
-        return new ParsedMessage(elements.ToArray(), pattern);
+        return new ParsedMessage(elements, pattern);
     }
 
     /// <summary>
@@ -125,16 +127,16 @@ internal sealed class MessageParser
 
         while (pos < pattern.Length)
         {
-            // Check for closing tag
+            // Check for closing tag using span comparison to avoid allocation
             if (pattern.Length - pos >= closingTag.Length &&
-                pattern.Substring(pos, closingTag.Length) == closingTag)
+                pattern.AsSpan(pos, closingTag.Length).SequenceEqual(closingTag.AsSpan()))
             {
                 // Skip closing tag
                 pos += closingTag.Length;
                 column += closingTag.Length;
 
                 var span = new SourceSpan(startPos, pos - 1, startLine, startColumn);
-                var content = new ParsedMessage(contentElements.ToArray(), pattern.Substring(startPos, pos - startPos));
+                var content = new ParsedMessage(contentElements, pattern.Substring(startPos, pos - startPos));
                 return new TagElement(tagName, content, span);
             }
 
@@ -189,9 +191,9 @@ internal sealed class MessageParser
         {
             while (pos < pattern.Length)
             {
-                // Check for closing tag (don't consume it)
+                // Check for closing tag using span comparison (don't consume it)
                 if (pattern.Length - pos >= closingTag.Length &&
-                    pattern.Substring(pos, closingTag.Length) == closingTag)
+                    pattern.AsSpan(pos, closingTag.Length).SequenceEqual(closingTag.AsSpan()))
                 {
                     break;
                 }
@@ -639,7 +641,7 @@ internal sealed class MessageParser
         // Check for offset
         SkipWhitespace(arguments, ref pos, ref line, ref column);
 
-        if (pos < arguments.Length && arguments.Substring(pos).StartsWith(Sequences.OffsetKeyword))
+        if (pos < arguments.Length && arguments.AsSpan(pos).StartsWith(Sequences.OffsetKeyword.AsSpan()))
         {
             pos += Sequences.OffsetKeyword.Length;
             column += Sequences.OffsetKeyword.Length;
@@ -654,7 +656,7 @@ internal sealed class MessageParser
 
             if (pos > offsetStart)
             {
-                offset = double.Parse(arguments.Substring(offsetStart, pos - offsetStart), CultureInfo.InvariantCulture);
+                offset = double.Parse(arguments.AsSpan(offsetStart, pos - offsetStart), CultureInfo.InvariantCulture);
             }
 
             SkipWhitespace(arguments, ref pos, ref line, ref column);

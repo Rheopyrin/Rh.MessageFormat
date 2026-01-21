@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Rh.MessageFormat.Caches;
+using Rh.MessageFormat.Exceptions;
 using Rh.MessageFormat.Tests.Mocks;
 using Xunit;
 
@@ -305,6 +307,47 @@ public class MessageFormatterCachedProviderTests
         var result = formatter.FormatMessage("<bold>text</bold>", args);
 
         Assert.Equal("**text**", result);
+    }
+
+    #endregion
+
+    #region Strict Locale Validation Tests
+
+    [Theory]
+    [InlineData("es")]        // Spanish - not in mock provider
+    [InlineData("it-IT")]     // Italian - not in mock provider
+    [InlineData("ja")]        // Japanese - not in mock provider
+    [InlineData("zh-CN")]     // Chinese - not in mock provider
+    public void GetFormatter_WithUnsupportedLocale_AndNoFallback_ThrowsInvalidLocaleException(string unsupportedLocale)
+    {
+        // Mock provider only has "en" locale, no fallback configured
+        var options = TestOptions.WithEnglishStrict();
+        var provider = new MessageFormatterCachedProvider(options);
+
+        Assert.Throws<InvalidLocaleException>(() => provider.GetFormatter(unsupportedLocale));
+    }
+
+    [Fact]
+    public void MessageFormatter_Constructor_WithUnsupportedLocale_AndNoFallback_ThrowsInvalidLocaleException()
+    {
+        // Mock provider only has "en" locale, no fallback configured
+        var options = TestOptions.WithEnglishStrict();
+
+        var exception = Assert.Throws<InvalidLocaleException>(() => new MessageFormatter("es", options));
+
+        // Exception message should mention the unsupported locale
+        Assert.Contains("es", exception.Message);
+    }
+
+    [Fact]
+    public void MessageFormatter_Constructor_WithUnsupportedLocale_AndFallbackConfigured_DoesNotThrow()
+    {
+        // Mock provider only has "en" locale, but fallback is configured
+        var options = TestOptions.WithEnglish();
+
+        // Should not throw - falls back to "en"
+        var formatter = new MessageFormatter("es", options);
+        Assert.NotNull(formatter);
     }
 
     #endregion

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Rh.MessageFormat.Formatting.Formatters;
+using Rh.MessageFormat.Pools;
 using static Rh.MessageFormat.Constants;
 using static Rh.MessageFormat.Constants.List;
 
@@ -93,50 +94,68 @@ internal sealed class ListElement : MessageElement
     public override void Format(ref FormatterContext ctx, StringBuilder output)
     {
         var value = ctx.GetValue(_variable);
-        var items = GetItems(value);
+        var (items, needsDisposal) = GetItems(value);
 
         if (items.Count == 0)
         {
             return;
         }
 
-        var formatted = FormatList(items, ref ctx);
-        output.Append(formatted);
+        try
+        {
+            var formatted = FormatList(items, ref ctx);
+            output.Append(formatted);
+        }
+        finally
+        {
+            // Only return to pool if we allocated a new list
+            if (needsDisposal && items is List<string> list)
+            {
+                list.Clear();
+            }
+        }
     }
 
-    private List<string> GetItems(object? value)
+    private static (IReadOnlyList<string> items, bool needsDisposal) GetItems(object? value)
     {
-        var items = new List<string>();
-
         if (value == null)
         {
-            return items;
+            return (Array.Empty<string>(), false);
         }
 
+        // Fast path: already a usable type - no allocation needed
+        if (value is IReadOnlyList<string> readOnlyList)
+        {
+            return (readOnlyList, false);
+        }
+
+        if (value is string[] array)
+        {
+            return (array, false);
+        }
+
+        // Need to materialize the enumerable
         if (value is IEnumerable<string> stringEnumerable)
         {
-            foreach (var item in stringEnumerable)
-            {
-                items.Add(item);
-            }
+            var list = new List<string>(stringEnumerable);
+            return (list, true);
         }
-        else if (value is IEnumerable enumerable)
+
+        if (value is IEnumerable enumerable)
         {
+            var list = new List<string>();
             foreach (var item in enumerable)
             {
-                items.Add(item?.ToString() ?? Common.Empty);
+                list.Add(item?.ToString() ?? Common.Empty);
             }
-        }
-        else
-        {
-            // Single item
-            items.Add(value.ToString() ?? Common.Empty);
+            return (list, true);
         }
 
-        return items;
+        // Single item - use single-element array to avoid list allocation
+        return (new[] { value.ToString() ?? Common.Empty }, true);
     }
 
-    private string FormatList(List<string> items, ref FormatterContext ctx)
+    private string FormatList(IReadOnlyList<string> items, ref FormatterContext ctx)
     {
         if (items.Count == 0)
         {
@@ -153,7 +172,7 @@ internal sealed class ListElement : MessageElement
 
         if (items.Count == 2)
         {
-            return $"{items[0]}{pairSeparator}{items[1]}";
+            return string.Concat(items[0], pairSeparator, items[1]);
         }
 
         // 3+ items
@@ -204,16 +223,5 @@ internal sealed class ListElement : MessageElement
 
         // Try to get connectors from generated CLDR metadata
         return ListPatternMetadata.GetConnectors(ref ctx, style, width);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string GetBaseLanguage(string locale)
-    {
-        var dashIndex = locale.IndexOf(Common.DashChar);
-        if (dashIndex < 0) dashIndex = locale.IndexOf(Common.UnderscoreChar);
-
-        return dashIndex > 0
-            ? locale.Substring(0, dashIndex).ToLowerInvariant()
-            : locale.ToLowerInvariant();
     }
 }

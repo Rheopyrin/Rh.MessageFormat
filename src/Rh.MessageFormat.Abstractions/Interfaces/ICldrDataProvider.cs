@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Rh.MessageFormat.Abstractions;
+namespace Rh.MessageFormat.Abstractions.Interfaces;
 
 /// <summary>
 /// Provides access to CLDR locale data with lazy loading support.

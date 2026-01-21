@@ -1,4 +1,4 @@
-namespace Rh.MessageFormat.Abstractions;
+namespace Rh.MessageFormat.Abstractions.Interfaces;
 
 /// <summary>
 ///     Provides access to message formatters for different locales.

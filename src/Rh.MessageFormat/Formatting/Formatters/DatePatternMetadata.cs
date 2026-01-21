@@ -139,7 +139,7 @@ internal static class DatePatternMetadata
         // Try fallback locale
         if (!string.Equals(locale, fallbackLocale, StringComparison.OrdinalIgnoreCase))
         {
-            if (provider.TryGetLocaleData(fallbackLocale, out localeData) && localeData != null)
+            if (fallbackLocale != null && provider.TryGetLocaleData(fallbackLocale, out localeData) && localeData != null)
             {
                 patterns = localeData.DatePatterns;
                 if (!string.IsNullOrEmpty(patterns.Date.Short))

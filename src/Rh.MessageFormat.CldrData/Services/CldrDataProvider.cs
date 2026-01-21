@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Rh.MessageFormat.Abstractions;
+using Rh.MessageFormat.Abstractions.Interfaces;
 
 namespace Rh.MessageFormat.CldrData.Services;
 
@@ -51,10 +52,11 @@ public sealed partial class CldrDataProvider : ICldrDataProvider
     {
         get
         {
-            if (_availableLocales == null)
-            {
-                _availableLocales = _locales.Keys.ToList().AsReadOnly();
-            }
+            if (_availableLocales != null)
+                return _availableLocales;
+
+            var locales = _locales.Keys.ToList().AsReadOnly();
+            Interlocked.CompareExchange(ref _availableLocales, locales, null);
             return _availableLocales;
         }
     }

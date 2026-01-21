@@ -2,8 +2,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Rh.MessageFormat.Abstractions;
+using Rh.MessageFormat.Abstractions.Interfaces;
+using Rh.MessageFormat.Options;
 
-namespace Rh.MessageFormat;
+namespace Rh.MessageFormat.Caches;
 
 /// <summary>
 ///     A cached provider for message formatters that maintains a dictionary of formatters by locale code.
@@ -13,7 +15,7 @@ public class MessageFormatterCachedProvider : IMessageFormatterProvider
     /// <summary>
     ///     The cache of message formatters keyed by locale code.
     /// </summary>
-    private static readonly ConcurrentDictionary<string, MessageFormatter> Cache = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, MessageFormatter> _cache = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     ///     The formatter options used to create new formatters.
@@ -64,12 +66,12 @@ public class MessageFormatterCachedProvider : IMessageFormatterProvider
     /// <returns>
     ///     A message formatter configured for the specified locale.
     /// </returns>
-    public Abstractions.IMessageFormatter GetFormatter(string localeCode)
+    public IMessageFormatter GetFormatter(string localeCode)
     {
         if (string.IsNullOrEmpty(localeCode))
             throw new ArgumentNullException(nameof(localeCode));
 
-        return Cache.GetOrAdd(localeCode, locale => new MessageFormatter(locale, _options));
+        return _cache.GetOrAdd(localeCode, locale => new MessageFormatter(locale, _options));
     }
 
     /// <summary>
@@ -85,7 +87,7 @@ public class MessageFormatterCachedProvider : IMessageFormatterProvider
         {
             if (!string.IsNullOrEmpty(locale))
             {
-                Cache.GetOrAdd(locale, l => new MessageFormatter(l, _options));
+                _cache.GetOrAdd(locale, l => new MessageFormatter(l, _options));
             }
         }
     }

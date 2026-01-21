@@ -1,4 +1,4 @@
-namespace Rh.MessageFormat;
+namespace Rh.MessageFormat.Custom;
 
 /// <summary>
 /// Delegate for handling rich text tags.

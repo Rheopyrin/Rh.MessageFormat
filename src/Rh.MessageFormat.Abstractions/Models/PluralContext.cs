@@ -15,7 +15,8 @@ public readonly struct PluralContext
     public PluralContext(int number)
     {
         Number = number;
-        N = Math.Abs(number);
+        // Use long cast to avoid overflow for int.MinValue
+        N = Math.Abs((long)number);
         I = number;
         V = 0;
         W = 0;
@@ -50,7 +51,8 @@ public readonly struct PluralContext
     {
         Number = parsed;
         N = Math.Abs(parsed);
-        I = (int)parsed;
+        // Use long to avoid overflow for large numbers (preserves sign)
+        I = (long)parsed;
 
         var dotIndex = number.IndexOf('.');
         if (dotIndex == -1)
@@ -69,8 +71,9 @@ public readonly struct PluralContext
 
             V = fractionPart.Length;
             W = fractionPartTrimmed.Length;
-            F = fractionPart.Length > 0 ? int.Parse(fractionPart) : 0;
-            T = fractionPartTrimmed.Length > 0 ? int.Parse(fractionPartTrimmed) : 0;
+            // Use long.Parse to avoid overflow for long fraction strings
+            F = fractionPart.Length > 0 ? long.Parse(fractionPart) : 0;
+            T = fractionPartTrimmed.Length > 0 ? long.Parse(fractionPartTrimmed) : 0;
             C = 0;
             E = 0;
         }
@@ -89,7 +92,7 @@ public readonly struct PluralContext
     /// <summary>
     /// i - integer digits of n.
     /// </summary>
-    public int I { get; }
+    public long I { get; }
 
     /// <summary>
     /// v - number of visible fraction digits in n, with trailing zeros.
@@ -104,12 +107,12 @@ public readonly struct PluralContext
     /// <summary>
     /// f - visible fraction digits in n, with trailing zeros.
     /// </summary>
-    public int F { get; }
+    public long F { get; }
 
     /// <summary>
     /// t - visible fraction digits in n, without trailing zeros.
     /// </summary>
-    public int T { get; }
+    public long T { get; }
 
     /// <summary>
     /// c/e - compact decimal exponent value (currently always 0).

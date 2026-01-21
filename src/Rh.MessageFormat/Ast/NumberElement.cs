@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Rh.MessageFormat.Exceptions;
 using Rh.MessageFormat.Formatting.Skeletons;
 using static Rh.MessageFormat.Constants.Numbers;
 
@@ -103,9 +104,9 @@ internal sealed class NumberElement : MessageElement
             {
                 return n.ToString(_customFormat, ctx.Culture);
             }
-            catch
+            catch (FormatException ex)
             {
-                // Fall through to default
+                throw new MessageFormatterException($"Invalid number format string: '{_customFormat}'", ex);
             }
         }
 

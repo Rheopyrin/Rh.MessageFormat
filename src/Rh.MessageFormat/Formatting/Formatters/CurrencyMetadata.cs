@@ -87,7 +87,7 @@ internal static class CurrencyMetadata
         // Try fallback locale
         if (!string.Equals(locale, fallbackLocale, StringComparison.OrdinalIgnoreCase))
         {
-            if (provider.TryGetLocaleData(fallbackLocale, out localeData) && localeData != null)
+            if (fallbackLocale != null && provider.TryGetLocaleData(fallbackLocale, out localeData) && localeData != null)
             {
                 if (localeData.TryGetCurrency(currencyCode, out data))
                 {

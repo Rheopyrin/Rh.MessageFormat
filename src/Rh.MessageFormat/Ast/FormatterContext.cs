@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using Rh.MessageFormat.Abstractions;
+using Rh.MessageFormat.Abstractions.Interfaces;
+using Rh.MessageFormat.Abstractions.Models;
+using Rh.MessageFormat.Custom;
+using Rh.MessageFormat.Exceptions;
 using Rh.MessageFormat.Formatting.Formatters;
 
 namespace Rh.MessageFormat.Ast;
@@ -31,7 +35,7 @@ internal ref struct FormatterContext
     private readonly PluralRuleDelegate _pluralizer;
     private readonly OrdinalRuleDelegate _ordinalizer;
     private readonly string _locale;
-    private readonly string _fallbackLocale;
+    private readonly string? _fallbackLocale;
     private readonly ICldrDataProvider _cldrDataProvider;
     private readonly IReadOnlyDictionary<string, CustomFormatterDelegate>? _customFormatters;
     private readonly IReadOnlyDictionary<string, TagHandler>? _tagHandlers;
@@ -42,7 +46,7 @@ internal ref struct FormatterContext
         IReadOnlyDictionary<string, object?> args,
         CultureInfo culture,
         string locale,
-        string fallbackLocale,
+        string? fallbackLocale,
         ICldrDataProvider cldrDataProvider,
         PluralRuleDelegate pluralizer,
         OrdinalRuleDelegate ordinalizer,
@@ -74,7 +78,7 @@ internal ref struct FormatterContext
         get => _locale;
     }
 
-    public string FallbackLocale
+    public string? FallbackLocale
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => _fallbackLocale;

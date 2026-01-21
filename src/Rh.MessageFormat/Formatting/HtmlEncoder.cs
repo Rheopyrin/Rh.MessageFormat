@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
+using System.Text;
+using Rh.MessageFormat.Pools;
 
 namespace Rh.MessageFormat.Formatting;
 
@@ -19,12 +21,57 @@ public static class HtmlEncoder
         if (string.IsNullOrEmpty(value))
             return value;
 
-        return value
-            .Replace("&", "&amp;")
-            .Replace("\"", "&quot;")
-            .Replace("'", "&#39;")
-            .Replace("<", "&lt;")
-            .Replace(">", "&gt;");
+        // First pass: check if any escaping is needed
+        var needsEscaping = false;
+        for (var i = 0; i < value.Length; i++)
+        {
+            var c = value[i];
+            if (c == '&' || c == '"' || c == '\'' || c == '<' || c == '>')
+            {
+                needsEscaping = true;
+                break;
+            }
+        }
+
+        if (!needsEscaping)
+            return value;
+
+        // Second pass: build escaped string using pooled StringBuilder
+        var sb = StringBuilderPool.Get();
+        try
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var c = value[i];
+                switch (c)
+                {
+                    case '&':
+                        sb.Append("&amp;");
+                        break;
+                    case '"':
+                        sb.Append("&quot;");
+                        break;
+                    case '\'':
+                        sb.Append("&#39;");
+                        break;
+                    case '<':
+                        sb.Append("&lt;");
+                        break;
+                    case '>':
+                        sb.Append("&gt;");
+                        break;
+                    default:
+                        sb.Append(c);
+                        break;
+                }
+            }
+
+            return sb.ToString();
+        }
+        finally
+        {
+            StringBuilderPool.Return(sb);
+        }
     }
 
     /// <summary>
@@ -37,13 +84,84 @@ public static class HtmlEncoder
         if (string.IsNullOrEmpty(value))
             return value;
 
-        return value
-            .Replace("&gt;", ">")
-            .Replace("&lt;", "<")
-            .Replace("&#39;", "'")
-            .Replace("&#039;", "'")
-            .Replace("&quot;", "\"")
-            .Replace("&amp;", "&");
+        // Quick check: if no ampersand, nothing to unescape
+        var ampIndex = value.IndexOf('&');
+        if (ampIndex == -1)
+            return value;
+
+        var sb = StringBuilderPool.Get();
+        try
+        {
+            var i = 0;
+            while (i < value.Length)
+            {
+                if (value[i] == '&')
+                {
+                    // Try to match known entities
+                    if (MatchEntity(value, i, "&gt;", out var len))
+                    {
+                        sb.Append('>');
+                        i += len;
+                    }
+                    else if (MatchEntity(value, i, "&lt;", out len))
+                    {
+                        sb.Append('<');
+                        i += len;
+                    }
+                    else if (MatchEntity(value, i, "&#39;", out len))
+                    {
+                        sb.Append('\'');
+                        i += len;
+                    }
+                    else if (MatchEntity(value, i, "&#039;", out len))
+                    {
+                        sb.Append('\'');
+                        i += len;
+                    }
+                    else if (MatchEntity(value, i, "&quot;", out len))
+                    {
+                        sb.Append('"');
+                        i += len;
+                    }
+                    else if (MatchEntity(value, i, "&amp;", out len))
+                    {
+                        sb.Append('&');
+                        i += len;
+                    }
+                    else
+                    {
+                        sb.Append(value[i]);
+                        i++;
+                    }
+                }
+                else
+                {
+                    sb.Append(value[i]);
+                    i++;
+                }
+            }
+
+            return sb.ToString();
+        }
+        finally
+        {
+            StringBuilderPool.Return(sb);
+        }
+    }
+
+    private static bool MatchEntity(string value, int startIndex, string entity, out int length)
+    {
+        length = entity.Length;
+        if (startIndex + length > value.Length)
+            return false;
+
+        for (var i = 0; i < length; i++)
+        {
+            if (value[startIndex + i] != entity[i])
+                return false;
+        }
+
+        return true;
     }
 
     /// <summary>

@@ -117,7 +117,7 @@ internal static class ListPatternMetadata
         // Try fallback locale
         if (!string.Equals(locale, fallbackLocale, StringComparison.OrdinalIgnoreCase))
         {
-            if (provider.TryGetLocaleData(fallbackLocale, out localeData) && localeData != null)
+            if (fallbackLocale != null && provider.TryGetLocaleData(fallbackLocale, out localeData) && localeData != null)
             {
                 if (localeData.TryGetListPattern(patternType, out pattern))
                 {

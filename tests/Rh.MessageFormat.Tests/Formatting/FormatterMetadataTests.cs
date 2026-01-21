@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Rh.MessageFormat.Abstractions;
 using Rh.MessageFormat.Abstractions.Models;
+using Rh.MessageFormat.Exceptions;
 using Rh.MessageFormat.Tests.Mocks;
 using Xunit;
 
@@ -73,14 +74,10 @@ public class FormatterMetadataTests
     }
 
     [Fact]
-    public void CurrencyMetadata_GetSymbol_EmptyProvider_FallsBackToCode()
+    public void CurrencyMetadata_GetSymbol_EmptyProvider_ThrowsInvalidLocaleException()
     {
-        var formatter = new MessageFormatter("en", TestOptions.WithEmptyProvider());
-        var args = new Dictionary<string, object?> { { "n", 100 } };
-
-        var result = formatter.FormatMessage("{n, number, ::currency/EUR}", args);
-
-        Assert.Contains("EUR", result);
+        // Empty provider has no locale data
+        Assert.Throws<InvalidLocaleException>(() => new MessageFormatter("en", TestOptions.WithEmptyProvider()));
     }
 
     [Fact]
@@ -299,14 +296,10 @@ public class FormatterMetadataTests
     }
 
     [Fact]
-    public void DatePatternMetadata_EmptyProvider_UsesFallbackPatterns()
+    public void DatePatternMetadata_EmptyProvider_ThrowsInvalidLocaleException()
     {
-        var formatter = new MessageFormatter("en", TestOptions.WithEmptyProvider());
-        var args = new Dictionary<string, object?> { { "d", new DateTime(2024, 3, 15) } };
-
-        var result = formatter.FormatMessage("{d, date, short}", args);
-
-        Assert.NotEmpty(result);
+        // Empty provider has no locale data
+        Assert.Throws<InvalidLocaleException>(() => new MessageFormatter("en", TestOptions.WithEmptyProvider()));
     }
 
     #endregion
@@ -500,16 +493,10 @@ public class FormatterMetadataTests
     }
 
     [Fact]
-    public void ListPatternMetadata_EmptyProvider_UsesFallback()
+    public void ListPatternMetadata_EmptyProvider_ThrowsInvalidLocaleException()
     {
-        var formatter = new MessageFormatter("en", TestOptions.WithEmptyProvider());
-        var args = new Dictionary<string, object?> { { "items", new[] { "A", "B", "C" } } };
-
-        var result = formatter.FormatMessage("{items, list}", args);
-
-        Assert.Contains("A", result);
-        Assert.Contains("B", result);
-        Assert.Contains("C", result);
+        // Empty provider has no locale data
+        Assert.Throws<InvalidLocaleException>(() => new MessageFormatter("en", TestOptions.WithEmptyProvider()));
     }
 
     [Fact]

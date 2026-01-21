@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Rh.MessageFormat.Abstractions;
+namespace Rh.MessageFormat.Abstractions.Interfaces;
 
 /// <summary>
 ///     Interface for message formatting.

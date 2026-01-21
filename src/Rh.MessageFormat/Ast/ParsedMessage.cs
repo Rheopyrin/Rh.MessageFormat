@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Rh.MessageFormat.Ast;
@@ -10,19 +12,34 @@ namespace Rh.MessageFormat.Ast;
 /// </summary>
 internal sealed class ParsedMessage
 {
-    private readonly MessageElement[] _elements;
+    private readonly List<MessageElement>? _elementsList;
+    private readonly MessageElement[]? _elementsArray;
     private readonly string _originalPattern;
 
     public ParsedMessage(MessageElement[] elements, string originalPattern)
     {
-        _elements = elements;
+        _elementsArray = elements;
+        _elementsList = null;
+        _originalPattern = originalPattern;
+    }
+
+    /// <summary>
+    /// Creates a ParsedMessage from a list without copying.
+    /// The list should not be modified after passing to this constructor.
+    /// </summary>
+    public ParsedMessage(List<MessageElement> elements, string originalPattern)
+    {
+        _elementsList = elements;
+        _elementsArray = null;
         _originalPattern = originalPattern;
     }
 
     public ReadOnlySpan<MessageElement> Elements
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => _elements;
+        get => _elementsList != null
+            ? CollectionsMarshal.AsSpan(_elementsList)
+            : _elementsArray.AsSpan();
     }
 
     public string OriginalPattern
@@ -34,7 +51,7 @@ internal sealed class ParsedMessage
     public int ElementCount
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => _elements.Length;
+        get => _elementsList?.Count ?? _elementsArray!.Length;
     }
 
     /// <summary>
@@ -43,7 +60,7 @@ internal sealed class ParsedMessage
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Format(ref FormatterContext ctx, StringBuilder output)
     {
-        var elements = _elements;
+        var elements = Elements;
         var len = elements.Length;
 
         // Unroll for common case: 1-4 elements

@@ -3,7 +3,9 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Rh.MessageFormat.Ast;
+using Rh.MessageFormat.Exceptions;
 using Rh.MessageFormat.Formatting.Formatters;
+using Rh.MessageFormat.Pools;
 using static Rh.MessageFormat.Constants;
 using static Rh.MessageFormat.Constants.Numbers;
 
@@ -155,10 +157,9 @@ internal static class NumberSkeletonFormatter
 
             return value.ToString(Formats.Currency, nfi);
         }
-        catch
+        catch (Exception ex)
         {
-            // Fallback
-            return options.CurrencyCode + Common.Space + value.ToString(Formats.TwoDecimals, ctx.Culture);
+            throw new MessageFormatterException($"Failed to format currency '{options.CurrencyCode}'", ex);
         }
     }
 
@@ -265,41 +266,47 @@ internal static class NumberSkeletonFormatter
 
     private static string BuildFormatString(NumberFormatOptions options)
     {
-        var sb = new StringBuilder();
+        var sb = StringBuilderPool.Get();
+        try
+        {
+            // Integer part
+            var minInt = options.MinimumIntegerDigits ?? 1;
+            if (options.UseGrouping && minInt <= 1)
+            {
+                sb.Append(Formats.Grouped);
+            }
+            else if (options.UseGrouping)
+            {
+                // With grouping and minimum digits, use format like #,000 for minInt=3
+                sb.Append("#,");
+                sb.Append(new string(Symbols.RequiredDigit, minInt));
+            }
+            else
+            {
+                sb.Append(new string(Symbols.RequiredDigit, minInt));
+            }
 
-        // Integer part
-        var minInt = options.MinimumIntegerDigits ?? 1;
-        if (options.UseGrouping && minInt <= 1)
-        {
-            sb.Append(Formats.Grouped);
-        }
-        else if (options.UseGrouping)
-        {
-            // With grouping and minimum digits, use format like #,000 for minInt=3
-            sb.Append("#,");
-            sb.Append(new string(Symbols.RequiredDigit, minInt));
-        }
-        else
-        {
-            sb.Append(new string(Symbols.RequiredDigit, minInt));
-        }
+            // Fraction part
+            if (options.MinimumFractionDigits.HasValue || options.MaximumFractionDigits.HasValue)
+            {
+                sb.Append(Symbols.FractionStart);
+                var minFrac = options.MinimumFractionDigits ?? 0;
+                var maxFrac = options.MaximumFractionDigits ?? minFrac;
 
-        // Fraction part
-        if (options.MinimumFractionDigits.HasValue || options.MaximumFractionDigits.HasValue)
-        {
-            sb.Append(Symbols.FractionStart);
-            var minFrac = options.MinimumFractionDigits ?? 0;
-            var maxFrac = options.MaximumFractionDigits ?? minFrac;
+                sb.Append(new string(Symbols.RequiredDigit, minFrac));
+                sb.Append(new string(Symbols.OptionalDigit, maxFrac - minFrac));
+            }
+            else if (minInt <= 1)
+            {
+                sb.Append(Formats.DefaultWithDecimals); // Default: up to 3 decimal places
+            }
 
-            sb.Append(new string(Symbols.RequiredDigit, minFrac));
-            sb.Append(new string(Symbols.OptionalDigit, maxFrac - minFrac));
+            return sb.ToString();
         }
-        else if (minInt <= 1)
+        finally
         {
-            sb.Append(Formats.DefaultWithDecimals); // Default: up to 3 decimal places
+            StringBuilderPool.Return(sb);
         }
-
-        return sb.ToString();
     }
 
     private static string ApplySignDisplay(string formatted, double value, NumberFormatOptions options, NumberFormatInfo nfi)

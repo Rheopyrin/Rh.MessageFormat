@@ -196,7 +196,7 @@ internal static class UnitMetadata
         // Try fallback locale
         if (!string.Equals(locale, fallbackLocale, StringComparison.OrdinalIgnoreCase))
         {
-            if (provider.TryGetLocaleData(fallbackLocale, out localeData) && localeData != null)
+            if (fallbackLocale != null && provider.TryGetLocaleData(fallbackLocale, out localeData) && localeData != null)
             {
                 if (localeData.TryGetUnit(unitId, out data))
                 {

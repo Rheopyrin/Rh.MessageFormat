@@ -3,8 +3,10 @@ using System.Collections.Concurrent;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using Rh.MessageFormat.Abstractions;
+using Rh.MessageFormat.Abstractions.Interfaces;
+using Rh.MessageFormat.Exceptions;
 
-namespace Rh.MessageFormat;
+namespace Rh.MessageFormat.Caches;
 
 /// <summary>
 /// Thread-safe cache for CultureInfo instances.
@@ -34,9 +36,9 @@ public sealed class CultureInfoCache : ICultureInfoCache
         {
             return CultureInfo.GetCultureInfo(locale);
         }
-        catch
+        catch (Exception ex)
         {
-            return CultureInfo.InvariantCulture;
+            throw new MessageFormatterException($"Failed to get culture info for locale '{locale}'", ex);
         }
     }
 }

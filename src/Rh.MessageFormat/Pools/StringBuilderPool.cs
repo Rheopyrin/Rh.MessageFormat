@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Microsoft.Extensions.ObjectPool;
 
-namespace Rh.MessageFormat;
+namespace Rh.MessageFormat.Pools;
 
 internal static class StringBuilderPool
 {

@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace Rh.MessageFormat;
+namespace Rh.MessageFormat.Custom;
 
 /// <summary>
 /// Delegate for custom value formatting.
