@@ -162,6 +162,62 @@ formatter.FormatMessage(pattern, new { gender = "female", count = 3 });
 // Result: "She has 3 apples"
 ```
 
+## Passing Variables
+
+Variables can be passed using either anonymous objects or dictionaries:
+
+```csharp
+// Using anonymous objects (recommended for simplicity)
+formatter.FormatMessage("Hello {name}, you have {count} messages", new { name = "John", count = 5 });
+
+// Using dictionaries (for dynamic keys or complex scenarios)
+var args = new Dictionary<string, object?> { ["name"] = "John", ["count"] = 5 };
+formatter.FormatMessage("Hello {name}, you have {count} messages", args);
+
+// Without variables (static text)
+formatter.FormatMessage("Hello World", (object?)null);
+```
+
+All formatting methods support both overloads:
+- `FormatMessage(string pattern, object? args = null)` - accepts anonymous types, POCOs, or null
+- `FormatMessage(string pattern, IReadOnlyDictionary<string, object?> args)` - accepts dictionaries
+- `FormatComplexMessage(string pattern, object? values = null)` - accepts anonymous types, POCOs, or null
+- `FormatComplexMessage(string pattern, IReadOnlyDictionary<string, object?> values)` - accepts dictionaries
+- `FormatHtmlMessage(string pattern, object? values = null)` - accepts anonymous types, POCOs, or null
+- `FormatHtmlMessage(string pattern, IReadOnlyDictionary<string, object?> values)` - accepts dictionaries
+
+### FormatComplexMessage - Nested Object Support
+
+For nested objects, use `FormatComplexMessage` which flattens nested structures using `__` (double underscore) as separator:
+
+```csharp
+// Nested anonymous objects
+formatter.FormatComplexMessage(
+    "Hello {user__firstName} {user__lastName}!",
+    new { user = new { firstName = "John", lastName = "Doe" } }
+);
+// Result: "Hello John Doe!"
+
+// Deeply nested structures
+formatter.FormatComplexMessage(
+    "City: {address__home__city}",
+    new { address = new { home = new { city = "New York" } } }
+);
+// Result: "City: New York"
+```
+
+### FormatHtmlMessage - Safe HTML Formatting
+
+For messages containing HTML markup, use `FormatHtmlMessage` which HTML-escapes variable values to prevent XSS:
+
+```csharp
+formatter.FormatHtmlMessage(
+    "<b>Hello {name}</b>",
+    new { name = "<script>alert('xss')</script>" }
+);
+// Result: "<b>Hello &lt;script&gt;alert('xss')&lt;/script&gt;</b>"
+```
+
 ## Configuration
 
 ### MessageFormatterOptions
@@ -169,13 +225,17 @@ formatter.FormatMessage(pattern, new { gender = "female", count = 3 });
 ```csharp
 var options = new MessageFormatterOptions
 {
-    DefaultFallbackLocale = "en",  // Fallback when locale data not found
+    // IMPORTANT: DefaultFallbackLocale is null by default.
+    // Set this to enable fallback when exact locale data is not found.
+    DefaultFallbackLocale = "en",
     CldrDataProvider = new CldrDataProvider(),  // CLDR data source
     CultureInfoCache = new CultureInfoCache()   // CultureInfo caching
 };
 
 var formatter = new MessageFormatter("de-DE", options);
 ```
+
+> **Note:** `DefaultFallbackLocale` is `null` by default. If not set and the requested locale is not found, an `InvalidLocaleException` will be thrown. Set this property to enable automatic fallback to a default locale.
 
 ### Custom Formatters
 
@@ -259,9 +319,17 @@ The formatter resolves locale data using a fallback chain:
 
 1. **Exact match** - e.g., `en-GB`
 2. **Base locale** - e.g., `en-GB` → `en`
-3. **Default fallback** - Configured via `DefaultFallbackLocale` (default: `en`)
+3. **Default fallback** - Configured via `DefaultFallbackLocale` (default: `null`)
+
+> **Important:** `DefaultFallbackLocale` is `null` by default. You must explicitly set it to enable fallback behavior. If no locale can be resolved and no fallback is configured, an `InvalidLocaleException` is thrown.
 
 ```csharp
+// Configure fallback locale
+var options = new MessageFormatterOptions
+{
+    DefaultFallbackLocale = "en"  // Required for fallback behavior
+};
+
 // If "en-AU" data is not available, falls back to "en"
 var formatter = new MessageFormatter("en-AU", options);
 ```

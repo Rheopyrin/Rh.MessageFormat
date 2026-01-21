@@ -151,6 +151,26 @@ public class MessageFormatter : IMessageFormatter
     }
 
     /// <summary>
+    ///     Formats the message with the specified arguments using the locale configured in the constructor.
+    ///     This overload accepts any object (including anonymous types) and converts it to a dictionary.
+    /// </summary>
+    /// <param name="pattern">
+    ///     The pattern.
+    /// </param>
+    /// <param name="args">
+    ///     The arguments as an object (anonymous type, POCO, or any object with public properties).
+    /// </param>
+    /// <returns>
+    ///     The formatted message.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public string FormatMessage(string pattern, object? args = null)
+    {
+        var dictionary = VariableFlattener.ObjectToDictionary(args);
+        return FormatMessage(pattern, dictionary);
+    }
+
+    /// <summary>
     ///     Formats a complex message with support for nested object values.
     ///     Nested objects are flattened using "__" as a separator.
     /// </summary>
@@ -184,6 +204,26 @@ public class MessageFormatter : IMessageFormatter
     {
         var flattenedValues = VariableFlattener.FlattenVariables(values);
         return FormatMessage(pattern, flattenedValues);
+    }
+
+    /// <summary>
+    ///     Formats a complex message with support for nested object values.
+    ///     This overload accepts any object (including anonymous types) and converts it to a dictionary.
+    /// </summary>
+    /// <param name="pattern">
+    ///     The message pattern. Use "__" (double underscore) to reference nested values.
+    /// </param>
+    /// <param name="values">
+    ///     The values as an object (anonymous type, POCO, or any object with public properties).
+    /// </param>
+    /// <returns>
+    ///     The formatted message.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public string FormatComplexMessage(string pattern, object? values = null)
+    {
+        var dictionary = VariableFlattener.ObjectToDictionary(values);
+        return FormatComplexMessage(pattern, dictionary);
     }
 
     /// <summary>
@@ -237,6 +277,27 @@ public class MessageFormatter : IMessageFormatter
         {
             StringBuilderPool.Return(output);
         }
+    }
+
+    /// <summary>
+    ///     Formats a message containing HTML markup with safe variable substitution.
+    ///     This overload accepts any object (including anonymous types) and converts it to a dictionary.
+    /// </summary>
+    /// <param name="pattern">
+    ///     The message pattern containing HTML markup.
+    /// </param>
+    /// <param name="values">
+    ///     The values as an object (anonymous type, POCO, or any object with public properties).
+    ///     All string values will be HTML-escaped.
+    /// </param>
+    /// <returns>
+    ///     The formatted HTML message with escaped variable values.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public string FormatHtmlMessage(string pattern, object? values = null)
+    {
+        var dictionary = VariableFlattener.ObjectToDictionary(values);
+        return FormatHtmlMessage(pattern, dictionary);
     }
 
     #endregion

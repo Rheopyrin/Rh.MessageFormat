@@ -263,6 +263,155 @@ public class VariableFlattenerTests
     }
 
     #endregion
+
+    #region ObjectToDictionary Tests
+
+    [Fact]
+    public void ObjectToDictionary_Null_ReturnsEmptyDictionary()
+    {
+        var result = VariableFlattener.ObjectToDictionary(null);
+
+        Assert.NotNull(result);
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public void ObjectToDictionary_AnonymousType_ConvertsToDictionary()
+    {
+        var obj = new { name = "John", age = 30 };
+
+        var result = VariableFlattener.ObjectToDictionary(obj);
+
+        Assert.Equal(2, result.Count);
+        Assert.Equal("John", result["name"]);
+        Assert.Equal(30, result["age"]);
+    }
+
+    [Fact]
+    public void ObjectToDictionary_AnonymousTypeWithNullValue_PreservesNull()
+    {
+        var obj = new { name = "John", middleName = (string?)null };
+
+        var result = VariableFlattener.ObjectToDictionary(obj);
+
+        Assert.Equal(2, result.Count);
+        Assert.Equal("John", result["name"]);
+        Assert.Null(result["middleName"]);
+    }
+
+    [Fact]
+    public void ObjectToDictionary_Poco_ConvertsToDictionary()
+    {
+        var obj = new TestPerson { FirstName = "John", LastName = "Doe", Age = 30 };
+
+        var result = VariableFlattener.ObjectToDictionary(obj);
+
+        Assert.Equal(3, result.Count);
+        Assert.Equal("John", result["FirstName"]);
+        Assert.Equal("Doe", result["LastName"]);
+        Assert.Equal(30, result["Age"]);
+    }
+
+    [Fact]
+    public void ObjectToDictionary_NestedAnonymousType_ConvertsToNestedDictionary()
+    {
+        var obj = new { user = new { name = "John" }, count = 5 };
+
+        var result = VariableFlattener.ObjectToDictionary(obj);
+
+        Assert.Equal(2, result.Count);
+        Assert.Equal(5, result["count"]);
+        Assert.NotNull(result["user"]);
+        // Nested object should be converted to a dictionary
+        var nestedDict = result["user"] as Dictionary<string, object?>;
+        Assert.NotNull(nestedDict);
+        Assert.Equal("John", nestedDict["name"]);
+    }
+
+    [Fact]
+    public void ObjectToDictionary_ExistingDictionary_ReturnsCopy()
+    {
+        var dict = new Dictionary<string, object?>
+        {
+            ["name"] = "John",
+            ["age"] = 30
+        };
+
+        var result = VariableFlattener.ObjectToDictionary(dict);
+
+        Assert.Equal(2, result.Count);
+        Assert.Equal("John", result["name"]);
+        Assert.Equal(30, result["age"]);
+        Assert.NotSame(dict, result); // Should be a copy
+    }
+
+    [Fact]
+    public void ObjectToDictionary_ReadOnlyDictionary_ReturnsCopy()
+    {
+        IReadOnlyDictionary<string, object?> dict = new Dictionary<string, object?>
+        {
+            ["name"] = "John"
+        };
+
+        var result = VariableFlattener.ObjectToDictionary(dict);
+
+        Assert.Single(result);
+        Assert.Equal("John", result["name"]);
+    }
+
+    [Fact]
+    public void ObjectToDictionary_Hashtable_ConvertsStringKeys()
+    {
+        var hashtable = new System.Collections.Hashtable
+        {
+            ["name"] = "John",
+            ["age"] = 30,
+            [123] = "ignored" // Non-string key should be ignored
+        };
+
+        var result = VariableFlattener.ObjectToDictionary(hashtable);
+
+        Assert.Equal(2, result.Count);
+        Assert.Equal("John", result["name"]);
+        Assert.Equal(30, result["age"]);
+    }
+
+    [Fact]
+    public void ObjectToDictionary_ComplexTypes_PreservesValues()
+    {
+        var date = new System.DateTime(2024, 1, 15);
+        var obj = new { date, amount = 123.45m, isActive = true };
+
+        var result = VariableFlattener.ObjectToDictionary(obj);
+
+        Assert.Equal(3, result.Count);
+        Assert.Equal(date, result["date"]);
+        Assert.Equal(123.45m, result["amount"]);
+        Assert.Equal(true, result["isActive"]);
+    }
+
+    [Fact]
+    public void ObjectToDictionary_EmptyAnonymousType_ReturnsEmptyDictionary()
+    {
+        var obj = new { };
+
+        var result = VariableFlattener.ObjectToDictionary(obj);
+
+        Assert.NotNull(result);
+        Assert.Empty(result);
+    }
+
+    #endregion
+}
+
+/// <summary>
+/// Test POCO class for ObjectToDictionary tests.
+/// </summary>
+public class TestPerson
+{
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public int Age { get; set; }
 }
 
 /// <summary>

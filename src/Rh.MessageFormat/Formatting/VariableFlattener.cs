@@ -1,6 +1,9 @@
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 namespace Rh.MessageFormat.Formatting;
 
@@ -41,6 +44,181 @@ public static class VariableFlattener
         var result = new Dictionary<string, object?>(StringComparer.Ordinal);
         FlattenRecursive(variables, null, separator, shouldSkipFlatten, result);
         return result;
+    }
+
+    /// <summary>
+    /// Cache for property info arrays to avoid repeated reflection calls.
+    /// </summary>
+    private static readonly ConcurrentDictionary<Type, PropertyInfo[]> PropertyCache = new();
+
+    /// <summary>
+    /// Converts an object to a dictionary using reflection.
+    /// Supports anonymous types, POCOs, and any object with public properties.
+    /// Nested objects are recursively converted to nested dictionaries.
+    /// </summary>
+    /// <remarks>
+    /// This method uses reflection to read public instance properties from the object.
+    /// Nested complex objects (anonymous types, POCOs) are recursively converted to dictionaries.
+    /// If the input is already a dictionary type, it is converted directly.
+    /// <code>
+    /// // Anonymous type
+    /// var dict = ObjectToDictionary(new { name = "John", age = 30 });
+    /// // Result: { "name": "John", "age": 30 }
+    ///
+    /// // Nested anonymous type
+    /// var dict = ObjectToDictionary(new { user = new { name = "John" } });
+    /// // Result: { "user": { "name": "John" } }
+    /// </code>
+    /// </remarks>
+    /// <param name="obj">The object to convert. If null, returns an empty dictionary.</param>
+    /// <returns>A dictionary containing the object's public properties as key-value pairs.</returns>
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2072:UnrecognizedReflectionPattern",
+        Justification = "Public properties are preserved for anonymous types and POCOs used with message formatting.")]
+    public static Dictionary<string, object?> ObjectToDictionary(object? obj)
+    {
+        return ObjectToDictionaryInternal(obj, recursive: true);
+    }
+
+    /// <summary>
+    /// Internal method to convert object to dictionary with optional recursion.
+    /// </summary>
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2072:UnrecognizedReflectionPattern",
+        Justification = "Public properties are preserved for anonymous types and POCOs used with message formatting.")]
+    private static Dictionary<string, object?> ObjectToDictionaryInternal(object? obj, bool recursive)
+    {
+        if (obj == null)
+            return new Dictionary<string, object?>(StringComparer.Ordinal);
+
+        // If it's already a dictionary, convert it (recursively if needed)
+        if (obj is IReadOnlyDictionary<string, object?> readOnlyDict)
+        {
+            if (recursive)
+            {
+                var result = new Dictionary<string, object?>(StringComparer.Ordinal);
+                foreach (var kvp in readOnlyDict)
+                {
+                    result[kvp.Key] = ConvertValueIfNeeded(kvp.Value);
+                }
+                return result;
+            }
+            return new Dictionary<string, object?>(readOnlyDict, StringComparer.Ordinal);
+        }
+
+        if (obj is IDictionary<string, object?> dict)
+        {
+            if (recursive)
+            {
+                var result = new Dictionary<string, object?>(StringComparer.Ordinal);
+                foreach (var kvp in dict)
+                {
+                    result[kvp.Key] = ConvertValueIfNeeded(kvp.Value);
+                }
+                return result;
+            }
+            return new Dictionary<string, object?>(dict, StringComparer.Ordinal);
+        }
+
+        if (obj is IDictionary nonGenericDict)
+        {
+            var result = new Dictionary<string, object?>(StringComparer.Ordinal);
+            foreach (DictionaryEntry entry in nonGenericDict)
+            {
+                if (entry.Key is string stringKey)
+                    result[stringKey] = recursive ? ConvertValueIfNeeded(entry.Value) : entry.Value;
+            }
+            return result;
+        }
+
+        // Use reflection to get properties
+        var type = obj.GetType();
+        var properties = GetCachedProperties(type);
+
+        var dictionary = new Dictionary<string, object?>(properties.Length, StringComparer.Ordinal);
+        foreach (var prop in properties)
+        {
+            if (prop.CanRead)
+            {
+                var value = prop.GetValue(obj);
+                dictionary[prop.Name] = recursive ? ConvertValueIfNeeded(value) : value;
+            }
+        }
+
+        return dictionary;
+    }
+
+    /// <summary>
+    /// Converts a value to a dictionary if it's a complex object that should be nested.
+    /// </summary>
+    private static object? ConvertValueIfNeeded(object? value)
+    {
+        if (value == null)
+            return null;
+
+        var type = value.GetType();
+
+        // Don't convert primitive types, strings, dates, etc.
+        if (type.IsPrimitive || type.IsEnum ||
+            type == typeof(string) || type == typeof(decimal) ||
+            type == typeof(DateTime) || type == typeof(DateTimeOffset) ||
+            type == typeof(TimeSpan) || type == typeof(Guid))
+        {
+            return value;
+        }
+
+        // Don't convert arrays or collections (they're values, not nested objects)
+        if (type.IsArray || typeof(IEnumerable).IsAssignableFrom(type) && type != typeof(string))
+        {
+            // But if it's a dictionary, convert it
+            if (value is IDictionary)
+            {
+                return ObjectToDictionaryInternal(value, recursive: true);
+            }
+            return value;
+        }
+
+        // Convert anonymous types and POCOs to dictionaries
+        if (type.IsClass && !type.IsAbstract)
+        {
+            return ObjectToDictionaryInternal(value, recursive: true);
+        }
+
+        return value;
+    }
+
+    /// <summary>
+    /// Gets cached properties for a type, with proper trimming annotations.
+    /// Anonymous types are not cached to avoid unbounded cache growth.
+    /// </summary>
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2070:UnrecognizedReflectionPattern",
+        Justification = "The properties are only used for reading values, which is safe for trimming.")]
+    private static PropertyInfo[] GetCachedProperties(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type)
+    {
+        // Don't cache anonymous types - they have unique names and would cause unbounded cache growth
+        if (IsAnonymousType(type))
+        {
+            return type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        }
+
+        return PropertyCache.GetOrAdd(type, t =>
+            t.GetProperties(BindingFlags.Public | BindingFlags.Instance));
+    }
+
+    /// <summary>
+    /// Determines if a type is an anonymous type.
+    /// Anonymous types are compiler-generated and have specific characteristics.
+    /// </summary>
+    private static bool IsAnonymousType(Type type)
+    {
+        // Anonymous types have these characteristics:
+        // 1. Compiler-generated attribute
+        // 2. Name contains "AnonymousType"
+        // 3. Are generic types with specific naming pattern like <>f__AnonymousType
+        return type.IsClass &&
+               type.IsSealed &&
+               type.IsGenericType &&
+               type.Name.Contains("AnonymousType") &&
+               type.Name.StartsWith("<>");
     }
 
     private static void FlattenRecursive(

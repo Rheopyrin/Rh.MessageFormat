@@ -22,6 +22,26 @@ public interface IMessageFormatter
     string FormatMessage(string pattern, IReadOnlyDictionary<string, object?> args);
 
     /// <summary>
+    ///     Formats the message with the specified arguments using the locale configured in the constructor.
+    ///     This overload accepts any object (including anonymous types) and converts it to a dictionary.
+    /// </summary>
+    /// <param name="pattern">
+    ///     The pattern.
+    /// </param>
+    /// <param name="args">
+    ///     The arguments as an object (anonymous type, POCO, or any object with public properties).
+    /// </param>
+    /// <returns>
+    ///     The formatted message.
+    /// </returns>
+    /// <example>
+    ///     <code>
+    ///     formatter.FormatMessage("Hello {name}, you have {count} messages", new { name = "John", count = 5 });
+    ///     </code>
+    /// </example>
+    string FormatMessage(string pattern, object? args = null);
+
+    /// <summary>
     ///     Formats a complex message with support for nested object values.
     ///     Nested objects are flattened using "__" as a separator.
     /// </summary>
@@ -51,6 +71,26 @@ public interface IMessageFormatter
     ///     The formatted message.
     /// </returns>
     string FormatComplexMessage(string pattern, IReadOnlyDictionary<string, object?> values);
+
+    /// <summary>
+    ///     Formats a complex message with support for nested object values.
+    ///     This overload accepts any object (including anonymous types) and converts it to a dictionary.
+    /// </summary>
+    /// <param name="pattern">
+    ///     The message pattern. Use "__" (double underscore) to reference nested values.
+    /// </param>
+    /// <param name="values">
+    ///     The values as an object (anonymous type, POCO, or any object with public properties).
+    /// </param>
+    /// <returns>
+    ///     The formatted message.
+    /// </returns>
+    /// <example>
+    ///     <code>
+    ///     formatter.FormatComplexMessage("Hello {user__firstName}", new { user = new { firstName = "John" } });
+    ///     </code>
+    /// </example>
+    string FormatComplexMessage(string pattern, object? values = null);
 
     /// <summary>
     ///     Formats a message containing HTML markup with safe variable substitution.
@@ -97,4 +137,25 @@ public interface IMessageFormatter
     ///     The formatted HTML message with escaped variable values.
     /// </returns>
     string FormatHtmlMessage(string pattern, IReadOnlyDictionary<string, object?> values);
+
+    /// <summary>
+    ///     Formats a message containing HTML markup with safe variable substitution.
+    ///     This overload accepts any object (including anonymous types) and converts it to a dictionary.
+    /// </summary>
+    /// <param name="pattern">
+    ///     The message pattern containing HTML markup.
+    /// </param>
+    /// <param name="values">
+    ///     The values as an object (anonymous type, POCO, or any object with public properties).
+    ///     All string values will be HTML-escaped.
+    /// </param>
+    /// <returns>
+    ///     The formatted HTML message with escaped variable values.
+    /// </returns>
+    /// <example>
+    ///     <code>
+    ///     formatter.FormatHtmlMessage("&lt;b&gt;Hello {name}&lt;/b&gt;", new { name = "John" });
+    ///     </code>
+    /// </example>
+    string FormatHtmlMessage(string pattern, object? values = null);
 }
