@@ -161,11 +161,11 @@ public class ListPatternGenerationTests : IDisposable
     }
 
     [Fact]
-    public void GeneratedCode_ContainsListPatternDictionary()
+    public async Task GeneratedCode_ContainsListPatternDictionary()
     {
         var outputDir = _directoryManager.CreateTempDirectory();
         var generator = new LocaleCodeGenerator(_fixture.Config);
-        generator.GenerateAsync(_fixture.TestDataPath, outputDir).GetAwaiter().GetResult();
+        await generator.GenerateAsync(_fixture.TestDataPath, outputDir);
 
         var enFilePath = Path.Combine(outputDir, "CldrLocaleData_en.g.cs");
         var content = File.ReadAllText(enFilePath);

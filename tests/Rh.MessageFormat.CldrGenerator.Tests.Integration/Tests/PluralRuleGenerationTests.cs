@@ -111,11 +111,11 @@ public class PluralRuleGenerationTests : IDisposable
     }
 
     [Fact]
-    public void GeneratedCode_ContainsExpectedPluralConditions_ForEnglish()
+    public async Task GeneratedCode_ContainsExpectedPluralConditions_ForEnglish()
     {
         var outputDir = _directoryManager.CreateTempDirectory();
         var generator = new LocaleCodeGenerator(_fixture.Config);
-        generator.GenerateAsync(_fixture.TestDataPath, outputDir).GetAwaiter().GetResult();
+        await generator.GenerateAsync(_fixture.TestDataPath, outputDir);
 
         var enFilePath = Path.Combine(outputDir, "CldrLocaleData_en.g.cs");
         var content = File.ReadAllText(enFilePath);
@@ -126,11 +126,11 @@ public class PluralRuleGenerationTests : IDisposable
     }
 
     [Fact]
-    public void GeneratedCode_ContainsExpectedPluralConditions_ForArabic()
+    public async Task GeneratedCode_ContainsExpectedPluralConditions_ForArabic()
     {
         var outputDir = _directoryManager.CreateTempDirectory();
         var generator = new LocaleCodeGenerator(_fixture.Config);
-        generator.GenerateAsync(_fixture.TestDataPath, outputDir).GetAwaiter().GetResult();
+        await generator.GenerateAsync(_fixture.TestDataPath, outputDir);
 
         var arFilePath = Path.Combine(outputDir, "CldrLocaleData_ar.g.cs");
         var content = File.ReadAllText(arFilePath);

@@ -179,11 +179,11 @@ public class UnitDataGenerationTests : IDisposable
     }
 
     [Fact]
-    public void GeneratedCode_ContainsUnitDictionary()
+    public async Task GeneratedCode_ContainsUnitDictionary()
     {
         var outputDir = _directoryManager.CreateTempDirectory();
         var generator = new LocaleCodeGenerator(_fixture.Config);
-        generator.GenerateAsync(_fixture.TestDataPath, outputDir).GetAwaiter().GetResult();
+        await generator.GenerateAsync(_fixture.TestDataPath, outputDir);
 
         var enFilePath = Path.Combine(outputDir, "CldrLocaleData_en.g.cs");
         var content = File.ReadAllText(enFilePath);

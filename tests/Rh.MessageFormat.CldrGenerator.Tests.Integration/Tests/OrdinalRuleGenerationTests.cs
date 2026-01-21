@@ -100,11 +100,11 @@ public class OrdinalRuleGenerationTests : IDisposable
     }
 
     [Fact]
-    public void GeneratedCode_ContainsExpectedOrdinalConditions_ForEnglish()
+    public async Task GeneratedCode_ContainsExpectedOrdinalConditions_ForEnglish()
     {
         var outputDir = _directoryManager.CreateTempDirectory();
         var generator = new LocaleCodeGenerator(_fixture.Config);
-        generator.GenerateAsync(_fixture.TestDataPath, outputDir).GetAwaiter().GetResult();
+        await generator.GenerateAsync(_fixture.TestDataPath, outputDir);
 
         var enFilePath = Path.Combine(outputDir, "CldrLocaleData_en.g.cs");
         var content = File.ReadAllText(enFilePath);
@@ -115,11 +115,11 @@ public class OrdinalRuleGenerationTests : IDisposable
     }
 
     [Fact]
-    public void GeneratedCode_OrdinalMethod_ReturnsOther_ForGerman()
+    public async Task GeneratedCode_OrdinalMethod_ReturnsOther_ForGerman()
     {
         var outputDir = _directoryManager.CreateTempDirectory();
         var generator = new LocaleCodeGenerator(_fixture.Config);
-        generator.GenerateAsync(_fixture.TestDataPath, outputDir).GetAwaiter().GetResult();
+        await generator.GenerateAsync(_fixture.TestDataPath, outputDir);
 
         var deFilePath = Path.Combine(outputDir, "CldrLocaleData_de.g.cs");
         var content = File.ReadAllText(deFilePath);

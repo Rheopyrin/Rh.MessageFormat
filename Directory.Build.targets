@@ -2,6 +2,7 @@
     <ItemGroup Condition="'$(IsPackable)' == 'true'">
         <None Include="$(MSBuildThisFileDirectory)LICENSE" Pack="true" PackagePath="\" />
         <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
+        <None Include="$(MSBuildThisFileDirectory)icon.png" Pack="true" PackagePath="\" />
     </ItemGroup>
     <PropertyGroup>
         <PackageIcon>icon.png</PackageIcon>
