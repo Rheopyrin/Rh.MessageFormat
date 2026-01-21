@@ -1,0 +1,14 @@
+<Project>
+    <PropertyGroup>
+        <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+        <Authors>Rheopyrin</Authors>
+        <Company>Rheopyrin</Company>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/Rheopyrin/Rh.Messageformat</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Rheopyrin/Rh.Messageformat</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+</Project>

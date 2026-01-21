@@ -1,0 +1,47 @@
+{
+  "main": {
+    "ar": {
+      "identity": {
+        "version": { "_cldrVersion": "45" },
+        "language": "ar"
+      },
+      "numbers": {
+        "currencies": {
+          "USD": {
+            "displayName": "دولار أمريكي",
+            "displayName-count-zero": "دولار أمريكي",
+            "displayName-count-one": "دولار أمريكي",
+            "displayName-count-two": "دولاران أمريكيان",
+            "displayName-count-few": "دولارات أمريكية",
+            "displayName-count-many": "دولارًا أمريكيًا",
+            "displayName-count-other": "دولار أمريكي",
+            "symbol": "US$",
+            "symbol-alt-narrow": "$"
+          },
+          "EUR": {
+            "displayName": "يورو",
+            "displayName-count-zero": "يورو",
+            "displayName-count-one": "يورو",
+            "displayName-count-two": "يوروان",
+            "displayName-count-few": "يورو",
+            "displayName-count-many": "يورو",
+            "displayName-count-other": "يورو",
+            "symbol": "€",
+            "symbol-alt-narrow": "€"
+          },
+          "SAR": {
+            "displayName": "ريال سعودي",
+            "displayName-count-zero": "ريال سعودي",
+            "displayName-count-one": "ريال سعودي",
+            "displayName-count-two": "ريالان سعوديان",
+            "displayName-count-few": "ريالات سعودية",
+            "displayName-count-many": "ريالًا سعوديًا",
+            "displayName-count-other": "ريال سعودي",
+            "symbol": "ر.س.‏",
+            "symbol-alt-narrow": "ر.س.‏"
+          }
+        }
+      }
+    }
+  }
+}

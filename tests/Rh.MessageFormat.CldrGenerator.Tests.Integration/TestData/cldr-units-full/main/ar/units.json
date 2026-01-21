@@ -1,0 +1,72 @@
+{
+  "main": {
+    "ar": {
+      "identity": {
+        "version": { "_cldrVersion": "45" },
+        "language": "ar"
+      },
+      "units": {
+        "long": {
+          "length-meter": {
+            "displayName": "متر",
+            "unitPattern-count-zero": "{0} متر",
+            "unitPattern-count-one": "{0} متر",
+            "unitPattern-count-two": "{0} متر",
+            "unitPattern-count-few": "{0} أمتار",
+            "unitPattern-count-many": "{0} مترًا",
+            "unitPattern-count-other": "{0} متر"
+          },
+          "duration-hour": {
+            "displayName": "ساعة",
+            "unitPattern-count-zero": "{0} ساعة",
+            "unitPattern-count-one": "{0} ساعة",
+            "unitPattern-count-two": "{0} ساعتان",
+            "unitPattern-count-few": "{0} ساعات",
+            "unitPattern-count-many": "{0} ساعة",
+            "unitPattern-count-other": "{0} ساعة"
+          }
+        },
+        "short": {
+          "length-meter": {
+            "displayName": "م",
+            "unitPattern-count-zero": "{0} م",
+            "unitPattern-count-one": "{0} م",
+            "unitPattern-count-two": "{0} م",
+            "unitPattern-count-few": "{0} م",
+            "unitPattern-count-many": "{0} م",
+            "unitPattern-count-other": "{0} م"
+          },
+          "duration-hour": {
+            "displayName": "س",
+            "unitPattern-count-zero": "{0} س",
+            "unitPattern-count-one": "{0} س",
+            "unitPattern-count-two": "{0} س",
+            "unitPattern-count-few": "{0} س",
+            "unitPattern-count-many": "{0} س",
+            "unitPattern-count-other": "{0} س"
+          }
+        },
+        "narrow": {
+          "length-meter": {
+            "displayName": "م",
+            "unitPattern-count-zero": "{0}م",
+            "unitPattern-count-one": "{0}م",
+            "unitPattern-count-two": "{0}م",
+            "unitPattern-count-few": "{0}م",
+            "unitPattern-count-many": "{0}م",
+            "unitPattern-count-other": "{0}م"
+          },
+          "duration-hour": {
+            "displayName": "س",
+            "unitPattern-count-zero": "{0}س",
+            "unitPattern-count-one": "{0}س",
+            "unitPattern-count-two": "{0}س",
+            "unitPattern-count-few": "{0}س",
+            "unitPattern-count-many": "{0}س",
+            "unitPattern-count-other": "{0}س"
+          }
+        }
+      }
+    }
+  }
+}

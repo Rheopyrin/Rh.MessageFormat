@@ -1,0 +1,48 @@
+{
+  "main": {
+    "en": {
+      "identity": {
+        "version": { "_cldrVersion": "45" },
+        "language": "en"
+      },
+      "units": {
+        "long": {
+          "length-meter": {
+            "displayName": "meters",
+            "unitPattern-count-one": "{0} meter",
+            "unitPattern-count-other": "{0} meters"
+          },
+          "duration-hour": {
+            "displayName": "hours",
+            "unitPattern-count-one": "{0} hour",
+            "unitPattern-count-other": "{0} hours"
+          }
+        },
+        "short": {
+          "length-meter": {
+            "displayName": "m",
+            "unitPattern-count-one": "{0} m",
+            "unitPattern-count-other": "{0} m"
+          },
+          "duration-hour": {
+            "displayName": "hr",
+            "unitPattern-count-one": "{0} hr",
+            "unitPattern-count-other": "{0} hr"
+          }
+        },
+        "narrow": {
+          "length-meter": {
+            "displayName": "m",
+            "unitPattern-count-one": "{0}m",
+            "unitPattern-count-other": "{0}m"
+          },
+          "duration-hour": {
+            "displayName": "h",
+            "unitPattern-count-one": "{0}h",
+            "unitPattern-count-other": "{0}h"
+          }
+        }
+      }
+    }
+  }
+}

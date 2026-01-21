@@ -1,0 +1,48 @@
+{
+  "main": {
+    "de": {
+      "identity": {
+        "version": { "_cldrVersion": "45" },
+        "language": "de"
+      },
+      "units": {
+        "long": {
+          "length-meter": {
+            "displayName": "Meter",
+            "unitPattern-count-one": "{0} Meter",
+            "unitPattern-count-other": "{0} Meter"
+          },
+          "duration-hour": {
+            "displayName": "Stunden",
+            "unitPattern-count-one": "{0} Stunde",
+            "unitPattern-count-other": "{0} Stunden"
+          }
+        },
+        "short": {
+          "length-meter": {
+            "displayName": "m",
+            "unitPattern-count-one": "{0} m",
+            "unitPattern-count-other": "{0} m"
+          },
+          "duration-hour": {
+            "displayName": "Std.",
+            "unitPattern-count-one": "{0} Std.",
+            "unitPattern-count-other": "{0} Std."
+          }
+        },
+        "narrow": {
+          "length-meter": {
+            "displayName": "m",
+            "unitPattern-count-one": "{0} m",
+            "unitPattern-count-other": "{0} m"
+          },
+          "duration-hour": {
+            "displayName": "h",
+            "unitPattern-count-one": "{0} h",
+            "unitPattern-count-other": "{0} h"
+          }
+        }
+      }
+    }
+  }
+}

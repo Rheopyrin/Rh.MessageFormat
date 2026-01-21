@@ -1,0 +1,35 @@
+{
+  "main": {
+    "en": {
+      "identity": {
+        "version": { "_cldrVersion": "45" },
+        "language": "en"
+      },
+      "numbers": {
+        "currencies": {
+          "USD": {
+            "displayName": "US Dollar",
+            "displayName-count-one": "US dollar",
+            "displayName-count-other": "US dollars",
+            "symbol": "$",
+            "symbol-alt-narrow": "$"
+          },
+          "EUR": {
+            "displayName": "Euro",
+            "displayName-count-one": "euro",
+            "displayName-count-other": "euros",
+            "symbol": "€",
+            "symbol-alt-narrow": "€"
+          },
+          "GBP": {
+            "displayName": "British Pound",
+            "displayName-count-one": "British pound",
+            "displayName-count-other": "British pounds",
+            "symbol": "£",
+            "symbol-alt-narrow": "£"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,2 @@
+# This file keeps the Generated directory in git.
+# The *.g.cs files are generated during CI build by running Rh.MessageFormat.CldrGenerator.

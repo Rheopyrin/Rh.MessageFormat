@@ -1,0 +1,34 @@
+{
+  "main": {
+    "de": {
+      "identity": {
+        "version": { "_cldrVersion": "45" },
+        "language": "de"
+      },
+      "numbers": {
+        "currencies": {
+          "USD": {
+            "displayName": "US-Dollar",
+            "displayName-count-one": "US-Dollar",
+            "displayName-count-other": "US-Dollar",
+            "symbol": "$",
+            "symbol-alt-narrow": "$"
+          },
+          "EUR": {
+            "displayName": "Euro",
+            "displayName-count-one": "Euro",
+            "displayName-count-other": "Euro",
+            "symbol": "€",
+            "symbol-alt-narrow": "€"
+          },
+          "CHF": {
+            "displayName": "Schweizer Franken",
+            "displayName-count-one": "Schweizer Franken",
+            "displayName-count-other": "Schweizer Franken",
+            "symbol": "CHF"
+          }
+        }
+      }
+    }
+  }
+}
