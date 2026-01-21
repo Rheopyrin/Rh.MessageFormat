@@ -35,7 +35,9 @@ public class LocaleClassGenerator
             HasDatePatterns = _data.DatePatterns != null,
             DatePatternsCode = GenerateDatePatternsCode(),
             HasListPatterns = _data.ListPatterns.Count > 0,
-            ListPatternsCode = GenerateListPatternsCode()
+            ListPatternsCode = GenerateListPatternsCode(),
+            HasRelativeTimeData = _data.RelativeTimeData.Count > 0,
+            RelativeTimeDictCode = GenerateRelativeTimeDictCode()
         };
     }
 
@@ -185,6 +187,50 @@ public class LocaleClassGenerator
             var two = EscapeString(pattern.Two ?? "{0}, {1}");
 
             sb.AppendLine($"        {{ \"{type}\", new ListPatternData(\"{type}\", \"{start}\", \"{middle}\", \"{end}\", \"{two}\") }},");
+        }
+
+        return sb.ToString().TrimEnd();
+    }
+
+    private string GenerateRelativeTimeDictCode()
+    {
+        if (_data.RelativeTimeData.Count == 0)
+            return string.Empty;
+
+        var sb = new StringBuilder();
+        foreach (var rtData in _data.RelativeTimeData.Values)
+        {
+            var key = $"{EscapeString(rtData.Field)}:{EscapeString(rtData.Width)}";
+            var displayName = rtData.DisplayName != null ? $"\"{EscapeString(rtData.DisplayName)}\"" : "null";
+
+            // Generate relative types dictionary
+            var relativeTypes = "null";
+            if (rtData.RelativeTypes.Count > 0)
+            {
+                var entries = string.Join(", ", rtData.RelativeTypes.Select(kv =>
+                    $"{{ \"{EscapeString(kv.Key)}\", \"{EscapeString(kv.Value)}\" }}"));
+                relativeTypes = $"new Dictionary<string, string> {{ {entries} }}";
+            }
+
+            // Generate future patterns dictionary
+            var futurePatterns = "null";
+            if (rtData.FuturePatterns.Count > 0)
+            {
+                var entries = string.Join(", ", rtData.FuturePatterns.Select(kv =>
+                    $"{{ \"{EscapeString(kv.Key)}\", \"{EscapeString(kv.Value)}\" }}"));
+                futurePatterns = $"new Dictionary<string, string> {{ {entries} }}";
+            }
+
+            // Generate past patterns dictionary
+            var pastPatterns = "null";
+            if (rtData.PastPatterns.Count > 0)
+            {
+                var entries = string.Join(", ", rtData.PastPatterns.Select(kv =>
+                    $"{{ \"{EscapeString(kv.Key)}\", \"{EscapeString(kv.Value)}\" }}"));
+                pastPatterns = $"new Dictionary<string, string> {{ {entries} }}";
+            }
+
+            sb.AppendLine($"            dict[\"{key}\"] = new RelativeTimeData(\"{EscapeString(rtData.Field)}\", {displayName}, {relativeTypes}, {futurePatterns}, {pastPatterns});");
         }
 
         return sb.ToString().TrimEnd();

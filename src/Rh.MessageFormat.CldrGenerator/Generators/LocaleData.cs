@@ -44,6 +44,12 @@ public class LocaleData
     /// List patterns for this locale.
     /// </summary>
     public Dictionary<string, LocaleListPatternData> ListPatterns { get; set; } = new();
+
+    /// <summary>
+    /// Relative time data for this locale.
+    /// Key format: "field:width" (e.g., "day:long", "year:short").
+    /// </summary>
+    public Dictionary<string, LocaleRelativeTimeData> RelativeTimeData { get; set; } = new();
 }
 
 public class LocaleCurrencyData
@@ -90,4 +96,37 @@ public class LocaleListPatternData
     public string? Middle { get; set; }
     public string? End { get; set; }
     public string? Two { get; set; }
+}
+
+public class LocaleRelativeTimeData
+{
+    /// <summary>
+    /// The field identifier (e.g., "year", "month", "day").
+    /// </summary>
+    public string Field { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The width ("long", "short", "narrow").
+    /// </summary>
+    public string Width { get; set; } = "long";
+
+    /// <summary>
+    /// The display name of the field.
+    /// </summary>
+    public string? DisplayName { get; set; }
+
+    /// <summary>
+    /// Relative type strings keyed by offset ("-1", "0", "1").
+    /// </summary>
+    public Dictionary<string, string> RelativeTypes { get; set; } = new();
+
+    /// <summary>
+    /// Future patterns keyed by plural category ("one", "other", etc.).
+    /// </summary>
+    public Dictionary<string, string> FuturePatterns { get; set; } = new();
+
+    /// <summary>
+    /// Past patterns keyed by plural category ("one", "other", etc.).
+    /// </summary>
+    public Dictionary<string, string> PastPatterns { get; set; } = new();
 }

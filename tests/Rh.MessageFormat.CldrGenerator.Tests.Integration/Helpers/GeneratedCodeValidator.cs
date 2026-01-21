@@ -136,6 +136,21 @@ public sealed class GeneratedCodeValidator
     }
 
     /// <summary>
+    /// Tests TryGetRelativeTime for a specific field and width.
+    /// </summary>
+    public RelativeTimeData? TestGetRelativeTime(string locale, string field, string width)
+    {
+        var instance = GetLocaleDataInstance(locale);
+        if (instance == null)
+            return null;
+
+        if (instance.TryGetRelativeTime(field, width, out var data))
+            return data;
+
+        return null;
+    }
+
+    /// <summary>
     /// Gets all types in the assembly that implement ICldrLocaleData.
     /// </summary>
     public IEnumerable<Type> GetAllLocaleDataTypes()

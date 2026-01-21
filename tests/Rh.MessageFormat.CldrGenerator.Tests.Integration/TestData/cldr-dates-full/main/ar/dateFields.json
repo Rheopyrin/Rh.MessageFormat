@@ -1,0 +1,79 @@
+{
+  "main": {
+    "ar": {
+      "identity": {
+        "language": "ar"
+      },
+      "dates": {
+        "fields": {
+          "day": {
+            "displayName": "يوم",
+            "relative-type--1": "أمس",
+            "relative-type-0": "اليوم",
+            "relative-type-1": "غدًا",
+            "relativeTime-type-future": {
+              "relativeTimePattern-count-zero": "خلال {0} يوم",
+              "relativeTimePattern-count-one": "خلال يوم واحد",
+              "relativeTimePattern-count-two": "خلال يومين",
+              "relativeTimePattern-count-few": "خلال {0} أيام",
+              "relativeTimePattern-count-many": "خلال {0} يومًا",
+              "relativeTimePattern-count-other": "خلال {0} يوم"
+            },
+            "relativeTime-type-past": {
+              "relativeTimePattern-count-zero": "قبل {0} يوم",
+              "relativeTimePattern-count-one": "قبل يوم واحد",
+              "relativeTimePattern-count-two": "قبل يومين",
+              "relativeTimePattern-count-few": "قبل {0} أيام",
+              "relativeTimePattern-count-many": "قبل {0} يومًا",
+              "relativeTimePattern-count-other": "قبل {0} يوم"
+            }
+          },
+          "day-short": {
+            "displayName": "يوم",
+            "relative-type--1": "أمس",
+            "relative-type-0": "اليوم",
+            "relative-type-1": "غدًا",
+            "relativeTime-type-future": {
+              "relativeTimePattern-count-zero": "خلال {0} يوم",
+              "relativeTimePattern-count-one": "خلال يوم",
+              "relativeTimePattern-count-two": "خلال يومين",
+              "relativeTimePattern-count-few": "خلال {0} أيام",
+              "relativeTimePattern-count-many": "خلال {0} يومًا",
+              "relativeTimePattern-count-other": "خلال {0} يوم"
+            },
+            "relativeTime-type-past": {
+              "relativeTimePattern-count-zero": "قبل {0} يوم",
+              "relativeTimePattern-count-one": "قبل يوم",
+              "relativeTimePattern-count-two": "قبل يومين",
+              "relativeTimePattern-count-few": "قبل {0} أيام",
+              "relativeTimePattern-count-many": "قبل {0} يومًا",
+              "relativeTimePattern-count-other": "قبل {0} يوم"
+            }
+          },
+          "day-narrow": {
+            "displayName": "يوم",
+            "relative-type--1": "أمس",
+            "relative-type-0": "اليوم",
+            "relative-type-1": "غدًا",
+            "relativeTime-type-future": {
+              "relativeTimePattern-count-zero": "خلال {0} ي",
+              "relativeTimePattern-count-one": "خلال {0} ي",
+              "relativeTimePattern-count-two": "خلال {0} ي",
+              "relativeTimePattern-count-few": "خلال {0} ي",
+              "relativeTimePattern-count-many": "خلال {0} ي",
+              "relativeTimePattern-count-other": "خلال {0} ي"
+            },
+            "relativeTime-type-past": {
+              "relativeTimePattern-count-zero": "قبل {0} ي",
+              "relativeTimePattern-count-one": "قبل {0} ي",
+              "relativeTimePattern-count-two": "قبل {0} ي",
+              "relativeTimePattern-count-few": "قبل {0} ي",
+              "relativeTimePattern-count-many": "قبل {0} ي",
+              "relativeTimePattern-count-other": "قبل {0} ي"
+            }
+          }
+        }
+      }
+    }
+  }
+}

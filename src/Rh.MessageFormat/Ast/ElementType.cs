@@ -16,5 +16,6 @@ internal enum ElementType : byte
     SelectOrdinal = 8,
     Custom = 9,
     Tag = 10,
-    List = 11
+    List = 11,
+    RelativeTime = 12
 }

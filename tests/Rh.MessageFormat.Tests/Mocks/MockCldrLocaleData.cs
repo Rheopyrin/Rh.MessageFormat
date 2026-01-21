@@ -14,6 +14,7 @@ public class MockCldrLocaleData : ICldrLocaleData
     private readonly Dictionary<string, CurrencyData> _currencies = new();
     private readonly Dictionary<string, UnitData> _units = new();
     private readonly Dictionary<string, ListPatternData> _listPatterns = new();
+    private readonly Dictionary<string, RelativeTimeData> _relativeTimeData = new();
 
     public string Locale { get; set; } = "en";
     public DatePatternData DatePatterns { get; set; }
@@ -78,6 +79,12 @@ public class MockCldrLocaleData : ICldrLocaleData
         return _listPatterns.TryGetValue(type, out data);
     }
 
+    public bool TryGetRelativeTime(string field, string width, out RelativeTimeData data)
+    {
+        var key = $"{field}:{width}";
+        return _relativeTimeData.TryGetValue(key, out data);
+    }
+
     #region Builder Methods
 
     /// <summary>
@@ -124,6 +131,28 @@ public class MockCldrLocaleData : ICldrLocaleData
     public MockCldrLocaleData WithDatePatterns(DatePatternData patterns)
     {
         DatePatterns = patterns;
+        return this;
+    }
+
+    /// <summary>
+    /// Adds relative time data for a field and width.
+    /// </summary>
+    public MockCldrLocaleData WithRelativeTime(
+        string field,
+        string width,
+        string? displayName = null,
+        Dictionary<string, string>? relativeTypes = null,
+        Dictionary<string, string>? futurePatterns = null,
+        Dictionary<string, string>? pastPatterns = null)
+    {
+        var key = $"{field}:{width}";
+        _relativeTimeData[key] = new RelativeTimeData(
+            field,
+            displayName,
+            relativeTypes,
+            futurePatterns,
+            pastPatterns
+        );
         return this;
     }
 
@@ -331,7 +360,44 @@ public class MockCldrLocaleData : ICldrLocaleData
             .WithListPattern("or-narrow", "{0}, {1}", "{0}, {1}", "{0}, or {1}", "{0} or {1}")
             .WithListPattern("unit", "{0}, {1}", "{0}, {1}", "{0}, {1}", "{0}, {1}")
             .WithListPattern("unit-short", "{0}, {1}", "{0}, {1}", "{0}, {1}", "{0}, {1}")
-            .WithListPattern("unit-narrow", "{0} {1}", "{0} {1}", "{0} {1}", "{0} {1}");
+            .WithListPattern("unit-narrow", "{0} {1}", "{0} {1}", "{0} {1}", "{0} {1}")
+            // Relative time data
+            .WithRelativeTime("day", "long", "day",
+                new Dictionary<string, string> { { "-1", "yesterday" }, { "0", "today" }, { "1", "tomorrow" } },
+                new Dictionary<string, string> { { "one", "in {0} day" }, { "other", "in {0} days" } },
+                new Dictionary<string, string> { { "one", "{0} day ago" }, { "other", "{0} days ago" } })
+            .WithRelativeTime("day", "short", "day",
+                new Dictionary<string, string> { { "-1", "yesterday" }, { "0", "today" }, { "1", "tomorrow" } },
+                new Dictionary<string, string> { { "one", "in {0} day" }, { "other", "in {0} days" } },
+                new Dictionary<string, string> { { "one", "{0} day ago" }, { "other", "{0} days ago" } })
+            .WithRelativeTime("day", "narrow", "day",
+                new Dictionary<string, string> { { "-1", "yesterday" }, { "0", "today" }, { "1", "tomorrow" } },
+                new Dictionary<string, string> { { "one", "in {0}d" }, { "other", "in {0}d" } },
+                new Dictionary<string, string> { { "one", "{0}d ago" }, { "other", "{0}d ago" } })
+            .WithRelativeTime("year", "long", "year",
+                new Dictionary<string, string> { { "-1", "last year" }, { "0", "this year" }, { "1", "next year" } },
+                new Dictionary<string, string> { { "one", "in {0} year" }, { "other", "in {0} years" } },
+                new Dictionary<string, string> { { "one", "{0} year ago" }, { "other", "{0} years ago" } })
+            .WithRelativeTime("month", "long", "month",
+                new Dictionary<string, string> { { "-1", "last month" }, { "0", "this month" }, { "1", "next month" } },
+                new Dictionary<string, string> { { "one", "in {0} month" }, { "other", "in {0} months" } },
+                new Dictionary<string, string> { { "one", "{0} month ago" }, { "other", "{0} months ago" } })
+            .WithRelativeTime("week", "long", "week",
+                new Dictionary<string, string> { { "-1", "last week" }, { "0", "this week" }, { "1", "next week" } },
+                new Dictionary<string, string> { { "one", "in {0} week" }, { "other", "in {0} weeks" } },
+                new Dictionary<string, string> { { "one", "{0} week ago" }, { "other", "{0} weeks ago" } })
+            .WithRelativeTime("hour", "long", "hour",
+                new Dictionary<string, string> { { "0", "this hour" } },
+                new Dictionary<string, string> { { "one", "in {0} hour" }, { "other", "in {0} hours" } },
+                new Dictionary<string, string> { { "one", "{0} hour ago" }, { "other", "{0} hours ago" } })
+            .WithRelativeTime("minute", "long", "minute",
+                new Dictionary<string, string> { { "0", "this minute" } },
+                new Dictionary<string, string> { { "one", "in {0} minute" }, { "other", "in {0} minutes" } },
+                new Dictionary<string, string> { { "one", "{0} minute ago" }, { "other", "{0} minutes ago" } })
+            .WithRelativeTime("second", "long", "second",
+                new Dictionary<string, string> { { "0", "now" } },
+                new Dictionary<string, string> { { "one", "in {0} second" }, { "other", "in {0} seconds" } },
+                new Dictionary<string, string> { { "one", "{0} second ago" }, { "other", "{0} seconds ago" } });
     }
 
     /// <summary>

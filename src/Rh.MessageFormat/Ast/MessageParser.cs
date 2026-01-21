@@ -410,6 +410,7 @@ internal sealed class MessageParser
             Formatters.Select => CreateSelectElement(variable, arguments, span),
             Formatters.SelectOrdinal => CreateSelectOrdinalElement(variable, arguments, span),
             Formatters.List => CreateListElement(variable, arguments, span),
+            Formatters.RelativeTime => CreateRelativeTimeElement(variable, arguments, span),
             _ => new CustomFormatterElement(variable, formatter, arguments?.Trim(), span) // Custom formatter
         };
     }
@@ -627,6 +628,49 @@ internal sealed class MessageParser
         }
 
         return new ListElement(variable, style, width, span);
+    }
+
+    private RelativeTimeElement CreateRelativeTimeElement(string variable, string? arguments, SourceSpan span)
+    {
+        // Default values
+        var field = "day"; // Default field
+        var style = RelativeTimeStyle.Long;
+        var numeric = RelativeTimeNumeric.Always;
+
+        if (!string.IsNullOrWhiteSpace(arguments))
+        {
+            var parts = arguments.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+            // First part is the field (required for meaningful usage)
+            if (parts.Length > 0)
+            {
+                field = parts[0].ToLowerInvariant();
+            }
+
+            // Second part is the style (optional)
+            if (parts.Length > 1)
+            {
+                var stylePart = parts[1].ToLowerInvariant();
+                style = stylePart switch
+                {
+                    Styles.Short => RelativeTimeStyle.Short,
+                    Styles.Narrow => RelativeTimeStyle.Narrow,
+                    _ => RelativeTimeStyle.Long
+                };
+            }
+
+            // Third part is the numeric mode (optional)
+            if (parts.Length > 2)
+            {
+                var numericPart = parts[2].ToLowerInvariant();
+                if (numericPart == "auto")
+                {
+                    numeric = RelativeTimeNumeric.Auto;
+                }
+            }
+        }
+
+        return new RelativeTimeElement(variable, field, style, numeric, span);
     }
 
     private (double offset, PluralCase[] cases) ParsePluralArguments(string arguments)

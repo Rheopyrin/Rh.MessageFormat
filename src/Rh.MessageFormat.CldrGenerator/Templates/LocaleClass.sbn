@@ -105,4 +105,27 @@ internal sealed class {{ ClassName }} : ICldrLocaleData
         return false;
     }
 {{~ end ~}}
+{{~ if HasRelativeTimeData ~}}
+
+    private static readonly Lazy<Dictionary<string, RelativeTimeData>> _relativeTimeDict =
+        new(() =>
+        {
+            var dict = new Dictionary<string, RelativeTimeData>(StringComparer.OrdinalIgnoreCase);
+{{ RelativeTimeDictCode }}
+            return dict;
+        });
+
+    public bool TryGetRelativeTime(string field, string width, out RelativeTimeData data)
+    {
+        var key = $"{field}:{width}";
+        return _relativeTimeDict.Value.TryGetValue(key, out data);
+    }
+{{~ else ~}}
+
+    public bool TryGetRelativeTime(string field, string width, out RelativeTimeData data)
+    {
+        data = default;
+        return false;
+    }
+{{~ end ~}}
 }

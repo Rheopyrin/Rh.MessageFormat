@@ -51,4 +51,13 @@ public interface ICldrLocaleData
     /// <param name="data">The list pattern data if found.</param>
     /// <returns>True if the list pattern was found, false otherwise.</returns>
     bool TryGetListPattern(string type, out ListPatternData data);
+
+    /// <summary>
+    /// Tries to get relative time data for the specified field and width.
+    /// </summary>
+    /// <param name="field">The field (e.g., "year", "month", "day", "hour", "minute", "second").</param>
+    /// <param name="width">The width: "long" (default), "short", or "narrow".</param>
+    /// <param name="data">The relative time data if found.</param>
+    /// <returns>True if the relative time data was found, false otherwise.</returns>
+    bool TryGetRelativeTime(string field, string width, out RelativeTimeData data);
 }

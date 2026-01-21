@@ -27,6 +27,7 @@ public class CldrPaths
     public string CurrenciesFile { get; set; } = string.Empty;
     public string DatePatternsFolder { get; set; } = string.Empty;
     public string DatePatternsFile { get; set; } = string.Empty;
+    public string DateFieldsFile { get; set; } = string.Empty;
     public string UnitsFolder { get; set; } = string.Empty;
     public string UnitsFile { get; set; } = string.Empty;
     public string ListPatternsFolder { get; set; } = string.Empty;

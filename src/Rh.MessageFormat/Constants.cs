@@ -19,6 +19,7 @@ internal static class Constants
         public const string Select = "select";
         public const string SelectOrdinal = "selectordinal";
         public const string List = "list";
+        public const string RelativeTime = "relativeTime";
     }
 
     /// <summary>
@@ -385,6 +386,92 @@ internal static class Constants
             public const string Short = "short";
             public const string Narrow = "narrow";
         }
+    }
+
+    /// <summary>
+    /// Relative time formatting constants.
+    /// </summary>
+    public static class RelativeTime
+    {
+        /// <summary>
+        /// Valid field names for relative time formatting.
+        /// </summary>
+        public static readonly string[] ValidFields =
+        {
+            Fields.Year, Fields.Quarter, Fields.Month, Fields.Week, Fields.Day,
+            Fields.Hour, Fields.Minute, Fields.Second,
+            Fields.Sun, Fields.Mon, Fields.Tue, Fields.Wed, Fields.Thu, Fields.Fri, Fields.Sat
+        };
+
+        /// <summary>
+        /// Valid style values for relative time formatting.
+        /// </summary>
+        public static readonly string[] ValidStyles = { Styles.Long, Styles.Short, Styles.Narrow };
+
+        /// <summary>
+        /// Relative time field identifiers.
+        /// </summary>
+        public static class Fields
+        {
+            public const string Year = "year";
+            public const string Quarter = "quarter";
+            public const string Month = "month";
+            public const string Week = "week";
+            public const string Day = "day";
+            public const string Hour = "hour";
+            public const string Minute = "minute";
+            public const string Second = "second";
+
+            // Weekday fields
+            public const string Sun = "sun";
+            public const string Mon = "mon";
+            public const string Tue = "tue";
+            public const string Wed = "wed";
+            public const string Thu = "thu";
+            public const string Fri = "fri";
+            public const string Sat = "sat";
+        }
+
+        /// <summary>
+        /// Numeric mode values for relative time formatting.
+        /// </summary>
+        public static class NumericMode
+        {
+            /// <summary>
+            /// Always use numeric format: "in 1 day"
+            /// </summary>
+            public const string Always = "always";
+
+            /// <summary>
+            /// Use relative strings when available: "tomorrow"
+            /// </summary>
+            public const string Auto = "auto";
+        }
+
+        /// <summary>
+        /// Fallback patterns for relative time formatting (English).
+        /// </summary>
+        public static class FallbackPatterns
+        {
+            public const string Past = "{0} {1} ago";
+            public const string Future = "in {0} {1}";
+            public const string Present = "this {0}";
+        }
+
+        /// <summary>
+        /// Pattern placeholder.
+        /// </summary>
+        public const string Placeholder = "{0}";
+
+        /// <summary>
+        /// Tolerance for comparing floating point numbers to integers.
+        /// </summary>
+        public const double IntegerTolerance = 0.0001;
+
+        /// <summary>
+        /// General number format specifier.
+        /// </summary>
+        public const string GeneralNumberFormat = "G";
     }
 
     /// <summary>

@@ -83,6 +83,8 @@ public class LocaleTemplateData
     public string DatePatternsCode { get; init; } = "";
     public bool HasListPatterns { get; init; }
     public string ListPatternsCode { get; init; } = "";
+    public bool HasRelativeTimeData { get; init; }
+    public string RelativeTimeDictCode { get; init; } = "";
 }
 
 /// <summary>
