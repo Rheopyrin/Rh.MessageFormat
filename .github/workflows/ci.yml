@@ -1,0 +1,94 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [master]
+    tags: ['v*']
+  pull_request:
+    branches: [master]
+
+env:
+  DOTNET_VERSION: |
+    8.0.x
+    10.0.x
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Cache CLDR data
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/rh-messageformat-cldr
+          key: cldr-data-${{ hashFiles('src/scripts/sync-cldr.sh') }}
+          restore-keys: |
+            cldr-data-
+
+      - name: Generate CLDR locale data
+        run: |
+          chmod +x src/scripts/sync-cldr.sh
+          ./src/scripts/sync-cldr.sh --working-dir "${{ runner.temp }}/rh-messageformat-cldr"
+        shell: bash
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test --configuration Release --no-build --verbosity normal
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Cache CLDR data
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/rh-messageformat-cldr
+          key: cldr-data-${{ hashFiles('src/scripts/sync-cldr.sh') }}
+          restore-keys: |
+            cldr-data-
+
+      - name: Generate CLDR locale data
+        run: |
+          chmod +x src/scripts/sync-cldr.sh
+          ./src/scripts/sync-cldr.sh --working-dir "${{ runner.temp }}/rh-messageformat-cldr"
+        shell: bash
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Pack
+        run: dotnet pack --configuration Release -p:PackageVersion=${{ steps.version.outputs.VERSION }} --output ./nupkgs
+
+      - name: Push to NuGet
+        run: dotnet nuget push ./nupkgs/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
