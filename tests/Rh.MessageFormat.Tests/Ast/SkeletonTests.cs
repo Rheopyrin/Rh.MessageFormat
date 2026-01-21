@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using Rh.MessageFormat.Tests.Mocks;
 using Xunit;
 
@@ -429,42 +428,263 @@ public class SkeletonTests
     }
 
     [Fact]
-    public void DateSkeleton_Quarter_OutputsLiteral()
+    public void DateSkeleton_Quarter_Abbreviated_Q1()
     {
         var date = new DateTime(2026, 1, 15);
         var args = new Dictionary<string, object?> { { "d", date } };
 
-        // Quarter is not supported in .NET, should output as literal
         var result = _formatter.FormatMessage("{d, date, ::Q}", args);
 
-        // Should contain 'Q' as literal since .NET doesn't support quarter formatting
-        Assert.Contains("Q", result);
+        Assert.Equal("Q1", result);
     }
 
     [Fact]
-    public void DateSkeleton_WeekOfYear_OutputsLiteral()
+    public void DateSkeleton_Quarter_Abbreviated_Q2()
+    {
+        var date = new DateTime(2026, 4, 15);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
+        var result = _formatter.FormatMessage("{d, date, ::Q}", args);
+
+        Assert.Equal("Q2", result);
+    }
+
+    [Fact]
+    public void DateSkeleton_Quarter_Abbreviated_Q3()
+    {
+        var date = new DateTime(2026, 7, 15);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
+        var result = _formatter.FormatMessage("{d, date, ::Q}", args);
+
+        Assert.Equal("Q3", result);
+    }
+
+    [Fact]
+    public void DateSkeleton_Quarter_Abbreviated_Q4()
+    {
+        var date = new DateTime(2026, 10, 15);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
+        var result = _formatter.FormatMessage("{d, date, ::Q}", args);
+
+        Assert.Equal("Q4", result);
+    }
+
+    [Fact]
+    public void DateSkeleton_Quarter_Wide()
     {
         var date = new DateTime(2026, 1, 15);
         var args = new Dictionary<string, object?> { { "d", date } };
 
-        // Week of year is not supported in .NET, should output as literal
+        var result = _formatter.FormatMessage("{d, date, ::QQQQ}", args);
+
+        Assert.Equal("1st quarter", result);
+    }
+
+    [Fact]
+    public void DateSkeleton_Quarter_Narrow()
+    {
+        var date = new DateTime(2026, 1, 15);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
+        var result = _formatter.FormatMessage("{d, date, ::QQQQQ}", args);
+
+        Assert.Equal("1", result);
+    }
+
+    [Fact]
+    public void DateSkeleton_StandaloneQuarter_Abbreviated()
+    {
+        var date = new DateTime(2026, 7, 15);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
+        var result = _formatter.FormatMessage("{d, date, ::q}", args);
+
+        Assert.Equal("Q3", result);
+    }
+
+    [Fact]
+    public void DateSkeleton_Quarter_BoundaryMarchEnd()
+    {
+        // March 31 should be Q1
+        var date = new DateTime(2026, 3, 31);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
+        var result = _formatter.FormatMessage("{d, date, ::Q}", args);
+
+        Assert.Equal("Q1", result);
+    }
+
+    [Fact]
+    public void DateSkeleton_Quarter_BoundaryAprilStart()
+    {
+        // April 1 should be Q2
+        var date = new DateTime(2026, 4, 1);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
+        var result = _formatter.FormatMessage("{d, date, ::Q}", args);
+
+        Assert.Equal("Q2", result);
+    }
+
+    [Fact]
+    public void DateSkeleton_Quarter_WithYear()
+    {
+        var date = new DateTime(2026, 7, 15);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
+        var result = _formatter.FormatMessage("{d, date, ::yQ}", args);
+
+        Assert.Contains("2026", result);
+        Assert.Contains("Q3", result);
+    }
+
+    [Fact]
+    public void DateSkeleton_WeekOfYear_SingleW()
+    {
+        // 2026-01-15: ISO 8601 week 3 (Monday first, minDays 4)
+        var date = new DateTime(2026, 1, 15);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
         var result = _formatter.FormatMessage("{d, date, ::w}", args);
 
-        // Should contain 'w' as literal since .NET doesn't support week of year
-        Assert.Contains("w", result);
+        Assert.Equal("3", result);
     }
 
     [Fact]
-    public void DateSkeleton_DayOfYear_OutputsLiteral()
+    public void DateSkeleton_WeekOfYear_DoubleW_Padded()
+    {
+        // 2026-01-15: ISO 8601 week 3, padded to 2 digits
+        var date = new DateTime(2026, 1, 15);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
+        var result = _formatter.FormatMessage("{d, date, ::ww}", args);
+
+        Assert.Equal("03", result);
+    }
+
+    [Fact]
+    public void DateSkeleton_WeekOfYear_FirstWeekOfYear()
+    {
+        // 2026-01-01 is Thursday, which is in week 1 for ISO 8601
+        var date = new DateTime(2026, 1, 1);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
+        var result = _formatter.FormatMessage("{d, date, ::w}", args);
+
+        Assert.Equal("1", result);
+    }
+
+    [Fact]
+    public void DateSkeleton_WeekOfYear_LastWeekOfYear()
+    {
+        // 2026-12-31 is Thursday, ISO 8601 week 53
+        var date = new DateTime(2026, 12, 31);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
+        var result = _formatter.FormatMessage("{d, date, ::w}", args);
+
+        Assert.Equal("53", result);
+    }
+
+    [Fact]
+    public void DateSkeleton_WeekOfYear_WithYear()
+    {
+        var date = new DateTime(2026, 6, 15);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
+        var result = _formatter.FormatMessage("{d, date, ::yw}", args);
+
+        Assert.Contains("2026", result);
+        Assert.Contains("25", result); // Week 25 in June
+    }
+
+    [Fact]
+    public void DateSkeleton_DayOfYear_SingleD()
     {
         var date = new DateTime(2026, 1, 15);
         var args = new Dictionary<string, object?> { { "d", date } };
 
-        // Day of year is not supported in .NET, should output as literal
         var result = _formatter.FormatMessage("{d, date, ::D}", args);
 
-        // Should contain 'D' as literal since .NET doesn't support day of year directly
-        Assert.Contains("D", result);
+        // Day 15 of January should be "15"
+        Assert.Equal("15", result);
+    }
+
+    [Fact]
+    public void DateSkeleton_DayOfYear_DoubleD_Padded()
+    {
+        var date = new DateTime(2026, 1, 5);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
+        var result = _formatter.FormatMessage("{d, date, ::DD}", args);
+
+        // Day 5 of January with 2-digit padding should be "05"
+        Assert.Equal("05", result);
+    }
+
+    [Fact]
+    public void DateSkeleton_DayOfYear_TripleD_Padded()
+    {
+        var date = new DateTime(2026, 1, 5);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
+        var result = _formatter.FormatMessage("{d, date, ::DDD}", args);
+
+        // Day 5 of January with 3-digit padding should be "005"
+        Assert.Equal("005", result);
+    }
+
+    [Fact]
+    public void DateSkeleton_DayOfYear_LastDayOfYear()
+    {
+        var date = new DateTime(2026, 12, 31);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
+        var result = _formatter.FormatMessage("{d, date, ::D}", args);
+
+        // Day 365 of 2026 (non-leap year)
+        Assert.Equal("365", result);
+    }
+
+    [Fact]
+    public void DateSkeleton_DayOfYear_LeapYear()
+    {
+        var date = new DateTime(2024, 12, 31);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
+        var result = _formatter.FormatMessage("{d, date, ::D}", args);
+
+        // Day 366 of 2024 (leap year)
+        Assert.Equal("366", result);
+    }
+
+    [Fact]
+    public void DateSkeleton_DayOfYear_WithOtherComponents()
+    {
+        var date = new DateTime(2026, 6, 15);
+        var args = new Dictionary<string, object?> { { "d", date } };
+
+        var result = _formatter.FormatMessage("{d, date, ::yD}", args);
+
+        // Day 166 of June 15, 2026
+        Assert.Contains("2026", result);
+        Assert.Contains("166", result);
+    }
+
+    [Fact]
+    public void DateTimeSkeleton_DayOfYear_WithTime()
+    {
+        var dt = new DateTime(2026, 3, 1, 14, 30, 0);
+        var args = new Dictionary<string, object?> { { "dt", dt } };
+
+        var result = _formatter.FormatMessage("{dt, datetime, ::DHm}", args);
+
+        // Day 60 of March 1, 2026 (non-leap year)
+        Assert.Contains("60", result);
+        Assert.Contains("14", result);
+        Assert.Contains("30", result);
     }
 
     [Fact]

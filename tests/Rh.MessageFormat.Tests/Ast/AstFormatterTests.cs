@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Rh.MessageFormat.Exceptions;
 using Rh.MessageFormat.Options;
 using Rh.MessageFormat.Tests.Mocks;
 using Xunit;

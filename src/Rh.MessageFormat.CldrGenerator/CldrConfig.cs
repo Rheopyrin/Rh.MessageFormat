@@ -32,6 +32,7 @@ public class CldrPaths
     public string UnitsFile { get; set; } = string.Empty;
     public string ListPatternsFolder { get; set; } = string.Empty;
     public string ListPatternsFile { get; set; } = string.Empty;
+    public string WeekDataJson { get; set; } = string.Empty;
 }
 
 public class CldrOutputFiles

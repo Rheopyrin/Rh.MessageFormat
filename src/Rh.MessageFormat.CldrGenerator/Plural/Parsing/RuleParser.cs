@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Rh.MessageFormat.CldrGenerator.Plural.Parsing.AST;
+﻿using Rh.MessageFormat.CldrGenerator.Plural.Parsing.AST;
 
 namespace Rh.MessageFormat.CldrGenerator.Plural.Parsing;
 

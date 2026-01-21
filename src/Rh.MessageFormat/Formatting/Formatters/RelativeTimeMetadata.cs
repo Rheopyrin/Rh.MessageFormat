@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using Rh.MessageFormat.Abstractions.Models;
 using Rh.MessageFormat.Ast;
 using static Rh.MessageFormat.Constants;
@@ -28,14 +29,14 @@ internal static class RelativeTimeMetadata
         string style = Styles.Long,
         string numeric = NumericMode.Always)
     {
-        // Validate field
-        if (!IsValidField(field))
+        // Validate field using O(1) HashSet lookup
+        if (!ValidFieldsSet.Contains(field))
         {
             return FormatFallback(value, field);
         }
 
-        // Validate style
-        if (!IsValidStyle(style))
+        // Validate style using O(1) HashSet lookup
+        if (!ValidStylesSet.Contains(style))
         {
             style = Styles.Long;
         }
@@ -52,10 +53,14 @@ internal static class RelativeTimeMetadata
         // For numeric="auto", try relative type strings first (yesterday, today, tomorrow)
         if (!useNumeric)
         {
-            var intValue = (int)Math.Round(value);
-            if (Math.Abs(value - intValue) < IntegerTolerance && data.TryGetRelativeType(intValue, out var relativeType))
+            var rounded = Math.Round(value);
+            if (Math.Abs(value - rounded) < IntegerTolerance)
             {
-                return relativeType;
+                var intValue = (int)rounded;
+                if (data.TryGetRelativeType(intValue, out var relativeType))
+                {
+                    return relativeType;
+                }
             }
         }
 
@@ -84,32 +89,43 @@ internal static class RelativeTimeMetadata
             }
         }
 
-        // Replace {0} with the absolute value
-        return pattern.Replace(Placeholder, FormatNumber(absValue));
+        // Replace {0} with the absolute value - use optimized replacement
+        return ReplacePattern(pattern, absValue);
     }
 
-    private static bool IsValidField(string field)
+    /// <summary>
+    /// Replaces {0} placeholder in pattern with the formatted number.
+    /// Optimized to avoid allocation when possible.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static string ReplacePattern(string pattern, double value)
     {
-        foreach (var validField in ValidFields)
+        var placeholderIndex = pattern.IndexOf(Placeholder, StringComparison.Ordinal);
+        if (placeholderIndex < 0)
         {
-            if (string.Equals(field, validField, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
+            return pattern;
         }
-        return false;
-    }
 
-    private static bool IsValidStyle(string style)
-    {
-        foreach (var validStyle in ValidStyles)
+        var formattedNumber = FormatNumber(value);
+
+        // Use string.Concat for simple cases (most common)
+        if (placeholderIndex == 0)
         {
-            if (string.Equals(style, validStyle, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
+            // Pattern starts with {0}
+            return string.Concat(formattedNumber, pattern.AsSpan(3));
         }
-        return false;
+
+        if (placeholderIndex + 3 == pattern.Length)
+        {
+            // Pattern ends with {0}
+            return string.Concat(pattern.AsSpan(0, placeholderIndex), formattedNumber);
+        }
+
+        // {0} is in the middle
+        return string.Concat(
+            pattern.AsSpan(0, placeholderIndex),
+            formattedNumber,
+            pattern.AsSpan(placeholderIndex + 3));
     }
 
     private static bool TryGetRelativeTime(ref FormatterContext ctx, string field, string style, out RelativeTimeData data)
@@ -133,12 +149,10 @@ internal static class RelativeTimeMetadata
             }
         }
 
-        // Try base locale
-        var dashIndex = locale.IndexOf(Common.DashChar);
-        if (dashIndex < 0) dashIndex = locale.IndexOf(Common.UnderscoreChar);
-        if (dashIndex > 0)
+        // Try base locale using shared helper
+        var baseLocale = LocaleHelper.GetBaseLocale(locale);
+        if (baseLocale != null)
         {
-            var baseLocale = locale.Substring(0, dashIndex);
             if (provider.TryGetLocaleData(baseLocale, out localeData) && localeData != null)
             {
                 if (localeData.TryGetRelativeTime(field, style, out data))
@@ -176,12 +190,14 @@ internal static class RelativeTimeMetadata
         return false;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string FormatNumber(double value)
     {
         // Format as integer if it's a whole number
-        if (Math.Abs(value - Math.Round(value)) < IntegerTolerance)
+        var rounded = Math.Round(value);
+        if (Math.Abs(value - rounded) < IntegerTolerance)
         {
-            return ((long)Math.Round(value)).ToString();
+            return ((long)rounded).ToString();
         }
         return value.ToString(GeneralNumberFormat);
     }
@@ -193,15 +209,15 @@ internal static class RelativeTimeMetadata
 
         if (value < 0)
         {
-            return string.Format(FallbackPatterns.Past, formattedNumber, field);
+            return string.Concat(formattedNumber, " ", field, " ago");
         }
         else if (value > 0)
         {
-            return string.Format(FallbackPatterns.Future, formattedNumber, field);
+            return string.Concat("in ", formattedNumber, " ", field);
         }
         else
         {
-            return string.Format(FallbackPatterns.Present, field);
+            return string.Concat("this ", field);
         }
     }
 }

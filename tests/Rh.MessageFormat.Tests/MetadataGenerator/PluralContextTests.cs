@@ -1,5 +1,4 @@
 ﻿using Rh.MessageFormat.Abstractions.Models;
-using Rh.MessageFormat.Formatting.Formatters;
 using Xunit;
 
 namespace Rh.MessageFormat.Tests.MetadataGenerator;

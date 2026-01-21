@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Rh.MessageFormat.Abstractions.Models;
 using Rh.MessageFormat.Tests.Mocks;
 using Xunit;
 

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Rh.MessageFormat.CldrGenerator.Plural.Parsing;
+﻿namespace Rh.MessageFormat.CldrGenerator.Plural.Parsing;
 
 public class InvalidCharacterException : FormatException
 {

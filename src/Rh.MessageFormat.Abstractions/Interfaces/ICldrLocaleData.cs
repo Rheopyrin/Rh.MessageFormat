@@ -45,6 +45,18 @@ public interface ICldrLocaleData
     DatePatternData DatePatterns { get; }
 
     /// <summary>
+    /// Gets the quarter format patterns for this locale.
+    /// Returns empty data by default for backward compatibility.
+    /// </summary>
+    QuarterData Quarters => default;
+
+    /// <summary>
+    /// Gets the week configuration for this locale/region.
+    /// Returns empty data by default for backward compatibility.
+    /// </summary>
+    WeekData WeekInfo => default;
+
+    /// <summary>
     /// Tries to get list pattern data for the specified type.
     /// </summary>
     /// <param name="type">The list type (e.g., "standard", "or", "unit").</param>
@@ -60,4 +72,30 @@ public interface ICldrLocaleData
     /// <param name="data">The relative time data if found.</param>
     /// <returns>True if the relative time data was found, false otherwise.</returns>
     bool TryGetRelativeTime(string field, string width, out RelativeTimeData data);
+
+    /// <summary>
+    /// Gets the interval format data for this locale.
+    /// Returns default data for backward compatibility.
+    /// </summary>
+    IntervalFormatData IntervalFormats => default;
+
+    /// <summary>
+    /// Tries to get an interval pattern for the specified skeleton and greatest difference field.
+    /// </summary>
+    /// <param name="skeleton">The date/time skeleton (e.g., "yMMMd").</param>
+    /// <param name="greatestDiff">The greatest difference field character ('y', 'M', 'd', 'H', 'm').</param>
+    /// <param name="pattern">The interval pattern if found.</param>
+    /// <returns>True if the pattern was found, false otherwise.</returns>
+    bool TryGetIntervalPattern(string skeleton, char greatestDiff, out string pattern)
+    {
+        var data = IntervalFormats;
+        if (data.Skeletons != null &&
+            data.Skeletons.TryGetValue(skeleton, out var patterns) &&
+            patterns.TryGetPattern(greatestDiff, out pattern))
+        {
+            return true;
+        }
+        pattern = string.Empty;
+        return false;
+    }
 }

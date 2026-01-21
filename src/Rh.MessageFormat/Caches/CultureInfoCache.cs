@@ -2,7 +2,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.Runtime.CompilerServices;
-using Rh.MessageFormat.Abstractions;
 using Rh.MessageFormat.Abstractions.Interfaces;
 using Rh.MessageFormat.Exceptions;
 

@@ -37,7 +37,13 @@ public class LocaleClassGenerator
             HasListPatterns = _data.ListPatterns.Count > 0,
             ListPatternsCode = GenerateListPatternsCode(),
             HasRelativeTimeData = _data.RelativeTimeData.Count > 0,
-            RelativeTimeDictCode = GenerateRelativeTimeDictCode()
+            RelativeTimeDictCode = GenerateRelativeTimeDictCode(),
+            HasQuarters = _data.Quarters != null,
+            QuartersCode = GenerateQuartersCode(),
+            HasWeekInfo = _data.WeekInfo != null,
+            WeekInfoCode = GenerateWeekInfoCode(),
+            HasIntervalFormats = _data.IntervalFormats != null && _data.IntervalFormats.Skeletons.Count > 0,
+            IntervalFormatsCode = GenerateIntervalFormatsCode()
         };
     }
 
@@ -234,6 +240,62 @@ public class LocaleClassGenerator
         }
 
         return sb.ToString().TrimEnd();
+    }
+
+    private string GenerateQuartersCode()
+    {
+        if (_data.Quarters == null)
+            return "default";
+
+        var q = _data.Quarters;
+
+        string FormatQuarterFormats(LocaleQuarterFormats? formats, string context)
+        {
+            if (formats == null)
+                return "default";
+
+            var abbreviated = $"new[] {{ \"{EscapeString(formats.Abbreviated[0])}\", \"{EscapeString(formats.Abbreviated[1])}\", \"{EscapeString(formats.Abbreviated[2])}\", \"{EscapeString(formats.Abbreviated[3])}\" }}";
+            var wide = $"new[] {{ \"{EscapeString(formats.Wide[0])}\", \"{EscapeString(formats.Wide[1])}\", \"{EscapeString(formats.Wide[2])}\", \"{EscapeString(formats.Wide[3])}\" }}";
+            var narrow = $"new[] {{ \"{EscapeString(formats.Narrow[0])}\", \"{EscapeString(formats.Narrow[1])}\", \"{EscapeString(formats.Narrow[2])}\", \"{EscapeString(formats.Narrow[3])}\" }}";
+
+            return $"new QuarterFormats({abbreviated}, {wide}, {narrow})";
+        }
+
+        var formatCode = FormatQuarterFormats(q.Format, "format");
+        var standAloneCode = FormatQuarterFormats(q.StandAlone, "stand-alone");
+
+        return $"new QuarterData({formatCode}, {standAloneCode})";
+    }
+
+    private string GenerateWeekInfoCode()
+    {
+        if (_data.WeekInfo == null)
+            return "default";
+
+        return $"new WeekData((DayOfWeek){_data.WeekInfo.FirstDay}, {_data.WeekInfo.MinDays})";
+    }
+
+    private string GenerateIntervalFormatsCode()
+    {
+        if (_data.IntervalFormats == null || _data.IntervalFormats.Skeletons.Count == 0)
+            return "default";
+
+        var sb = new StringBuilder();
+        sb.AppendLine("new IntervalFormatData(");
+        sb.AppendLine($"            \"{EscapeString(_data.IntervalFormats.FallbackPattern)}\",");
+        sb.AppendLine("            new Dictionary<string, IntervalPatterns>");
+        sb.AppendLine("            {");
+
+        foreach (var (skeleton, patterns) in _data.IntervalFormats.Skeletons)
+        {
+            var patternEntries = string.Join(", ", patterns.Select(kv =>
+                $"{{ '{kv.Key}', \"{EscapeString(kv.Value)}\" }}"));
+            sb.AppendLine($"                {{ \"{EscapeString(skeleton)}\", new IntervalPatterns(new Dictionary<char, string> {{ {patternEntries} }}) }},");
+        }
+
+        sb.Append("            })");
+
+        return sb.ToString();
     }
 
     private static string EscapeString(string? value)

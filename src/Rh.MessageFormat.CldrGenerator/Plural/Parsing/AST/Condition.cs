@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace Rh.MessageFormat.CldrGenerator.Plural.Parsing.AST;
 

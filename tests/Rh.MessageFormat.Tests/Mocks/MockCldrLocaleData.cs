@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Rh.MessageFormat.Abstractions;
 using Rh.MessageFormat.Abstractions.Interfaces;
 using Rh.MessageFormat.Abstractions.Models;
 
@@ -18,6 +17,9 @@ public class MockCldrLocaleData : ICldrLocaleData
 
     public string Locale { get; set; } = "en";
     public DatePatternData DatePatterns { get; set; }
+    public QuarterData Quarters { get; set; }
+    public WeekData WeekInfo { get; set; }
+    public IntervalFormatData IntervalFormats { get; set; }
 
     /// <summary>
     /// Function to compute plural category. Defaults to simple English rules.
@@ -37,6 +39,26 @@ public class MockCldrLocaleData : ICldrLocaleData
             new TimeFormats("h:mm:ss tt K", "h:mm:ss tt z", "h:mm:ss tt", "h:mm tt"),
             new DateTimeFormats("{1} 'at' {0}", "{1} 'at' {0}", "{1}, {0}", "{1}, {0}")
         );
+
+        // Default English quarter patterns
+        Quarters = new QuarterData(
+            new QuarterFormats(
+                new[] { "Q1", "Q2", "Q3", "Q4" },
+                new[] { "1st quarter", "2nd quarter", "3rd quarter", "4th quarter" },
+                new[] { "1", "2", "3", "4" }
+            ),
+            new QuarterFormats(
+                new[] { "Q1", "Q2", "Q3", "Q4" },
+                new[] { "1st quarter", "2nd quarter", "3rd quarter", "4th quarter" },
+                new[] { "1", "2", "3", "4" }
+            )
+        );
+
+        // Default week info (ISO 8601 standard)
+        WeekInfo = WeekData.Iso8601;
+
+        // Default interval format (fallback pattern)
+        IntervalFormats = IntervalFormatData.Default;
 
         // Default English plural rule: 1 = one, else = other
         PluralRule = ctx => ctx.I == 1 && ctx.V == 0 ? "one" : "other";
@@ -131,6 +153,69 @@ public class MockCldrLocaleData : ICldrLocaleData
     public MockCldrLocaleData WithDatePatterns(DatePatternData patterns)
     {
         DatePatterns = patterns;
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the quarter patterns for this locale data.
+    /// </summary>
+    public MockCldrLocaleData WithQuarters(QuarterData quarters)
+    {
+        Quarters = quarters;
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the quarter patterns using arrays for abbreviated, wide, and narrow forms.
+    /// </summary>
+    public MockCldrLocaleData WithQuarters(
+        string[] abbreviated, string[] wide, string[] narrow,
+        string[]? standaloneAbbreviated = null, string[]? standaloneWide = null, string[]? standaloneNarrow = null)
+    {
+        Quarters = new QuarterData(
+            new QuarterFormats(abbreviated, wide, narrow),
+            new QuarterFormats(
+                standaloneAbbreviated ?? abbreviated,
+                standaloneWide ?? wide,
+                standaloneNarrow ?? narrow
+            )
+        );
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the week info for this locale data.
+    /// </summary>
+    public MockCldrLocaleData WithWeekInfo(WeekData weekInfo)
+    {
+        WeekInfo = weekInfo;
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the week info using first day and minimum days.
+    /// </summary>
+    public MockCldrLocaleData WithWeekInfo(DayOfWeek firstDay, int minDays)
+    {
+        WeekInfo = new WeekData(firstDay, minDays);
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the interval format data for this locale.
+    /// </summary>
+    public MockCldrLocaleData WithIntervalFormats(IntervalFormatData data)
+    {
+        IntervalFormats = data;
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the interval format fallback pattern.
+    /// </summary>
+    public MockCldrLocaleData WithIntervalFormatFallback(string fallbackPattern)
+    {
+        IntervalFormats = new IntervalFormatData(fallbackPattern);
         return this;
     }
 
@@ -401,6 +486,16 @@ public class MockCldrLocaleData : ICldrLocaleData
     }
 
     /// <summary>
+    /// Creates English (US) locale data with US week rules.
+    /// </summary>
+    public static MockCldrLocaleData CreateEnglishUS()
+    {
+        var data = CreateEnglish();
+        data.Locale = "en-US";
+        return data.WithWeekInfo(WeekData.US);
+    }
+
+    /// <summary>
     /// Creates German locale data with standard patterns.
     /// </summary>
     public static MockCldrLocaleData CreateGerman()
@@ -415,7 +510,12 @@ public class MockCldrLocaleData : ICldrLocaleData
                 new DateFormats("EEEE, d. MMMM y", "d. MMMM y", "dd.MM.y", "dd.MM.yy"),
                 new TimeFormats("HH:mm:ss zzzz", "HH:mm:ss z", "HH:mm:ss", "HH:mm"),
                 new DateTimeFormats("{1} 'um' {0}", "{1} 'um' {0}", "{1}, {0}", "{1}, {0}")
-            ));
+            ))
+            .WithQuarters(
+                new[] { "Q1", "Q2", "Q3", "Q4" },
+                new[] { "1. Quartal", "2. Quartal", "3. Quartal", "4. Quartal" },
+                new[] { "1", "2", "3", "4" }
+            );
     }
 
     /// <summary>
@@ -433,7 +533,12 @@ public class MockCldrLocaleData : ICldrLocaleData
                 new DateFormats("EEEE d MMMM y", "d MMMM y", "d MMM y", "dd/MM/y"),
                 new TimeFormats("HH:mm:ss zzzz", "HH:mm:ss z", "HH:mm:ss", "HH:mm"),
                 new DateTimeFormats("{1} '\u00E0' {0}", "{1} '\u00E0' {0}", "{1} {0}", "{1} {0}")
-            ));
+            ))
+            .WithQuarters(
+                new[] { "T1", "T2", "T3", "T4" },
+                new[] { "1er trimestre", "2e trimestre", "3e trimestre", "4e trimestre" },
+                new[] { "1", "2", "3", "4" }
+            );
     }
 
     #endregion

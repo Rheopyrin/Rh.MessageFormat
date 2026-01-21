@@ -1,6 +1,7 @@
 using System;
 using Rh.MessageFormat.Abstractions.Models;
 using Rh.MessageFormat.Ast;
+using static Rh.MessageFormat.Constants;
 
 namespace Rh.MessageFormat.Formatting.Formatters;
 
@@ -40,7 +41,7 @@ internal static class PluralHelper
         }
 
         // Simple fallback
-        return IsOne(value) ? "one" : "other";
+        return IsOne(value) ? Plurals.One : Plurals.Other;
     }
 
     /// <summary>

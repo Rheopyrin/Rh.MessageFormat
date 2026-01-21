@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Rh.MessageFormat.Abstractions;
-using Rh.MessageFormat.Abstractions.Models;
 using Rh.MessageFormat.Exceptions;
 using Rh.MessageFormat.Tests.Mocks;
 using Xunit;

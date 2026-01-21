@@ -1,6 +1,5 @@
 using System;
 using System.Runtime.CompilerServices;
-using static Rh.MessageFormat.Constants;
 using static Rh.MessageFormat.Constants.Numbers;
 using static Rh.MessageFormat.Constants.Numbers.Skeleton;
 

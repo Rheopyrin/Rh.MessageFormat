@@ -85,6 +85,12 @@ public class LocaleTemplateData
     public string ListPatternsCode { get; init; } = "";
     public bool HasRelativeTimeData { get; init; }
     public string RelativeTimeDictCode { get; init; } = "";
+    public bool HasQuarters { get; init; }
+    public string QuartersCode { get; init; } = "";
+    public bool HasWeekInfo { get; init; }
+    public string WeekInfoCode { get; init; } = "";
+    public bool HasIntervalFormats { get; init; }
+    public string IntervalFormatsCode { get; init; } = "";
 }
 
 /// <summary>

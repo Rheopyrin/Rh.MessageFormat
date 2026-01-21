@@ -1,7 +1,6 @@
 using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
-using System.Text;
 using Rh.MessageFormat.Ast;
 using Rh.MessageFormat.Exceptions;
 using Rh.MessageFormat.Formatting.Formatters;

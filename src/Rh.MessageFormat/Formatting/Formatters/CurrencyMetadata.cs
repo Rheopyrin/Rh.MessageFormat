@@ -1,6 +1,7 @@
 using System;
 using Rh.MessageFormat.Abstractions.Models;
 using Rh.MessageFormat.Ast;
+using static Rh.MessageFormat.Constants;
 
 namespace Rh.MessageFormat.Formatting.Formatters;
 
@@ -45,10 +46,10 @@ internal static class CurrencyMetadata
 
             return category switch
             {
-                "one" when !string.IsNullOrEmpty(data.DisplayNameOne) => data.DisplayNameOne,
-                "few" when !string.IsNullOrEmpty(data.DisplayNameFew) => data.DisplayNameFew,
-                "many" when !string.IsNullOrEmpty(data.DisplayNameMany) => data.DisplayNameMany,
-                "other" when !string.IsNullOrEmpty(data.DisplayNameOther) => data.DisplayNameOther,
+                Plurals.One when !string.IsNullOrEmpty(data.DisplayNameOne) => data.DisplayNameOne,
+                Plurals.Few when !string.IsNullOrEmpty(data.DisplayNameFew) => data.DisplayNameFew,
+                Plurals.Many when !string.IsNullOrEmpty(data.DisplayNameMany) => data.DisplayNameMany,
+                Plurals.Other when !string.IsNullOrEmpty(data.DisplayNameOther) => data.DisplayNameOther,
                 _ => !string.IsNullOrEmpty(data.DisplayNameOther) ? data.DisplayNameOther : data.DisplayName
             };
         }

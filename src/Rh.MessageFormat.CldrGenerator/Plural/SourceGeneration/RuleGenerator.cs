@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using Rh.MessageFormat.CldrGenerator.Plural.Parsing.AST;
 
 namespace Rh.MessageFormat.CldrGenerator.Plural.SourceGeneration;

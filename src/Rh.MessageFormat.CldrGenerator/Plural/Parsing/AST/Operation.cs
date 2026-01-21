@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Rh.MessageFormat.CldrGenerator.Plural.Parsing.AST;
+﻿namespace Rh.MessageFormat.CldrGenerator.Plural.Parsing.AST;
 
 public class Operation
 {

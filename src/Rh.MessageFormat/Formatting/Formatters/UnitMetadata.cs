@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Rh.MessageFormat.Abstractions;
 using Rh.MessageFormat.Abstractions.Models;
 using Rh.MessageFormat.Ast;
+using static Rh.MessageFormat.Constants;
 
 namespace Rh.MessageFormat.Formatting.Formatters;
 
@@ -135,7 +135,7 @@ internal static class UnitMetadata
             }
 
             // Try "long" width as fallback
-            if (width != "long" && data.TryGetDisplayName("long", count, out displayName))
+            if (width != Styles.Long && data.TryGetDisplayName(Styles.Long, count, out displayName))
             {
                 return displayName;
             }
@@ -150,7 +150,7 @@ internal static class UnitMetadata
     [Obsolete("Use the overload that accepts a numeric value for proper plural form selection.")]
     public static string GetUnitString(ref FormatterContext ctx, string unitId, string width, bool isPlural)
     {
-        var count = isPlural ? "other" : "one";
+        var count = isPlural ? Plurals.Other : Plurals.One;
 
         // Map short unit name to full CLDR unit ID
         var cldrUnitId = MapToCldrUnitId(unitId);
@@ -163,7 +163,7 @@ internal static class UnitMetadata
             }
 
             // Try "long" width as fallback
-            if (width != "long" && data.TryGetDisplayName("long", count, out displayName))
+            if (width != Styles.Long && data.TryGetDisplayName(Styles.Long, count, out displayName))
             {
                 return displayName;
             }

@@ -15,6 +15,7 @@ internal static class Constants
         public const string Date = "date";
         public const string Time = "time";
         public const string DateTime = "datetime";
+        public const string DateRange = "daterange";
         public const string Plural = "plural";
         public const string Select = "select";
         public const string SelectOrdinal = "selectordinal";
@@ -175,6 +176,46 @@ internal static class Constants
     /// </summary>
     public static class DateTime
     {
+        /// <summary>
+        /// Marker characters for skeleton post-processing.
+        /// These are private use area characters that get replaced after .NET formatting.
+        /// </summary>
+        public static class SkeletonMarkers
+        {
+            /// <summary>Day of year (1-366), no padding.</summary>
+            public const char DayOfYear = '\uE001';
+
+            /// <summary>Day of year (01-366), 2-digit minimum padding.</summary>
+            public const char DayOfYearPadded2 = '\uE002';
+
+            /// <summary>Day of year (001-366), 3-digit padding.</summary>
+            public const char DayOfYearPadded3 = '\uE003';
+
+            /// <summary>Quarter abbreviated (Q1-Q4).</summary>
+            public const char QuarterAbbreviated = '\uE004';
+
+            /// <summary>Quarter wide (1st quarter, etc.).</summary>
+            public const char QuarterWide = '\uE005';
+
+            /// <summary>Quarter narrow (1-4).</summary>
+            public const char QuarterNarrow = '\uE006';
+
+            /// <summary>Standalone quarter abbreviated.</summary>
+            public const char StandaloneQuarterAbbreviated = '\uE007';
+
+            /// <summary>Standalone quarter wide.</summary>
+            public const char StandaloneQuarterWide = '\uE008';
+
+            /// <summary>Standalone quarter narrow.</summary>
+            public const char StandaloneQuarterNarrow = '\uE009';
+
+            /// <summary>Week of year (1-53), no padding.</summary>
+            public const char WeekOfYear = '\uE00A';
+
+            /// <summary>Week of year (01-53), 2-digit padding.</summary>
+            public const char WeekOfYearPadded = '\uE00B';
+        }
+
         /// <summary>
         /// ICU skeleton field characters.
         /// </summary>
@@ -394,6 +435,23 @@ internal static class Constants
     public static class RelativeTime
     {
         /// <summary>
+        /// Valid field names for relative time formatting (HashSet for O(1) lookup).
+        /// </summary>
+        public static readonly System.Collections.Generic.HashSet<string> ValidFieldsSet =
+            new(System.StringComparer.OrdinalIgnoreCase)
+            {
+                Fields.Year, Fields.Quarter, Fields.Month, Fields.Week, Fields.Day,
+                Fields.Hour, Fields.Minute, Fields.Second,
+                Fields.Sun, Fields.Mon, Fields.Tue, Fields.Wed, Fields.Thu, Fields.Fri, Fields.Sat
+            };
+
+        /// <summary>
+        /// Valid style values for relative time formatting (HashSet for O(1) lookup).
+        /// </summary>
+        public static readonly System.Collections.Generic.HashSet<string> ValidStylesSet =
+            new(System.StringComparer.OrdinalIgnoreCase) { Styles.Long, Styles.Short, Styles.Narrow };
+
+        /// <summary>
         /// Valid field names for relative time formatting.
         /// </summary>
         public static readonly string[] ValidFields =
@@ -483,5 +541,59 @@ internal static class Constants
         public const string Space = " ";
         public const char DashChar = '-';
         public const char UnderscoreChar = '_';
+    }
+
+    /// <summary>
+    /// Date/time range formatting constants.
+    /// </summary>
+    public static class DateRange
+    {
+        /// <summary>
+        /// Default fallback pattern for interval formatting.
+        /// </summary>
+        public const string DefaultFallbackPattern = "{0} – {1}";
+
+        /// <summary>
+        /// En dash separator with spaces (most common).
+        /// </summary>
+        public const string EnDashSeparator = " – ";
+
+        /// <summary>
+        /// Hyphen separator with spaces.
+        /// </summary>
+        public const string HyphenSeparator = " - ";
+
+        /// <summary>
+        /// Word separator "to" with spaces.
+        /// </summary>
+        public const string ToSeparator = " to ";
+
+        /// <summary>
+        /// En dash separator without spaces.
+        /// </summary>
+        public const string EnDashNoSpace = "–";
+
+        /// <summary>
+        /// Hyphen separator without spaces.
+        /// </summary>
+        public const string HyphenNoSpace = "-";
+
+        /// <summary>
+        /// Standard .NET date format strings.
+        /// </summary>
+        public static class NetFormats
+        {
+            /// <summary>Short date pattern (M/d/yyyy).</summary>
+            public const string ShortDate = "d";
+
+            /// <summary>Long date pattern (dddd, MMMM d, yyyy).</summary>
+            public const string LongDate = "D";
+
+            /// <summary>Full date/time pattern.</summary>
+            public const string FullDateTime = "F";
+
+            /// <summary>General date/time pattern (short time).</summary>
+            public const string GeneralShortTime = "g";
+        }
     }
 }

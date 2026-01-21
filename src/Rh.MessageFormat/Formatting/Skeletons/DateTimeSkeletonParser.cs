@@ -2,7 +2,6 @@ using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
-using static Rh.MessageFormat.Constants;
 using static Rh.MessageFormat.Constants.DateTime;
 
 namespace Rh.MessageFormat.Formatting.Skeletons;
@@ -241,18 +240,33 @@ internal static class DateTimeSkeletonParser
                 _ => Formats.EraLong
             },
 
-            // Quarter (not directly supported in .NET, pass through as literal)
-            SkeletonChars.Quarter or SkeletonChars.StandaloneQuarter => $"'Q'{count}",
+            // Quarter - uses marker characters for post-processing (wrapped in quotes to be literal)
+            SkeletonChars.Quarter => count switch
+            {
+                1 or 2 => $"'{Constants.DateTime.SkeletonMarkers.QuarterAbbreviated}'",
+                3 or 4 => $"'{Constants.DateTime.SkeletonMarkers.QuarterWide}'",
+                _ => $"'{Constants.DateTime.SkeletonMarkers.QuarterNarrow}'"
+            },
 
-            // Week of year (not directly supported in .NET, pass through as literal)
-            SkeletonChars.WeekOfYear => count >= 2 ? "'ww'" : "'w'",
+            // Standalone Quarter - uses marker characters for post-processing
+            SkeletonChars.StandaloneQuarter => count switch
+            {
+                1 or 2 => $"'{Constants.DateTime.SkeletonMarkers.StandaloneQuarterAbbreviated}'",
+                3 or 4 => $"'{Constants.DateTime.SkeletonMarkers.StandaloneQuarterWide}'",
+                _ => $"'{Constants.DateTime.SkeletonMarkers.StandaloneQuarterNarrow}'"
+            },
 
-            // Day of year (not directly supported in .NET standard format, pass through as literal)
+            // Week of year - uses marker characters for post-processing
+            SkeletonChars.WeekOfYear => count >= 2
+                ? $"'{Constants.DateTime.SkeletonMarkers.WeekOfYearPadded}'"
+                : $"'{Constants.DateTime.SkeletonMarkers.WeekOfYear}'",
+
+            // Day of year - uses marker characters for post-processing (wrapped in quotes to be literal)
             SkeletonChars.DayOfYear => count switch
             {
-                1 => "'D'",
-                2 => "'DD'",
-                _ => "'DDD'"
+                1 => $"'{Constants.DateTime.SkeletonMarkers.DayOfYear}'",
+                2 => $"'{Constants.DateTime.SkeletonMarkers.DayOfYearPadded2}'",
+                _ => $"'{Constants.DateTime.SkeletonMarkers.DayOfYearPadded3}'"
             },
 
             // Timezone

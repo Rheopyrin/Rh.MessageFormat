@@ -128,4 +128,18 @@ internal sealed class {{ ClassName }} : ICldrLocaleData
         return false;
     }
 {{~ end ~}}
+{{~ if HasQuarters ~}}
+
+    public QuarterData Quarters => {{ QuartersCode }};
+{{~ end ~}}
+{{~ if HasWeekInfo ~}}
+
+    public WeekData WeekInfo => {{ WeekInfoCode }};
+{{~ end ~}}
+{{~ if HasIntervalFormats ~}}
+
+    private static readonly IntervalFormatData _intervalFormats = {{ IntervalFormatsCode }};
+
+    public IntervalFormatData IntervalFormats => _intervalFormats;
+{{~ end ~}}
 }

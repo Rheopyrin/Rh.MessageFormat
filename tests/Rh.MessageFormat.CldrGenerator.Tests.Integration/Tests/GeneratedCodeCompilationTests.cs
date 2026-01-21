@@ -1,4 +1,3 @@
-using Rh.MessageFormat.Abstractions;
 using Rh.MessageFormat.Abstractions.Interfaces;
 using Rh.MessageFormat.CldrGenerator.Generators;
 using Rh.MessageFormat.CldrGenerator.Tests.Integration.Fixtures;

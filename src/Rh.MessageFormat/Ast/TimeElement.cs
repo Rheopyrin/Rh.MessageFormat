@@ -113,7 +113,8 @@ internal sealed class TimeElement : MessageElement
         if (_style == TimeStyle.Skeleton && _skeleton != null)
         {
             var format = DateTimeSkeletonParser.ToFormatString(_skeleton, ctx.Culture);
-            return time.ToString(format, ctx.Culture);
+            var formatted = time.ToString(format, ctx.Culture);
+            return SkeletonPostProcessor.Process(formatted, time, ref ctx);
         }
 
         // Custom format string

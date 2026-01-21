@@ -57,7 +57,13 @@ public readonly struct RelativeTimeData
     }
 
     /// <summary>
+    /// Cached string representations of common offsets to avoid allocations.
+    /// </summary>
+    private static readonly string[] CachedOffsets = { "-2", "-1", "0", "1", "2" };
+
+    /// <summary>
     /// Tries to get a relative type string for a specific offset (e.g., -1 for "yesterday").
+    /// Uses cached strings for common offsets (-2 to 2) to avoid allocations.
     /// </summary>
     /// <param name="offset">The offset value (-1, 0, 1, etc.).</param>
     /// <param name="value">The relative type string if found.</param>
@@ -70,7 +76,11 @@ public readonly struct RelativeTimeData
             return false;
         }
 
-        var key = offset.ToString();
+        // Use cached string for common offsets to avoid int.ToString() allocation
+        var key = offset >= -2 && offset <= 2
+            ? CachedOffsets[offset + 2]
+            : offset.ToString();
+
         if (RelativeTypes.TryGetValue(key, out var result))
         {
             value = result;

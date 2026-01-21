@@ -1,7 +1,6 @@
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Rh.MessageFormat.Abstractions;
 using Rh.MessageFormat.Abstractions.Interfaces;
 
 namespace Rh.MessageFormat.CldrGenerator.Tests.Integration.Helpers;
