@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using Rh.MessageFormat.Ast;
+using Rh.MessageFormat.Ast.Elements;
 using Rh.MessageFormat.Exceptions;
 using Rh.MessageFormat.Formatting.Formatters;
 using Rh.MessageFormat.Pools;

@@ -4,7 +4,7 @@ using Rh.MessageFormat.Formatting.Formatters;
 using static Rh.MessageFormat.Constants;
 using static Rh.MessageFormat.Constants.RelativeTime;
 
-namespace Rh.MessageFormat.Ast;
+namespace Rh.MessageFormat.Ast.Elements;
 
 /// <summary>
 /// Relative time display style.

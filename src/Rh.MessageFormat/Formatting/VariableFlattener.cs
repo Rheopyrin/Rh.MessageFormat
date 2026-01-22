@@ -1,9 +1,9 @@
 using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using BitFaster.Caching.Lru;
 
 namespace Rh.MessageFormat.Formatting;
 
@@ -48,8 +48,9 @@ public static class VariableFlattener
 
     /// <summary>
     /// Cache for property info arrays to avoid repeated reflection calls.
+    /// Uses LRU eviction with fixed capacity to prevent unbounded growth.
     /// </summary>
-    private static readonly ConcurrentDictionary<Type, PropertyInfo[]> PropertyCache = new();
+    private static readonly ConcurrentLru<Type, PropertyInfo[]> PropertyCache = new(1024);
 
     /// <summary>
     /// Converts an object to a dictionary using reflection.
@@ -187,38 +188,15 @@ public static class VariableFlattener
 
     /// <summary>
     /// Gets cached properties for a type, with proper trimming annotations.
-    /// Anonymous types are not cached to avoid unbounded cache growth.
+    /// Uses LRU cache with fixed capacity, so all types including anonymous types are cached.
     /// </summary>
     [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2070:UnrecognizedReflectionPattern",
         Justification = "The properties are only used for reading values, which is safe for trimming.")]
     private static PropertyInfo[] GetCachedProperties(
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type)
     {
-        // Don't cache anonymous types - they have unique names and would cause unbounded cache growth
-        if (IsAnonymousType(type))
-        {
-            return type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-        }
-
         return PropertyCache.GetOrAdd(type, t =>
             t.GetProperties(BindingFlags.Public | BindingFlags.Instance));
-    }
-
-    /// <summary>
-    /// Determines if a type is an anonymous type.
-    /// Anonymous types are compiler-generated and have specific characteristics.
-    /// </summary>
-    private static bool IsAnonymousType(Type type)
-    {
-        // Anonymous types have these characteristics:
-        // 1. Compiler-generated attribute
-        // 2. Name contains "AnonymousType"
-        // 3. Are generic types with specific naming pattern like <>f__AnonymousType
-        return type.IsClass &&
-               type.IsSealed &&
-               type.IsGenericType &&
-               type.Name.Contains("AnonymousType") &&
-               type.Name.StartsWith("<>");
     }
 
     private static void FlattenRecursive(

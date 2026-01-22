@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace Rh.MessageFormat.Ast;
+namespace Rh.MessageFormat.Ast.Elements;
 
 /// <summary>
 /// Represents a position span in the source pattern.

@@ -41,4 +41,9 @@ public interface IMessageFormatterOptions
     /// When false (default), missing variables are treated as empty strings.
     /// </summary>
     bool RequireAllVariables { get; }
+
+    /// <summary>
+    /// Gets the parser cache options for caching parsed messages.
+    /// </summary>
+    ParserCacheOptions ParserCache { get; }
 }

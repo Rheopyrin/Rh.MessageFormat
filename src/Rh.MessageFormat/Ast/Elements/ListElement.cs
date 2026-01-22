@@ -8,7 +8,7 @@ using Rh.MessageFormat.Pools;
 using static Rh.MessageFormat.Constants;
 using static Rh.MessageFormat.Constants.List;
 
-namespace Rh.MessageFormat.Ast;
+namespace Rh.MessageFormat.Ast.Elements;
 
 /// <summary>
 /// List formatting style.

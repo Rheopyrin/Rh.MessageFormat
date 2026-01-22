@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Rh.MessageFormat.Pools;
 
-namespace Rh.MessageFormat.Ast;
+namespace Rh.MessageFormat.Ast.Elements;
 
 /// <summary>
 /// Represents a rich text tag element: &lt;tagName&gt;content&lt;/tagName&gt;

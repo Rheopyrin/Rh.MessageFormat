@@ -1,4 +1,4 @@
-namespace Rh.MessageFormat.Ast;
+namespace Rh.MessageFormat.Ast.Elements;
 
 /// <summary>
 /// The type of message element.

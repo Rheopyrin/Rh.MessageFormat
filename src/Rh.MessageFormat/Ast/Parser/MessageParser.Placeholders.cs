@@ -1,7 +1,8 @@
+using Rh.MessageFormat.Ast.Elements;
 using Rh.MessageFormat.Exceptions;
 using static Rh.MessageFormat.Constants.Parser;
 
-namespace Rh.MessageFormat.Ast;
+namespace Rh.MessageFormat.Ast.Parser;
 
 /// <summary>
 /// Placeholder parsing methods.

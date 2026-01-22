@@ -8,7 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BitFaster.Caching" Version="2.5.4" />
     <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="8.0.10" />
+    <PackageReference Include="System.IO.Hashing" Version="10.0.2" />
   </ItemGroup>
 
   <ItemGroup>

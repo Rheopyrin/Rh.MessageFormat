@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Rh.MessageFormat.Formatting.Formatters;
 
-namespace Rh.MessageFormat.Ast;
+namespace Rh.MessageFormat.Ast.Elements;
 
 /// <summary>
 /// Represents a date range format element: {start, daterange, end} or {start, daterange, end, style}

@@ -2,6 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using Rh.MessageFormat.Abstractions.Models;
 using Rh.MessageFormat.Ast;
+using Rh.MessageFormat.Ast.Elements;
 using static Rh.MessageFormat.Constants;
 using static Rh.MessageFormat.Constants.RelativeTime;
 

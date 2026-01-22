@@ -1,9 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO.Hashing;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using BitFaster.Caching.Lru;
 using Rh.MessageFormat.Abstractions.Interfaces;
 using Rh.MessageFormat.Ast;
+using Rh.MessageFormat.Ast.Elements;
+using Rh.MessageFormat.Ast.Parser;
 using Rh.MessageFormat.Custom;
 using Rh.MessageFormat.Exceptions;
 using Rh.MessageFormat.Formatting;
@@ -59,6 +64,12 @@ public class MessageFormatter : IMessageFormatter
     /// </summary>
     private readonly IReadOnlyDictionary<string, TagHandler>? _tagHandlers;
 
+    /// <summary>
+    ///     The cache for parsed messages (null if caching is disabled).
+    ///     Uses XxHash128 of the pattern as key for memory efficiency.
+    /// </summary>
+    private readonly ConcurrentLru<UInt128, ParsedMessage>? _parseCache;
+
     #endregion
 
     #region Constructors
@@ -102,6 +113,12 @@ public class MessageFormatter : IMessageFormatter
         // Initialize formatters and handlers dictionaries once
         _formatters = _options.CustomFormatters.Count > 0 ? _options.CustomFormatters.AsReadOnly() : null;
         _tagHandlers = _options.TagHandlers.Count > 0 ? _options.TagHandlers.AsReadOnly() : null;
+
+        // Initialize parser cache if enabled
+        if (_options.ParserCache.Enabled)
+        {
+            _parseCache = new ConcurrentLru<UInt128, ParsedMessage>(_options.ParserCache.MaxCapacity);
+        }
     }
 
     #endregion
@@ -123,7 +140,9 @@ public class MessageFormatter : IMessageFormatter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string FormatMessage(string pattern, IReadOnlyDictionary<string, object?> args)
     {
-        var message = _parser.Parse(pattern);
+        var message = _parseCache != null
+            ? _parseCache.GetOrAdd(GetPatternHash(pattern, ignoreTag: false), _ => _parser.Parse(pattern))
+            : _parser.Parse(pattern);
 
         var output = StringBuilderPool.Get();
         try
@@ -252,7 +271,9 @@ public class MessageFormatter : IMessageFormatter
         var escapedValues = HtmlEncoder.EscapeValues(values);
 
         // Parse with ignoreTag=true to preserve HTML tags as literal text
-        var message = _parser.Parse(pattern, ignoreTag: true);
+        var message = _parseCache != null
+            ? _parseCache.GetOrAdd(GetPatternHash(pattern, ignoreTag: true), _ => _parser.Parse(pattern, ignoreTag: true))
+            : _parser.Parse(pattern, ignoreTag: true);
 
         var output = StringBuilderPool.Get();
         try
@@ -344,6 +365,19 @@ public class MessageFormatter : IMessageFormatter
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private OrdinalRuleDelegate GetOrdinalizer(ICldrLocaleData localeData) => localeData.GetOrdinalCategory;
+
+    /// <summary>
+    ///     Computes a hash key for the pattern cache using XxHash128.
+    ///     Uses different seeds to differentiate between normal and HTML parsing modes.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static UInt128 GetPatternHash(string pattern, bool ignoreTag)
+    {
+        var bytes = MemoryMarshal.AsBytes(pattern.AsSpan());
+        return ignoreTag
+            ? XxHash128.HashToUInt128(bytes, seed: 1)
+            : XxHash128.HashToUInt128(bytes);
+    }
 
     #endregion
 }

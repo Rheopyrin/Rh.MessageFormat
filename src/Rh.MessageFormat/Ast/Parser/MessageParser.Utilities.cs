@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 using static Rh.MessageFormat.Constants;
 using static Rh.MessageFormat.Constants.Parser;
 
-namespace Rh.MessageFormat.Ast;
+namespace Rh.MessageFormat.Ast.Parser;
 
 /// <summary>
 /// Utility methods for parsing.

@@ -1,7 +1,8 @@
 using System.Collections.Generic;
+using Rh.MessageFormat.Ast.Elements;
 using static Rh.MessageFormat.Constants.Parser;
 
-namespace Rh.MessageFormat.Ast;
+namespace Rh.MessageFormat.Ast.Parser;
 
 /// <summary>
 /// Parses message patterns into ParsedMessage AST. Designed for performance with span-based parsing.

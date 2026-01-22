@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Rh.MessageFormat.Pools;
 
-namespace Rh.MessageFormat.Ast;
+namespace Rh.MessageFormat.Ast.Elements;
 
 /// <summary>
 /// Represents a case in a plural element (e.g., "one", "other", "=5").

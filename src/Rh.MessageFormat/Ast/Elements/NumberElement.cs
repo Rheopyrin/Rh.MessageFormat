@@ -5,7 +5,7 @@ using Rh.MessageFormat.Exceptions;
 using Rh.MessageFormat.Formatting.Skeletons;
 using static Rh.MessageFormat.Constants.Numbers;
 
-namespace Rh.MessageFormat.Ast;
+namespace Rh.MessageFormat.Ast.Elements;
 
 /// <summary>
 /// Number style for predefined formats.

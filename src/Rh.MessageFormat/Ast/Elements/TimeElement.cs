@@ -5,7 +5,7 @@ using System.Text;
 using Rh.MessageFormat.Formatting.Formatters;
 using Rh.MessageFormat.Formatting.Skeletons;
 
-namespace Rh.MessageFormat.Ast;
+namespace Rh.MessageFormat.Ast.Elements;
 
 /// <summary>
 /// Time style for predefined formats.

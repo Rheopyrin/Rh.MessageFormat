@@ -1,11 +1,24 @@
 using System.Text;
 
-namespace Rh.MessageFormat.Ast;
+namespace Rh.MessageFormat.Ast.Elements;
+
+internal interface IMessageElement
+{
+    /// <summary>
+    /// The source location of this element.
+    /// </summary>
+    SourceSpan Location { get; }
+
+    /// <summary>
+    /// The type of this element for fast dispatch.
+    /// </summary>
+    ElementType Type { get; }
+}
 
 /// <summary>
 /// Base class for all message elements. All elements are immutable for caching.
 /// </summary>
-internal abstract class MessageElement
+internal abstract class MessageElement : IMessageElement
 {
     protected MessageElement(SourceSpan location)
     {

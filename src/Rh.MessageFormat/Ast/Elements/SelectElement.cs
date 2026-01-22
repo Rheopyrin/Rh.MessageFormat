@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Rh.MessageFormat.Exceptions;
 
-namespace Rh.MessageFormat.Ast;
+namespace Rh.MessageFormat.Ast.Elements;
 
 /// <summary>
 /// Represents a select format element: {gender, select, male {...} female {...} other {...}}

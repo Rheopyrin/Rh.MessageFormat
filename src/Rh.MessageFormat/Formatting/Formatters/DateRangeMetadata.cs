@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using Rh.MessageFormat.Ast;
+using Rh.MessageFormat.Ast.Elements;
 using Rh.MessageFormat.Formatting.Skeletons;
 using static Rh.MessageFormat.Constants;
 using SysDateTime = System.DateTime;

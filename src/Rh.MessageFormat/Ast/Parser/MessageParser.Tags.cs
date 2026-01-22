@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Rh.MessageFormat.Ast.Elements;
 using Rh.MessageFormat.Exceptions;
 using Rh.MessageFormat.Pools;
 using static Rh.MessageFormat.Constants.Parser;
 
-namespace Rh.MessageFormat.Ast;
+namespace Rh.MessageFormat.Ast.Parser;
 
 /// <summary>
 /// Tag parsing methods.

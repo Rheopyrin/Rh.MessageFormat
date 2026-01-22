@@ -3,20 +3,19 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Rh.MessageFormat.Abstractions.Models;
 using Rh.MessageFormat.Exceptions;
-using static Rh.MessageFormat.Constants;
 
-namespace Rh.MessageFormat.Ast;
+namespace Rh.MessageFormat.Ast.Elements;
 
 /// <summary>
-/// Represents a plural format element: {n, plural, offset:N one {...} other {...}}
+/// Represents a selectordinal format element: {n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}
 /// </summary>
-internal sealed class PluralElement : MessageElement
+internal sealed class SelectOrdinalElement : MessageElement
 {
     private readonly string _variable;
     private readonly PluralCase[] _cases;
     private readonly double _offset;
 
-    public PluralElement(string variable, PluralCase[] cases, double offset, SourceSpan location)
+    public SelectOrdinalElement(string variable, PluralCase[] cases, double offset, SourceSpan location)
         : base(location)
     {
         _variable = variable;
@@ -42,7 +41,7 @@ internal sealed class PluralElement : MessageElement
         get => _offset;
     }
 
-    public override ElementType Type => ElementType.Plural;
+    public override ElementType Type => ElementType.SelectOrdinal;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Format(ref FormatterContext ctx, StringBuilder output)
@@ -50,23 +49,23 @@ internal sealed class PluralElement : MessageElement
         var rawValue = ctx.GetDoubleValue(_variable);
         var n = rawValue - _offset;
 
-        // Get plural form from context
+        // Get ordinal form from context (uses locale-specific rules)
         var pluralCtx = new PluralContext(n);
-        var pluralForm = ctx.GetPluralForm(pluralCtx);
+        var ordinalForm = ctx.GetOrdinalForm(pluralCtx);
 
         // Find matching case
-        var selectedCase = FindCase(rawValue, pluralForm);
+        var selectedCase = FindCase(rawValue, ordinalForm);
 
         if (selectedCase == null)
         {
-            throw new MessageFormatterException("'other' option not found in plural pattern.");
+            throw new MessageFormatterException("'other' option not found in selectordinal pattern.");
         }
 
         selectedCase.Format(ref ctx, output, n);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private PluralCase? FindCase(double rawValue, string pluralForm)
+    private PluralCase? FindCase(double rawValue, string ordinalForm)
     {
         PluralCase? other = null;
         var cases = _cases;
@@ -75,7 +74,7 @@ internal sealed class PluralElement : MessageElement
         {
             var c = cases[i];
 
-            if (c.Key == Plurals.Other)
+            if (c.Key == "other")
             {
                 other = c;
             }
@@ -86,8 +85,8 @@ internal sealed class PluralElement : MessageElement
                 return c;
             }
 
-            // Check plural category match
-            if (c.Key == pluralForm)
+            // Check ordinal category match
+            if (c.Key == ordinalForm)
             {
                 return c;
             }

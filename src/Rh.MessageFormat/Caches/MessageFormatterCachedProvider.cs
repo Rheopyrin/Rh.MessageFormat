@@ -1,20 +1,21 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using BitFaster.Caching.Lru;
 using Rh.MessageFormat.Abstractions.Interfaces;
 using Rh.MessageFormat.Options;
 
 namespace Rh.MessageFormat.Caches;
 
 /// <summary>
-///     A cached provider for message formatters that maintains a dictionary of formatters by locale code.
+///     A cached provider for message formatters that maintains a dictionary of formatters by locale code
+///     with LRU eviction.
 /// </summary>
 public class MessageFormatterCachedProvider : IMessageFormatterProvider
 {
     /// <summary>
     ///     The cache of message formatters keyed by locale code.
     /// </summary>
-    private readonly ConcurrentDictionary<string, MessageFormatter> _cache = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentLru<string, MessageFormatter> _cache;
 
     /// <summary>
     ///     The formatter options used to create new formatters.
@@ -33,10 +34,17 @@ public class MessageFormatterCachedProvider : IMessageFormatterProvider
     /// <param name="options">
     ///     The formatter options used to create new formatters.
     /// </param>
-    public MessageFormatterCachedProvider(IMessageFormatterOptions options)
+    /// <param name="capacity">
+    ///     The maximum number of formatters to cache. Default is 1024.
+    /// </param>
+    public MessageFormatterCachedProvider(IMessageFormatterOptions options, int capacity = 1024)
     {
         _options = options ?? throw new ArgumentNullException(nameof(options));
         _locales = null;
+        _cache = new ConcurrentLru<string, MessageFormatter>(
+            concurrencyLevel: Environment.ProcessorCount,
+            capacity: capacity,
+            StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -49,10 +57,17 @@ public class MessageFormatterCachedProvider : IMessageFormatterProvider
     /// <param name="options">
     ///     The formatter options used to create new formatters.
     /// </param>
-    public MessageFormatterCachedProvider(IReadOnlyList<string> locales, IMessageFormatterOptions options)
+    /// <param name="capacity">
+    ///     The maximum number of formatters to cache. Default is 1024.
+    /// </param>
+    public MessageFormatterCachedProvider(IReadOnlyList<string> locales, IMessageFormatterOptions options, int capacity = 1024)
     {
         _locales = locales ?? throw new ArgumentNullException(nameof(locales));
         _options = options ?? throw new ArgumentNullException(nameof(options));
+        _cache = new ConcurrentLru<string, MessageFormatter>(
+            concurrencyLevel: Environment.ProcessorCount,
+            capacity: capacity,
+            StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>

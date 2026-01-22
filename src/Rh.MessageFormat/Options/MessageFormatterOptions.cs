@@ -30,6 +30,7 @@ public sealed class MessageFormatterOptions : IMessageFormatterOptions
         DefaultFallbackLocale = null;
         CustomFormatters = new Dictionary<string, CustomFormatterDelegate>(StringComparer.OrdinalIgnoreCase);
         TagHandlers = new Dictionary<string, TagHandler>(StringComparer.OrdinalIgnoreCase);
+        ParserCache = new ParserCacheOptions();
     }
 
     /// <inheritdoc />
@@ -49,4 +50,7 @@ public sealed class MessageFormatterOptions : IMessageFormatterOptions
 
     /// <inheritdoc />
     public bool RequireAllVariables { get; set; }
+
+    /// <inheritdoc />
+    public ParserCacheOptions ParserCache { get; set; }
 }

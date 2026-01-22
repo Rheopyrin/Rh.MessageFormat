@@ -7,7 +7,7 @@ using Rh.MessageFormat.Abstractions.Models;
 using Rh.MessageFormat.Custom;
 using Rh.MessageFormat.Exceptions;
 
-namespace Rh.MessageFormat.Ast;
+namespace Rh.MessageFormat.Ast.Elements;
 
 /// <summary>
 /// Delegate for pluralization rules. Matches the ContextPluralizer signature.
