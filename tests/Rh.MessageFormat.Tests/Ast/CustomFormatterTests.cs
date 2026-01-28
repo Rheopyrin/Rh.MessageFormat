@@ -187,10 +187,11 @@ public class CustomFormatterTests
     #region Real-World Use Cases
 
     [Fact]
-    public void CustomFormatter_DurationFormatter()
+    public void CustomFormatter_CustomDurationFormatter()
     {
         var options = TestOptions.WithEnglish();
-        options.CustomFormatters["duration"] = (value, style, locale, culture) =>
+        // Use "customDuration" instead of "duration" since duration is now a built-in formatter
+        options.CustomFormatters["customDuration"] = (value, style, locale, culture) =>
         {
             var seconds = Convert.ToInt32(value);
             var ts = TimeSpan.FromSeconds(seconds);
@@ -205,8 +206,8 @@ public class CustomFormatterTests
         var formatter = new MessageFormatter("en", options);
         var args = new Dictionary<string, object?> { { "time", 3661 } };
 
-        Assert.Equal("Duration: 1:01:01", formatter.FormatMessage("Duration: {time, duration, short}", args));
-        Assert.Equal("Duration: 1 hours, 1 minutes, 1 seconds", formatter.FormatMessage("Duration: {time, duration, long}", args));
+        Assert.Equal("Duration: 1:01:01", formatter.FormatMessage("Duration: {time, customDuration, short}", args));
+        Assert.Equal("Duration: 1 hours, 1 minutes, 1 seconds", formatter.FormatMessage("Duration: {time, customDuration, long}", args));
     }
 
     [Fact]

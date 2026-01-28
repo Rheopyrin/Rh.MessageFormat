@@ -30,6 +30,18 @@ internal sealed class {{ ClassName }} : ICldrLocaleData
 {{ OrdinalRuleCode }}
         return "other";
     }
+{{~ if HasOrdinalSuffixes ~}}
+
+    private static readonly Dictionary<string, string> _ordinalSuffixes = new(StringComparer.OrdinalIgnoreCase)
+    {
+{{ OrdinalSuffixesCode }}
+    };
+
+    public bool TryGetOrdinalSuffix(string category, out string suffix)
+    {
+        return _ordinalSuffixes.TryGetValue(category, out suffix!);
+    }
+{{~ end ~}}
 {{~ if HasCurrencies ~}}
 
     private static readonly CurrencyData[] _currencies =

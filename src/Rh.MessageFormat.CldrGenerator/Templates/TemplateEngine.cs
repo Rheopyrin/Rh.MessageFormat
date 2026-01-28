@@ -75,6 +75,8 @@ public class LocaleTemplateData
     public required string ClassName { get; init; }
     public string PluralRuleCode { get; init; } = "";
     public string OrdinalRuleCode { get; init; } = "";
+    public bool HasOrdinalSuffixes { get; init; }
+    public string OrdinalSuffixesCode { get; init; } = "";
     public bool HasCurrencies { get; init; }
     public string CurrencyArrayCode { get; init; } = "";
     public bool HasUnits { get; init; }

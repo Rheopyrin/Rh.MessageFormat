@@ -197,6 +197,12 @@ internal static class NumberSkeletonParser
             return;
         }
 
+        if (token.SequenceEqual(Ordinal.AsSpan()))
+        {
+            options.IsOrdinal = true;
+            return;
+        }
+
         if (token.SequenceEqual(CompactShort.AsSpan()))
         {
             options.Notation = NumberNotation.CompactShort;

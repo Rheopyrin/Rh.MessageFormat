@@ -33,6 +33,8 @@ internal sealed partial class MessageParser
             Formatters.SelectOrdinal => CreateSelectOrdinalElement(variable, arguments, span),
             Formatters.List => CreateListElement(variable, arguments, span),
             Formatters.RelativeTime => CreateRelativeTimeElement(variable, arguments, span),
+            Formatters.Duration => CreateDurationElement(variable, arguments, span),
+            Formatters.NumberRange => CreateNumberRangeElement(variable, arguments, span),
             _ => new CustomFormatterElement(variable, formatter, arguments?.Trim(), span) // Custom formatter
         };
     }
@@ -305,5 +307,79 @@ internal sealed partial class MessageParser
         }
 
         return new RelativeTimeElement(variable, field, style, numeric, span);
+    }
+
+    private DurationElement CreateDurationElement(string variable, string? arguments, SourceSpan span)
+    {
+        if (string.IsNullOrWhiteSpace(arguments))
+        {
+            return new DurationElement(variable, DurationStyle.Long, span);
+        }
+
+        var trimmed = arguments.Trim();
+
+        // Check for predefined styles using case-insensitive comparison
+        if (string.Equals(trimmed, Styles.Long, StringComparison.OrdinalIgnoreCase))
+        {
+            return new DurationElement(variable, DurationStyle.Long, span);
+        }
+        if (string.Equals(trimmed, Styles.Short, StringComparison.OrdinalIgnoreCase))
+        {
+            return new DurationElement(variable, DurationStyle.Short, span);
+        }
+        if (string.Equals(trimmed, Styles.Narrow, StringComparison.OrdinalIgnoreCase))
+        {
+            return new DurationElement(variable, DurationStyle.Narrow, span);
+        }
+        if (string.Equals(trimmed, "timer", StringComparison.OrdinalIgnoreCase))
+        {
+            return new DurationElement(variable, DurationStyle.Timer, span);
+        }
+
+        // Custom format template (e.g., "{hours}:{minutes}")
+        return new DurationElement(variable, trimmed, span);
+    }
+
+    private NumberRangeElement CreateNumberRangeElement(string variable, string? arguments, SourceSpan span)
+    {
+        // Syntax: {start, numberRange, end} or {start, numberRange, end, ::skeleton}
+        if (string.IsNullOrWhiteSpace(arguments))
+        {
+            throw new MessageFormatterException($"NumberRange element requires an end variable at line {span.Line}, column {span.Column}");
+        }
+
+        var trimmed = arguments.Trim();
+
+        // Find the first comma that separates end variable from skeleton
+        var commaIndex = trimmed.IndexOf(',');
+        string endVariable;
+        string? format = null;
+
+        if (commaIndex > 0)
+        {
+            // Has both end variable and format/skeleton
+            endVariable = trimmed.Substring(0, commaIndex).Trim();
+            format = trimmed.Substring(commaIndex + 1).Trim();
+        }
+        else
+        {
+            // Just the end variable
+            endVariable = trimmed;
+        }
+
+        if (string.IsNullOrEmpty(endVariable))
+        {
+            throw new MessageFormatterException($"NumberRange element requires an end variable at line {span.Line}, column {span.Column}");
+        }
+
+        // Check for skeleton syntax
+        if (!string.IsNullOrEmpty(format) && format.StartsWith(Sequences.SkeletonPrefix))
+        {
+            var skeleton = format.Substring(2);
+            var options = NumberSkeletonParser.Parse(skeleton);
+            return new NumberRangeElement(variable, endVariable, options, span);
+        }
+
+        return new NumberRangeElement(variable, endVariable, NumberRangeStyle.Default, span);
     }
 }

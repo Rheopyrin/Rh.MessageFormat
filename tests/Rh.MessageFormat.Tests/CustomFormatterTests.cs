@@ -374,10 +374,11 @@ public class CustomFormatterTests
     }
 
     [Fact]
-    public void CustomFormatter_DurationFormatter()
+    public void CustomFormatter_CustomDurationFormatter()
     {
         var options = TestOptions.WithEnglish();
-        options.CustomFormatters["duration"] = (value, style, locale, culture) =>
+        // Use "customDuration" instead of "duration" since duration is now a built-in formatter
+        options.CustomFormatters["customDuration"] = (value, style, locale, culture) =>
         {
             var totalSeconds = Convert.ToInt32(value);
             var hours = totalSeconds / 3600;
@@ -394,9 +395,9 @@ public class CustomFormatterTests
         var formatter = new MessageFormatter("en", options);
         var args = new Dictionary<string, object?> { { "seconds", 3661 } }; // 1h 1m 1s
 
-        var shortResult = formatter.FormatMessage("{seconds, duration, short}", args);
-        var longResult = formatter.FormatMessage("{seconds, duration, long}", args);
-        var defaultResult = formatter.FormatMessage("{seconds, duration}", args);
+        var shortResult = formatter.FormatMessage("{seconds, customDuration, short}", args);
+        var longResult = formatter.FormatMessage("{seconds, customDuration, long}", args);
+        var defaultResult = formatter.FormatMessage("{seconds, customDuration}", args);
 
         Assert.Equal("1:01:01", shortResult);
         Assert.Equal("1 hours, 1 minutes, 1 seconds", longResult);

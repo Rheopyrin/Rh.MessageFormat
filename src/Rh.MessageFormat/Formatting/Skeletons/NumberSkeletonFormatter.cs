@@ -84,6 +84,11 @@ internal static class NumberSkeletonFormatter
         {
             formatted = FormatPermille(value, options, nfi);
         }
+        // Ordinal formatting
+        else if (options.IsOrdinal)
+        {
+            formatted = FormatOrdinal(value, options, nfi, ref ctx);
+        }
         // Regular number formatting
         else
         {
@@ -112,6 +117,60 @@ internal static class NumberSkeletonFormatter
         // Value is already multiplied by 1000
         var format = BuildFormatString(options);
         return value.ToString(format, nfi) + Symbols.Permille;
+    }
+
+    private static string FormatOrdinal(double value, NumberFormatOptions options, NumberFormatInfo nfi, ref FormatterContext ctx)
+    {
+        // Format the number part (typically as integer)
+        var intValue = (long)Math.Round(value);
+        var formattedNumber = intValue.ToString(nfi);
+
+        // Get ordinal category from locale rules based on rounded value
+        var ordinalCategory = ctx.GetOrdinalForm(Math.Abs(intValue));
+
+        // Get locale-specific ordinal suffix from CLDR data
+        var suffix = GetOrdinalSuffix(ordinalCategory, ref ctx);
+
+        return formattedNumber + suffix;
+    }
+
+    private static string GetOrdinalSuffix(string ordinalCategory, ref FormatterContext ctx)
+    {
+        // Try to get ordinal suffix from CLDR data
+        if (ctx.CldrDataProvider.TryGetLocaleData(ctx.Locale, out var localeData) && localeData != null)
+        {
+            if (localeData.TryGetOrdinalSuffix(ordinalCategory, out var suffix) && suffix != null)
+            {
+                return suffix;
+            }
+            // If category not found, try "other" as fallback
+            if (ordinalCategory != "other" && localeData.TryGetOrdinalSuffix("other", out suffix) && suffix != null)
+            {
+                return suffix;
+            }
+        }
+
+        // If no CLDR data available, fall back to locale data from fallback locale
+        if (ctx.FallbackLocale != null && ctx.CldrDataProvider.TryGetLocaleData(ctx.FallbackLocale, out var fallbackData) && fallbackData != null)
+        {
+            if (fallbackData.TryGetOrdinalSuffix(ordinalCategory, out var suffix) && suffix != null)
+            {
+                return suffix;
+            }
+            if (ordinalCategory != "other" && fallbackData.TryGetOrdinalSuffix("other", out suffix) && suffix != null)
+            {
+                return suffix;
+            }
+        }
+
+        // Final fallback: English ordinal suffixes
+        return ordinalCategory switch
+        {
+            "one" => "st",
+            "two" => "nd",
+            "few" => "rd",
+            _ => "th"
+        };
     }
 
     private static string FormatCurrency(double value, NumberFormatOptions options, ref FormatterContext ctx)
@@ -260,7 +319,62 @@ internal static class NumberSkeletonFormatter
             formatted = formatted.TrimEnd(Symbols.RequiredDigit).TrimEnd(nfi.NumberDecimalSeparator.ToCharArray());
         }
 
-        return formatted + suffixes[suffixIndex];
+        var result = formatted + suffixes[suffixIndex];
+
+        // Handle currency for compact notation
+        if (!string.IsNullOrEmpty(options.CurrencyCode))
+        {
+            result = FormatCompactWithCurrency(result, options, ref ctx);
+        }
+
+        return result;
+    }
+
+    private static string FormatCompactWithCurrency(string compactNumber, NumberFormatOptions options, ref FormatterContext ctx)
+    {
+        var currencyCode = options.CurrencyCode!;
+
+        // Get the currency symbol based on display option
+        string symbol;
+        switch (options.CurrencyDisplay)
+        {
+            case CurrencyDisplay.Code:
+                symbol = currencyCode.ToUpperInvariant();
+                return $"{symbol} {compactNumber}";
+            case CurrencyDisplay.Name:
+                // For compact notation with name display, just prepend the code
+                symbol = currencyCode.ToUpperInvariant();
+                return $"{symbol} {compactNumber}";
+            case CurrencyDisplay.NarrowSymbol:
+                symbol = CurrencyMetadata.GetNarrowSymbol(ref ctx, currencyCode);
+                break;
+            default:
+                symbol = CurrencyMetadata.GetSymbol(ref ctx, currencyCode);
+                break;
+        }
+
+        // Apply the symbol based on the culture's currency pattern
+        var nfi = ctx.Culture.NumberFormat;
+
+        // Determine if number is negative
+        var isNegative = compactNumber.StartsWith("-") || compactNumber.StartsWith(nfi.NegativeSign);
+        if (isNegative)
+        {
+            // Remove the negative sign from the compact number, we'll add it back
+            compactNumber = compactNumber.TrimStart('-').TrimStart(nfi.NegativeSign.ToCharArray());
+        }
+
+        // Format based on positive pattern (simplified)
+        // Most common patterns are: $n (symbol prefix) or n$ (symbol suffix)
+        // For simplicity, we'll use symbol prefix which is most common
+        var result = $"{symbol}{compactNumber}";
+
+        if (isNegative)
+        {
+            result = "-" + result;
+        }
+
+        return result;
     }
 
     private static string BuildFormatString(NumberFormatOptions options)

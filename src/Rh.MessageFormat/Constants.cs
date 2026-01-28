@@ -21,6 +21,8 @@ internal static class Constants
         public const string SelectOrdinal = "selectordinal";
         public const string List = "list";
         public const string RelativeTime = "relativeTime";
+        public const string Duration = "duration";
+        public const string NumberRange = "numberRange";
     }
 
     /// <summary>
@@ -114,6 +116,9 @@ internal static class Constants
             public const string GroupAuto = "group-auto";
             public const string GroupOnAligned = "group-on-aligned";
             public const string GroupAlways = "group-always";
+
+            // Ordinal
+            public const string Ordinal = "ordinal";
 
             // Unit width
             public const string UnitWidthShort = "unit-width-short";

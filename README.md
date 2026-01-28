@@ -10,6 +10,8 @@ A high-performance .NET implementation of the [ICU Message Format](https://unico
 
 - **ICU Message Format** - Full support for pluralization, selection, and nested messages
 - **CLDR Data** - Pre-compiled locale data for 200+ locales (plurals, ordinals, currencies, units, dates, lists)
+- **Rich Formatting** - Numbers, dates, durations, number ranges, lists, and relative time
+- **Number Skeletons** - ICU number skeleton support including compact notation, ordinals, and currency
 - **High Performance** - Hand-written parser, no regex, compiled plural rules, pattern caching
 - **Custom Formatters** - Extend with your own formatting functions
 - **Rich Text Tags** - Support for HTML/Markdown-style tags in messages
@@ -245,6 +247,46 @@ formatter.FormatMessage("{n, number, ::percent .00}", new { n = 0.1234 }); // "1
 formatter.FormatMessage("{n, number, ::permille}", new { n = 0.005 });    // "5‰" (multiplies by 1000)
 ```
 
+#### Ordinal Numbers
+
+Format numbers with locale-appropriate ordinal suffixes (1st, 2nd, 3rd, etc.):
+
+```csharp
+formatter.FormatMessage("{n, number, ::ordinal}", new { n = 1 });   // "1st"
+formatter.FormatMessage("{n, number, ::ordinal}", new { n = 2 });   // "2nd"
+formatter.FormatMessage("{n, number, ::ordinal}", new { n = 3 });   // "3rd"
+formatter.FormatMessage("{n, number, ::ordinal}", new { n = 4 });   // "4th"
+formatter.FormatMessage("{n, number, ::ordinal}", new { n = 21 });  // "21st"
+formatter.FormatMessage("{n, number, ::ordinal}", new { n = 22 });  // "22nd"
+formatter.FormatMessage("{n, number, ::ordinal}", new { n = 23 });  // "23rd"
+
+// Ordinal suffixes are locale-aware (using CLDR data)
+var deFormatter = new MessageFormatter("de-DE");
+deFormatter.FormatMessage("{n, number, ::ordinal}", new { n = 1 }); // "1."
+
+var frFormatter = new MessageFormatter("fr-FR");
+frFormatter.FormatMessage("{n, number, ::ordinal}", new { n = 1 }); // "1er"
+frFormatter.FormatMessage("{n, number, ::ordinal}", new { n = 2 }); // "2e"
+```
+
+#### Compact Currency
+
+Combine currency formatting with compact notation:
+
+```csharp
+// Compact short currency
+formatter.FormatMessage("{n, number, ::currency/USD compact-short}", new { n = 1500000 }); // "$1.5M"
+formatter.FormatMessage("{n, number, ::currency/USD K}", new { n = 1000 });                 // "$1K"
+
+// Compact long currency
+formatter.FormatMessage("{n, number, ::currency/USD compact-long}", new { n = 1000000 });  // "$1 million"
+formatter.FormatMessage("{n, number, ::currency/USD KK}", new { n = 1000000000 });         // "$1 billion"
+
+// With other currencies
+formatter.FormatMessage("{n, number, ::currency/EUR compact-short}", new { n = 2500000 }); // "€2.5M"
+formatter.FormatMessage("{n, number, ::currency/GBP compact-short}", new { n = 1000 });    // "£1K"
+```
+
 #### Scale
 
 ```csharp
@@ -295,6 +337,57 @@ formatter.FormatMessage("{items, list, disjunction}", new { items });
 // Unit list
 formatter.FormatMessage("{items, list, unit}", new { items });
 // Result: "Apple, Banana, Cherry"
+```
+
+### Duration Formatting
+
+Format durations from seconds, TimeSpan, or ISO 8601 duration strings:
+
+```csharp
+// Timer format (HH:MM:SS)
+formatter.FormatMessage("{d, duration, timer}", new { d = 3661 }); // "1:01:01"
+
+// Long format (words)
+formatter.FormatMessage("{d, duration, long}", new { d = 3661 });  // "1 hour 1 minute 1 second"
+
+// Short format
+formatter.FormatMessage("{d, duration, short}", new { d = 3661 }); // "1 hr 1 min 1 sec"
+
+// Narrow format
+formatter.FormatMessage("{d, duration, narrow}", new { d = 3661 }); // "1h 1m 1s"
+
+// From TimeSpan
+var timeSpan = TimeSpan.FromHours(1) + TimeSpan.FromMinutes(30);
+formatter.FormatMessage("{d, duration, timer}", new { d = timeSpan }); // "1:30:00"
+
+// From ISO 8601 duration string
+formatter.FormatMessage("{d, duration, timer}", new { d = "PT1H30M" }); // "1:30:00"
+```
+
+### Number Range Formatting
+
+Format number ranges with locale-appropriate separators:
+
+```csharp
+// Basic range
+formatter.FormatMessage("{min, numberRange, max}", new { min = 1, max = 10 });
+// Result: "1–10" (with en-dash)
+
+// With currency skeleton
+formatter.FormatMessage("{min, numberRange, max, ::currency/USD}", new { min = 100, max = 500 });
+// Result: "$100.00–$500.00"
+
+// With percent skeleton
+formatter.FormatMessage("{min, numberRange, max, ::%}", new { min = 0.1, max = 0.5 });
+// Result: "10%–50%"
+
+// With compact notation
+formatter.FormatMessage("{min, numberRange, max, ::compact-short}", new { min = 1000, max = 5000 });
+// Result: "1K–5K"
+
+// In context
+formatter.FormatMessage("Price range: {min, numberRange, max, ::currency/USD}", new { min = 10, max = 50 });
+// Result: "Price range: $10.00–$50.00"
 ```
 
 ### Nested Messages

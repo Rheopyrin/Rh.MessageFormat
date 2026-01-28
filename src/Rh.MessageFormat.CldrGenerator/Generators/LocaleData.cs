@@ -26,6 +26,12 @@ public class LocaleData
     public Dictionary<string, string> OrdinalRules { get; set; } = new();
 
     /// <summary>
+    /// Ordinal suffixes extracted from RBNF data.
+    /// Key is the ordinal category (one, two, few, other), value is the suffix (st, nd, rd, th).
+    /// </summary>
+    public Dictionary<string, string>? OrdinalSuffixes { get; set; }
+
+    /// <summary>
     /// Currency data for this locale.
     /// </summary>
     public Dictionary<string, LocaleCurrencyData> Currencies { get; set; } = new();

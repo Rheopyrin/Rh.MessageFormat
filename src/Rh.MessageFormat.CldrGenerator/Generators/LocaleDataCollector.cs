@@ -61,6 +61,9 @@ public partial class LocaleDataCollector
         // Collect supplemental data (applies to regions, not locales)
         await CollectWeekDataAsync(result, ct);
 
+        // Collect ordinal suffixes from RBNF data
+        await CollectOrdinalSuffixesAsync(result, ct);
+
         // Create regional variant entries for explicitly requested locales
         CreateRegionalVariantEntries(result);
 

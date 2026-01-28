@@ -100,6 +100,11 @@ internal sealed class NumberFormatOptions
     public bool IsPermille { get; set; }
 
     /// <summary>
+    /// Whether to format as ordinal (1 -> "1st", 2 -> "2nd", etc.)
+    /// </summary>
+    public bool IsOrdinal { get; set; }
+
+    /// <summary>
     /// Scale factor to multiply the value by before formatting.
     /// </summary>
     public double Scale { get; set; } = 1.0;

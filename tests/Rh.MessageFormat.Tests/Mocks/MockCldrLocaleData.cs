@@ -14,6 +14,7 @@ public class MockCldrLocaleData : ICldrLocaleData
     private readonly Dictionary<string, UnitData> _units = new();
     private readonly Dictionary<string, ListPatternData> _listPatterns = new();
     private readonly Dictionary<string, RelativeTimeData> _relativeTimeData = new();
+    private readonly Dictionary<string, string> _ordinalSuffixes = new(StringComparer.OrdinalIgnoreCase);
 
     public string Locale { get; set; } = "en";
     public DatePatternData DatePatterns { get; set; }
@@ -105,6 +106,11 @@ public class MockCldrLocaleData : ICldrLocaleData
     {
         var key = $"{field}:{width}";
         return _relativeTimeData.TryGetValue(key, out data);
+    }
+
+    public bool TryGetOrdinalSuffix(string category, out string suffix)
+    {
+        return _ordinalSuffixes.TryGetValue(category, out suffix!);
     }
 
     #region Builder Methods
@@ -256,6 +262,19 @@ public class MockCldrLocaleData : ICldrLocaleData
     public MockCldrLocaleData WithOrdinalRule(Func<PluralContext, string> rule)
     {
         OrdinalRule = rule;
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the ordinal suffixes for this locale.
+    /// </summary>
+    public MockCldrLocaleData WithOrdinalSuffixes(Dictionary<string, string> suffixes)
+    {
+        _ordinalSuffixes.Clear();
+        foreach (var (category, suffix) in suffixes)
+        {
+            _ordinalSuffixes[category] = suffix;
+        }
         return this;
     }
 
@@ -482,7 +501,14 @@ public class MockCldrLocaleData : ICldrLocaleData
             .WithRelativeTime("second", "long", "second",
                 new Dictionary<string, string> { { "0", "now" } },
                 new Dictionary<string, string> { { "one", "in {0} second" }, { "other", "in {0} seconds" } },
-                new Dictionary<string, string> { { "one", "{0} second ago" }, { "other", "{0} seconds ago" } });
+                new Dictionary<string, string> { { "one", "{0} second ago" }, { "other", "{0} seconds ago" } })
+            .WithOrdinalSuffixes(new Dictionary<string, string>
+            {
+                { "one", "st" },
+                { "two", "nd" },
+                { "few", "rd" },
+                { "other", "th" }
+            });
     }
 
     /// <summary>
@@ -515,7 +541,14 @@ public class MockCldrLocaleData : ICldrLocaleData
                 new[] { "Q1", "Q2", "Q3", "Q4" },
                 new[] { "1. Quartal", "2. Quartal", "3. Quartal", "4. Quartal" },
                 new[] { "1", "2", "3", "4" }
-            );
+            )
+            // German uses period suffix for all ordinals
+            .WithOrdinalSuffixes(new Dictionary<string, string>
+            {
+                { "other", "." }
+            })
+            // German ordinals are all "other" category
+            .WithOrdinalRule(_ => "other");
     }
 
     /// <summary>
@@ -538,7 +571,15 @@ public class MockCldrLocaleData : ICldrLocaleData
                 new[] { "T1", "T2", "T3", "T4" },
                 new[] { "1er trimestre", "2e trimestre", "3e trimestre", "4e trimestre" },
                 new[] { "1", "2", "3", "4" }
-            );
+            )
+            // French ordinal suffixes (masculine by default)
+            .WithOrdinalSuffixes(new Dictionary<string, string>
+            {
+                { "one", "er" },
+                { "other", "e" }
+            })
+            // French ordinals: 1 is "one", all others are "other"
+            .WithOrdinalRule(ctx => ctx.I == 1 ? "one" : "other");
     }
 
     #endregion

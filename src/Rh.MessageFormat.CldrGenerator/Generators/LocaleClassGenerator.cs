@@ -28,6 +28,8 @@ public class LocaleClassGenerator
             ClassName = GetClassName(_data.Locale),
             PluralRuleCode = GeneratePluralRuleCode(_data.PluralRules),
             OrdinalRuleCode = GeneratePluralRuleCode(_data.OrdinalRules),
+            HasOrdinalSuffixes = _data.OrdinalSuffixes != null && _data.OrdinalSuffixes.Count > 0,
+            OrdinalSuffixesCode = GenerateOrdinalSuffixesCode(),
             HasCurrencies = _data.Currencies.Count > 0,
             CurrencyArrayCode = GenerateCurrencyArrayCode(),
             HasUnits = _data.Units.Count > 0,
@@ -99,6 +101,20 @@ public class LocaleClassGenerator
             {
                 // If parsing fails, skip this rule
             }
+        }
+
+        return sb.ToString().TrimEnd();
+    }
+
+    private string GenerateOrdinalSuffixesCode()
+    {
+        if (_data.OrdinalSuffixes == null || _data.OrdinalSuffixes.Count == 0)
+            return string.Empty;
+
+        var sb = new StringBuilder();
+        foreach (var (category, suffix) in _data.OrdinalSuffixes)
+        {
+            sb.AppendLine($"        {{ \"{EscapeString(category)}\", \"{EscapeString(suffix)}\" }},");
         }
 
         return sb.ToString().TrimEnd();

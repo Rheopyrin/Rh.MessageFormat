@@ -24,6 +24,19 @@ public interface ICldrLocaleData
     string GetOrdinalCategory(PluralContext ctx);
 
     /// <summary>
+    /// Tries to get the ordinal suffix for the given category.
+    /// </summary>
+    /// <param name="category">The ordinal category (one, two, few, other).</param>
+    /// <param name="suffix">The suffix if found (st, nd, rd, th for English).</param>
+    /// <returns>True if a suffix was found, false otherwise.</returns>
+    bool TryGetOrdinalSuffix(string category, out string suffix)
+    {
+        // Default implementation returns false - locales without ordinal suffixes
+        suffix = string.Empty;
+        return false;
+    }
+
+    /// <summary>
     /// Tries to get currency data for the specified currency code.
     /// </summary>
     /// <param name="code">The ISO 4217 currency code (e.g., "USD", "EUR").</param>

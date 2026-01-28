@@ -18,5 +18,7 @@ internal enum ElementType : byte
     Tag = 10,
     List = 11,
     RelativeTime = 12,
-    DateRange = 13
+    DateRange = 13,
+    Duration = 14,
+    NumberRange = 15
 }
