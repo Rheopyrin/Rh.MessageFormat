@@ -71,6 +71,31 @@ formatter.FormatMessage(pattern, new { count = 5 });  // "5 items"
 
 Plural categories supported: `zero`, `one`, `two`, `few`, `many`, `other`
 
+### Plural Offset
+
+The `offset` feature allows subtracting a value from the plural argument before determining the plural category. This is useful for "excluding" items from the count (e.g., "You and 3 others" instead of "4 people").
+
+```csharp
+var pattern = @"{count, plural, offset:1
+    =0 {Nobody is attending}
+    =1 {Only {host} is attending}
+    one {{host} and # other person are attending}
+    other {{host} and # other people are attending}
+}";
+
+formatter.FormatMessage(pattern, new { count = 0, host = "Alice" });  // "Nobody is attending"
+formatter.FormatMessage(pattern, new { count = 1, host = "Alice" });  // "Only Alice is attending"
+formatter.FormatMessage(pattern, new { count = 2, host = "Alice" });  // "Alice and 1 other person are attending"
+formatter.FormatMessage(pattern, new { count = 5, host = "Alice" });  // "Alice and 4 other people are attending"
+```
+
+**Key behaviors:**
+- The offset is placed after `plural,` and before the cases: `{n, plural, offset:1 ...}`
+- **Exact match cases** (`=0`, `=1`, etc.) match against the **original value**, not the offset-adjusted value
+- **Category selection** (`one`, `other`, etc.) uses the **offset-adjusted value**
+- The `#` placeholder displays the **offset-adjusted value**
+- Offset can be any number (integer, decimal, or negative)
+
 ### Ordinals
 
 ```csharp
@@ -111,6 +136,131 @@ formatter.FormatMessage("{rate, number, percent}", new { rate = 0.15 });
 // Compact notation
 formatter.FormatMessage("{n, number, ::compact-short}", new { n = 1500000 });
 // Result: "1.5M"
+```
+
+### Number Skeletons
+
+Number skeletons provide fine-grained control over number formatting using ICU skeleton syntax. Skeletons are prefixed with `::` in the style argument.
+
+```csharp
+formatter.FormatMessage("{n, number, ::skeleton-tokens}", new { n = value });
+```
+
+#### Precision
+
+**Fraction Digits** (prefix with `.`):
+```csharp
+formatter.FormatMessage("{n, number, ::.00}", new { n = 3.1 });    // "3.10" - exactly 2 fraction digits
+formatter.FormatMessage("{n, number, ::.##}", new { n = 3.0 });    // "3" - at most 2 fraction digits
+formatter.FormatMessage("{n, number, ::.0#}", new { n = 3.1 });    // "3.1" - 1 to 2 fraction digits
+formatter.FormatMessage("{n, number, ::.00*}", new { n = 3.14159 }); // "3.14159" - at least 2, unlimited max
+```
+
+**Significant Digits** (prefix with `@`):
+```csharp
+formatter.FormatMessage("{n, number, ::@@@}", new { n = 12345 });  // "12,300" - exactly 3 significant digits
+formatter.FormatMessage("{n, number, ::@@##}", new { n = 1.5 });   // "1.5" - 2 to 4 significant digits
+```
+
+**Integer Digits** (minimum digits with leading zeros):
+```csharp
+formatter.FormatMessage("{n, number, ::000}", new { n = 5 });      // "005" - minimum 3 integer digits
+formatter.FormatMessage("{n, number, ::integer-width/*000}", new { n = 5 }); // "005" - alternative form
+```
+
+#### Notation Styles
+
+```csharp
+// Compact notation
+formatter.FormatMessage("{n, number, ::K}", new { n = 1500 });           // "2K" - compact-short
+formatter.FormatMessage("{n, number, ::KK}", new { n = 1500 });          // "2 thousand" - compact-long
+formatter.FormatMessage("{n, number, ::compact-short}", new { n = 1500000 }); // "2M"
+formatter.FormatMessage("{n, number, ::compact-long}", new { n = 1500000 });  // "2 million"
+
+// Scientific notation
+formatter.FormatMessage("{n, number, ::scientific}", new { n = 12345 }); // "1.23E+4"
+
+// Engineering notation (exponents in multiples of 3)
+formatter.FormatMessage("{n, number, ::engineering}", new { n = 12345 }); // "12.35E+3"
+```
+
+#### Sign Display
+
+| Verbose | Concise | Description |
+|---------|---------|-------------|
+| `sign-always` | `+!` | Always show sign (+42, -42) |
+| `sign-never` | `+_` | Never show sign (42 for both positive and negative) |
+| `sign-except-zero` | `+?` | Show sign except for zero |
+| `sign-accounting` | `()` | Accounting format for negatives: (100) |
+| `sign-accounting-always` | - | Always show sign in accounting format |
+
+```csharp
+formatter.FormatMessage("{n, number, ::sign-always}", new { n = 42 });    // "+42"
+formatter.FormatMessage("{n, number, ::+!}", new { n = 42 });             // "+42"
+formatter.FormatMessage("{n, number, ::sign-accounting}", new { n = -100 }); // "(100)"
+formatter.FormatMessage("{n, number, ::()}", new { n = -100 });           // "(100)"
+```
+
+#### Grouping (Thousands Separators)
+
+| Verbose | Concise | Description |
+|---------|---------|-------------|
+| `group-off` | `,_` | No grouping separators |
+| `group-min2` | `,?` | Group only when 2+ digits in group |
+| `group-auto` | - | Automatic grouping (default) |
+| `group-always` | `,!` | Always apply grouping |
+
+```csharp
+formatter.FormatMessage("{n, number, ::group-off}", new { n = 1234567 });  // "1234567"
+formatter.FormatMessage("{n, number, ::,_}", new { n = 1234567 });         // "1234567"
+formatter.FormatMessage("{n, number, ::group-always}", new { n = 1234567 }); // "1,234,567"
+```
+
+#### Currency
+
+```csharp
+formatter.FormatMessage("{n, number, ::currency/USD}", new { n = 99.99 }); // "$99.99"
+formatter.FormatMessage("{n, number, ::currency/EUR}", new { n = 50 });    // "€50.00"
+
+// Currency display options
+formatter.FormatMessage("{n, number, ::currency/USD unit-width-iso-code}", new { n = 100 }); // "USD 100"
+formatter.FormatMessage("{n, number, ::currency/USD unit-width-full-name}", new { n = 100 }); // "100 US dollars"
+formatter.FormatMessage("{n, number, ::currency/USD currency-narrow-symbol}", new { n = 100 }); // Narrow symbol variant
+```
+
+#### Units
+
+```csharp
+formatter.FormatMessage("{n, number, ::unit/meter}", new { n = 5 });           // "5 m"
+formatter.FormatMessage("{n, number, ::unit/meter unit-width-full-name}", new { n = 5 }); // "5 meters"
+formatter.FormatMessage("{n, number, ::unit/meter unit-width-narrow}", new { n = 5 });    // "5m"
+```
+
+#### Percent and Permille
+
+```csharp
+formatter.FormatMessage("{n, number, ::percent}", new { n = 0.1234 });    // "12%" (multiplies by 100)
+formatter.FormatMessage("{n, number, ::%}", new { n = 0.1234 });          // "12%" (concise form)
+formatter.FormatMessage("{n, number, ::percent .00}", new { n = 0.1234 }); // "12.34%" (with precision)
+formatter.FormatMessage("{n, number, ::permille}", new { n = 0.005 });    // "5‰" (multiplies by 1000)
+```
+
+#### Scale
+
+```csharp
+formatter.FormatMessage("{n, number, ::scale/100}", new { n = 0.5 });     // "50" (multiplies by 100)
+formatter.FormatMessage("{n, number, ::scale/1000}", new { n = 1.5 });    // "1,500"
+```
+
+#### Combining Options
+
+Multiple skeleton tokens can be combined (space-separated):
+
+```csharp
+formatter.FormatMessage("{n, number, ::currency/USD sign-always}", new { n = 100 }); // "+$100.00"
+formatter.FormatMessage("{n, number, ::percent .00}", new { n = 0.1234 });           // "12.34%"
+formatter.FormatMessage("{n, number, ::compact-short .0}", new { n = 1234567 });     // "1.2M"
+formatter.FormatMessage("{n, number, ::scale/1000 group-auto}", new { n = 1.5 });    // "1,500"
 ```
 
 ### Date and Time Formatting
