@@ -9,8 +9,9 @@ SRC_DIR="$(dirname "$SCRIPT_DIR")"
 REPO_ROOT="$(dirname "$SRC_DIR")"
 GENERATOR_DIR="$SRC_DIR/Rh.MessageFormat.CldrGenerator"
 
-# Predefined output directory
+# Predefined output directories
 OUTPUT_DIR="$SRC_DIR/Rh.MessageFormat.CldrData/Generated"
+SPELLOUT_OUTPUT_DIR="$SRC_DIR/Rh.MessageFormat.CldrData.Spellout/Generated"
 
 # Default working directory (OS temp folder + subfolder)
 if [[ -n "$TMPDIR" ]]; then
@@ -104,6 +105,7 @@ mkdir -p "$WORKING_DIR"
 
 echo "Working directory: $WORKING_DIR"
 echo "Output directory: $OUTPUT_DIR"
+echo "Spellout output directory: $SPELLOUT_OUTPUT_DIR"
 
 # Function to fetch latest version from GitHub API
 fetch_latest_version() {
@@ -200,6 +202,7 @@ fi
 CMD_ARGS=(
     --cldr-root "$CLDR_ROOT"
     --output "$OUTPUT_DIR"
+    --spellout-output "$SPELLOUT_OUTPUT_DIR"
 )
 
 if [[ -n "$LOCALES" ]]; then
