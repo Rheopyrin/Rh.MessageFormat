@@ -9,7 +9,8 @@ A high-performance .NET implementation of the [ICU Message Format](https://unico
 ## Features
 
 - **ICU Message Format** - Full support for pluralization, selection, and nested messages
-- **CLDR Data** - Pre-compiled locale data for 200+ locales (plurals, ordinals, currencies, units, dates, lists)
+- **CLDR Data** - Pre-compiled locale data for 200+ locales (plurals, ordinals, currencies, dates)
+- **Modular Architecture** - Optional packages for units, lists, relative time, and date ranges to reduce package size
 - **Rich Formatting** - Numbers, dates, durations, number ranges, lists, and relative time
 - **Spellout** - Number to words conversion (cardinal, ordinal, year) via optional RBNF package
 - **Number Skeletons** - ICU number skeleton support including compact notation, ordinals, and currency
@@ -233,10 +234,11 @@ formatter.FormatMessage("{n, number, ::currency/USD currency-narrow-symbol}", ne
 
 #### Units
 
+> **Note:** Requires optional `Rh.MessageFormat.CldrData.Units` package for locale-specific patterns.
+
 ```csharp
-formatter.FormatMessage("{n, number, ::unit/meter}", new { n = 5 });           // "5 m"
+formatter.FormatMessage("{n, number, ::unit/meter}", new { n = 5 });                      // "5 m"
 formatter.FormatMessage("{n, number, ::unit/meter unit-width-full-name}", new { n = 5 }); // "5 meters"
-formatter.FormatMessage("{n, number, ::unit/meter unit-width-narrow}", new { n = 5 });    // "5m"
 ```
 
 #### Percent and Permille
@@ -324,20 +326,13 @@ formatter.FormatMessage("{dt, datetime, medium}", new { dt = now });
 
 ### List Formatting
 
+> **Note:** Requires optional `Rh.MessageFormat.CldrData.Lists` package for locale-specific patterns.
+
 ```csharp
 var items = new[] { "Apple", "Banana", "Cherry" };
 
-// Conjunction (and)
-formatter.FormatMessage("{items, list}", new { items });
-// Result: "Apple, Banana, and Cherry"
-
-// Disjunction (or)
-formatter.FormatMessage("{items, list, disjunction}", new { items });
-// Result: "Apple, Banana, or Cherry"
-
-// Unit list
-formatter.FormatMessage("{items, list, unit}", new { items });
-// Result: "Apple, Banana, Cherry"
+formatter.FormatMessage("{items, list}", new { items });              // "Apple, Banana, and Cherry"
+formatter.FormatMessage("{items, list, disjunction}", new { items }); // "Apple, Banana, or Cherry"
 ```
 
 ### Duration Formatting
@@ -714,12 +709,16 @@ The generator:
 
 ```
 src/
-├── Rh.MessageFormat/              # Main library
-├── Rh.MessageFormat.Abstractions/ # Interfaces and models
-├── Rh.MessageFormat.CldrData/     # Generated CLDR locale data
-├── Rh.MessageFormat.CldrData.Spellout/ # Optional RBNF spellout data
-├── Rh.MessageFormat.CldrGenerator/ # CLDR data generator tool
-└── scripts/                       # Build scripts
+├── Rh.MessageFormat/                    # Main library
+├── Rh.MessageFormat.Abstractions/       # Interfaces and models
+├── Rh.MessageFormat.CldrData/           # Core CLDR locale data (plurals, ordinals, currencies, dates)
+├── Rh.MessageFormat.CldrData.Spellout/  # Optional: RBNF spellout data
+├── Rh.MessageFormat.CldrData.Units/     # Optional: Unit formatting patterns
+├── Rh.MessageFormat.CldrData.Lists/     # Optional: List formatting patterns
+├── Rh.MessageFormat.CldrData.RelativeTime/ # Optional: Relative time patterns
+├── Rh.MessageFormat.CldrData.DateRange/ # Optional: Date range/interval patterns
+├── Rh.MessageFormat.CldrGenerator/      # CLDR data generator tool
+└── scripts/                             # Build scripts
 
 tests/
 ├── Rh.MessageFormat.Tests/                        # Unit tests
@@ -729,12 +728,32 @@ tests/
 
 ## NuGet Packages
 
+### Core Packages
+
 | Package | Description |
 |---------|-------------|
 | [Rh.MessageFormat](https://www.nuget.org/packages/Rh.MessageFormat/) | Main library with all formatting features |
 | [Rh.MessageFormat.Abstractions](https://www.nuget.org/packages/Rh.MessageFormat.Abstractions/) | Interfaces for extensibility |
-| [Rh.MessageFormat.CldrData](https://www.nuget.org/packages/Rh.MessageFormat.CldrData/) | Pre-compiled CLDR locale data |
-| [Rh.MessageFormat.CldrData.Spellout](https://www.nuget.org/packages/Rh.MessageFormat.CldrData.Spellout/) | Optional RBNF spellout data for number-to-words |
+| [Rh.MessageFormat.CldrData](https://www.nuget.org/packages/Rh.MessageFormat.CldrData/) | Pre-compiled CLDR locale data (plurals, ordinals, currencies, dates) |
+
+### Optional Packages
+
+Optional packages provide additional CLDR data features. They auto-register via `ModuleInitializer` when referenced - no configuration needed. If not installed, the formatter gracefully falls back to default behavior.
+
+| Package | Description |
+|---------|-------------|
+| [Rh.MessageFormat.CldrData.Spellout](https://www.nuget.org/packages/Rh.MessageFormat.CldrData.Spellout/) | RBNF spellout data for number-to-words conversion |
+| [Rh.MessageFormat.CldrData.Units](https://www.nuget.org/packages/Rh.MessageFormat.CldrData.Units/) | Unit formatting patterns (length, duration, mass, etc.) |
+| [Rh.MessageFormat.CldrData.Lists](https://www.nuget.org/packages/Rh.MessageFormat.CldrData.Lists/) | List formatting patterns (conjunction, disjunction, unit) |
+| [Rh.MessageFormat.CldrData.RelativeTime](https://www.nuget.org/packages/Rh.MessageFormat.CldrData.RelativeTime/) | Relative time patterns (yesterday, in 3 days, etc.) |
+| [Rh.MessageFormat.CldrData.DateRange](https://www.nuget.org/packages/Rh.MessageFormat.CldrData.DateRange/) | Date interval/range formatting patterns |
+
+**Installation example:**
+```bash
+dotnet add package Rh.MessageFormat                      # Core (required)
+dotnet add package Rh.MessageFormat.CldrData.Spellout    # Optional: number-to-words
+dotnet add package Rh.MessageFormat.CldrData.Units       # Optional: unit formatting
+```
 
 ## Performance
 
