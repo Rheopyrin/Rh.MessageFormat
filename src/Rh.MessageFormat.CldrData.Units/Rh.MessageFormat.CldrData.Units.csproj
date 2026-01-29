@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Rh.MessageFormat.CldrData.Units</PackageId>
+    <Description>CLDR unit display data for Rh.MessageFormat. Optional package for unit formatting (e.g., "5 kilometers", "3 hours").</Description>
+    <IsTrimmable>true</IsTrimmable>
+    <IsAotCompatible>true</IsAotCompatible>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Rh.MessageFormat.CldrData/Rh.MessageFormat.CldrData.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Generated\" />
+  </ItemGroup>
+</Project>

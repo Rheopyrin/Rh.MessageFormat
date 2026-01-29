@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Rh.MessageFormat.CldrData.Lists</PackageId>
+    <Description>CLDR list pattern data for Rh.MessageFormat. Optional package for list formatting (e.g., "A, B, and C").</Description>
+    <IsTrimmable>true</IsTrimmable>
+    <IsAotCompatible>true</IsAotCompatible>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Rh.MessageFormat.CldrData/Rh.MessageFormat.CldrData.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Generated\" />
+  </ItemGroup>
+</Project>

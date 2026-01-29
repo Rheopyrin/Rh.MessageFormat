@@ -91,6 +91,70 @@ static async Task<int> RunAsync(CommandLineOptions options)
             Console.WriteLine($"Spellout classes generated successfully to {spelloutOutputDirectory}");
         }
 
+        // Generate relative time data if output directory is specified
+        if (!string.IsNullOrEmpty(options.RelativeTimeOutputDirectory))
+        {
+            var relativeTimeOutputDirectory = Path.GetFullPath(options.RelativeTimeOutputDirectory);
+            Directory.CreateDirectory(relativeTimeOutputDirectory);
+
+            Console.WriteLine();
+            Console.WriteLine($"Relative time output directory: {relativeTimeOutputDirectory}");
+
+            var relativeTimeGenerator = new RelativeTimeCodeGenerator(config);
+            await relativeTimeGenerator.GenerateAsync(cldrRoot, relativeTimeOutputDirectory);
+
+            Console.WriteLine();
+            Console.WriteLine($"Relative time classes generated successfully to {relativeTimeOutputDirectory}");
+        }
+
+        // Generate list pattern data if output directory is specified
+        if (!string.IsNullOrEmpty(options.ListsOutputDirectory))
+        {
+            var listsOutputDirectory = Path.GetFullPath(options.ListsOutputDirectory);
+            Directory.CreateDirectory(listsOutputDirectory);
+
+            Console.WriteLine();
+            Console.WriteLine($"List patterns output directory: {listsOutputDirectory}");
+
+            var listPatternGenerator = new ListPatternCodeGenerator(config);
+            await listPatternGenerator.GenerateAsync(cldrRoot, listsOutputDirectory);
+
+            Console.WriteLine();
+            Console.WriteLine($"List pattern classes generated successfully to {listsOutputDirectory}");
+        }
+
+        // Generate date range data if output directory is specified
+        if (!string.IsNullOrEmpty(options.DateRangeOutputDirectory))
+        {
+            var dateRangeOutputDirectory = Path.GetFullPath(options.DateRangeOutputDirectory);
+            Directory.CreateDirectory(dateRangeOutputDirectory);
+
+            Console.WriteLine();
+            Console.WriteLine($"Date range output directory: {dateRangeOutputDirectory}");
+
+            var dateRangeGenerator = new DateRangeCodeGenerator(config);
+            await dateRangeGenerator.GenerateAsync(cldrRoot, dateRangeOutputDirectory);
+
+            Console.WriteLine();
+            Console.WriteLine($"Date range classes generated successfully to {dateRangeOutputDirectory}");
+        }
+
+        // Generate unit data if output directory is specified
+        if (!string.IsNullOrEmpty(options.UnitsOutputDirectory))
+        {
+            var unitsOutputDirectory = Path.GetFullPath(options.UnitsOutputDirectory);
+            Directory.CreateDirectory(unitsOutputDirectory);
+
+            Console.WriteLine();
+            Console.WriteLine($"Units output directory: {unitsOutputDirectory}");
+
+            var unitGenerator = new UnitCodeGenerator(config);
+            await unitGenerator.GenerateAsync(cldrRoot, unitsOutputDirectory);
+
+            Console.WriteLine();
+            Console.WriteLine($"Unit classes generated successfully to {unitsOutputDirectory}");
+        }
+
         return 0;
     }
     catch (Exception ex)

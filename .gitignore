@@ -502,6 +502,10 @@ $RECYCLE.BIN/
 # CLDR Generated files (regenerated during CI build)
 src/Rh.MessageFormat.CldrData/Generated/*.g.cs
 src/Rh.MessageFormat.CldrData.Spellout/Generated/*.g.cs
+src/Rh.MessageFormat.CldrData.RelativeTime/Generated/*.g.cs
+src/Rh.MessageFormat.CldrData.Lists/Generated/*.g.cs
+src/Rh.MessageFormat.CldrData.DateRange/Generated/*.g.cs
+src/Rh.MessageFormat.CldrData.Units/Generated/*.g.cs
 
 # CLDR download artifacts
 cldr-json-*.zip

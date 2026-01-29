@@ -32,20 +32,24 @@ public class LocaleClassGenerator
             OrdinalSuffixesCode = GenerateOrdinalSuffixesCode(),
             HasCurrencies = _data.Currencies.Count > 0,
             CurrencyArrayCode = GenerateCurrencyArrayCode(),
-            HasUnits = _data.Units.Count > 0,
-            UnitDictCode = GenerateUnitDictCode(),
+            // Units moved to optional package: Rh.MessageFormat.CldrData.Units
+            HasUnits = false,
+            UnitDictCode = string.Empty,
             HasDatePatterns = _data.DatePatterns != null,
             DatePatternsCode = GenerateDatePatternsCode(),
-            HasListPatterns = _data.ListPatterns.Count > 0,
-            ListPatternsCode = GenerateListPatternsCode(),
-            HasRelativeTimeData = _data.RelativeTimeData.Count > 0,
-            RelativeTimeDictCode = GenerateRelativeTimeDictCode(),
+            // ListPatterns moved to optional package: Rh.MessageFormat.CldrData.Lists
+            HasListPatterns = false,
+            ListPatternsCode = string.Empty,
+            // RelativeTimeData moved to optional package: Rh.MessageFormat.CldrData.RelativeTime
+            HasRelativeTimeData = false,
+            RelativeTimeDictCode = string.Empty,
             HasQuarters = _data.Quarters != null,
             QuartersCode = GenerateQuartersCode(),
             HasWeekInfo = _data.WeekInfo != null,
             WeekInfoCode = GenerateWeekInfoCode(),
-            HasIntervalFormats = _data.IntervalFormats != null && _data.IntervalFormats.Skeletons.Count > 0,
-            IntervalFormatsCode = GenerateIntervalFormatsCode()
+            // IntervalFormats moved to optional package: Rh.MessageFormat.CldrData.DateRange
+            HasIntervalFormats = false,
+            IntervalFormatsCode = string.Empty
         };
     }
 

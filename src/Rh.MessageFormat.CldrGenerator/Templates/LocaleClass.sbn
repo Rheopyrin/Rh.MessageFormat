@@ -83,13 +83,6 @@ internal sealed class {{ ClassName }} : ICldrLocaleData
     {
         return _unitDict.Value.TryGetValue(unitId, out data);
     }
-{{~ else ~}}
-
-    public bool TryGetUnit(string unitId, out UnitData data)
-    {
-        data = default;
-        return false;
-    }
 {{~ end ~}}
 {{~ if HasDatePatterns ~}}
 
@@ -109,13 +102,6 @@ internal sealed class {{ ClassName }} : ICldrLocaleData
     {
         return _listPatterns.TryGetValue(type, out data);
     }
-{{~ else ~}}
-
-    public bool TryGetListPattern(string type, out ListPatternData data)
-    {
-        data = default;
-        return false;
-    }
 {{~ end ~}}
 {{~ if HasRelativeTimeData ~}}
 
@@ -131,13 +117,6 @@ internal sealed class {{ ClassName }} : ICldrLocaleData
     {
         var key = $"{field}:{width}";
         return _relativeTimeDict.Value.TryGetValue(key, out data);
-    }
-{{~ else ~}}
-
-    public bool TryGetRelativeTime(string field, string width, out RelativeTimeData data)
-    {
-        data = default;
-        return false;
     }
 {{~ end ~}}
 {{~ if HasQuarters ~}}

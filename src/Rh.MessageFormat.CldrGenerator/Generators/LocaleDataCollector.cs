@@ -51,12 +51,13 @@ public partial class LocaleDataCollector
 
         // Collect per-locale data
         await CollectCurrenciesAsync(result, ct);
-        await CollectUnitsAsync(result, ct);
+        // Note: Units, ListPatterns, RelativeTime, and IntervalFormats have been moved to optional packages:
+        // - Rh.MessageFormat.CldrData.Units
+        // - Rh.MessageFormat.CldrData.Lists
+        // - Rh.MessageFormat.CldrData.RelativeTime
+        // - Rh.MessageFormat.CldrData.DateRange
         await CollectDatePatternsAsync(result, ct);
-        await CollectListPatternsAsync(result, ct);
-        await CollectRelativeTimeDataAsync(result, ct);
         await CollectQuarterDataAsync(result, ct);
-        await CollectIntervalFormatsAsync(result, ct);
 
         // Collect supplemental data (applies to regions, not locales)
         await CollectWeekDataAsync(result, ct);

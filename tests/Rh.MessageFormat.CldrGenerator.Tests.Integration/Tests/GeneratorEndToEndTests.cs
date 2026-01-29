@@ -64,9 +64,9 @@ public class GeneratorEndToEndTests : IDisposable
         Assert.Contains("GetPluralCategory", enContent);
         Assert.Contains("GetOrdinalCategory", enContent);
         Assert.Contains("TryGetCurrency", enContent);
-        Assert.Contains("TryGetUnit", enContent);
         Assert.Contains("DatePatterns", enContent);
-        Assert.Contains("TryGetListPattern", enContent);
+        // Note: TryGetUnit, TryGetListPattern, TryGetRelativeTime are now in optional packages
+        // and have default implementations in ICldrLocaleData interface
     }
 
     [Fact]

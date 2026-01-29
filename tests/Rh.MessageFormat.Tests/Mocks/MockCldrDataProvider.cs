@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Rh.MessageFormat.Abstractions.Interfaces;
+using Rh.MessageFormat.Abstractions.Models;
 using Rh.MessageFormat.Formatting.Spellout;
 
 namespace Rh.MessageFormat.Tests.Mocks;
@@ -58,6 +59,34 @@ public class MockCldrDataProvider : ICldrDataProvider
     {
         // Mock implementation - no spellout data in tests by default
         // Tests that need spellout data should use the real CldrDataProvider
+        data = null;
+        return false;
+    }
+
+    public bool TryGetRelativeTimeData(string locale, string field, string width, out RelativeTimeData? data)
+    {
+        // Mock implementation - no relative time data in tests by default
+        data = null;
+        return false;
+    }
+
+    public bool TryGetListData(string locale, string type, out ListPatternData? data)
+    {
+        // Mock implementation - no list data in tests by default
+        data = null;
+        return false;
+    }
+
+    public bool TryGetDateRangeData(string locale, out IntervalFormatData? data)
+    {
+        // Mock implementation - no date range data in tests by default
+        data = null;
+        return false;
+    }
+
+    public bool TryGetUnitData(string locale, string unitId, out UnitData? data)
+    {
+        // Mock implementation - no unit data in tests by default
         data = null;
         return false;
     }

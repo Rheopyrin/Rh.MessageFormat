@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Rh.MessageFormat.CldrData.DateRange</PackageId>
+    <Description>CLDR date range/interval data for Rh.MessageFormat. Optional package for date range formatting (e.g., "Jan 5 - 15, 2024").</Description>
+    <IsTrimmable>true</IsTrimmable>
+    <IsAotCompatible>true</IsAotCompatible>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Rh.MessageFormat.CldrData/Rh.MessageFormat.CldrData.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Generated\" />
+  </ItemGroup>
+</Project>

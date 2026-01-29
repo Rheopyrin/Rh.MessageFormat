@@ -46,11 +46,16 @@ public interface ICldrLocaleData
 
     /// <summary>
     /// Tries to get unit data for the specified unit identifier.
+    /// Moved to optional Rh.MessageFormat.CldrData.Units package.
     /// </summary>
     /// <param name="unitId">The unit identifier (e.g., "length-meter", "duration-hour").</param>
     /// <param name="data">The unit data if found.</param>
     /// <returns>True if the unit was found, false otherwise.</returns>
-    bool TryGetUnit(string unitId, out UnitData data);
+    bool TryGetUnit(string unitId, out UnitData data)
+    {
+        data = default;
+        return false;
+    }
 
     /// <summary>
     /// Gets the date/time patterns for this locale.
@@ -71,23 +76,34 @@ public interface ICldrLocaleData
 
     /// <summary>
     /// Tries to get list pattern data for the specified type.
+    /// Moved to optional Rh.MessageFormat.CldrData.Lists package.
     /// </summary>
     /// <param name="type">The list type (e.g., "standard", "or", "unit").</param>
     /// <param name="data">The list pattern data if found.</param>
     /// <returns>True if the list pattern was found, false otherwise.</returns>
-    bool TryGetListPattern(string type, out ListPatternData data);
+    bool TryGetListPattern(string type, out ListPatternData data)
+    {
+        data = default;
+        return false;
+    }
 
     /// <summary>
     /// Tries to get relative time data for the specified field and width.
+    /// Moved to optional Rh.MessageFormat.CldrData.RelativeTime package.
     /// </summary>
     /// <param name="field">The field (e.g., "year", "month", "day", "hour", "minute", "second").</param>
     /// <param name="width">The width: "long" (default), "short", or "narrow".</param>
     /// <param name="data">The relative time data if found.</param>
     /// <returns>True if the relative time data was found, false otherwise.</returns>
-    bool TryGetRelativeTime(string field, string width, out RelativeTimeData data);
+    bool TryGetRelativeTime(string field, string width, out RelativeTimeData data)
+    {
+        data = default;
+        return false;
+    }
 
     /// <summary>
     /// Gets the interval format data for this locale.
+    /// Moved to optional Rh.MessageFormat.CldrData.DateRange package.
     /// Returns default data for backward compatibility.
     /// </summary>
     IntervalFormatData IntervalFormats => default;

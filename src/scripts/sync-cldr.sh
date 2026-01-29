@@ -12,6 +12,10 @@ GENERATOR_DIR="$SRC_DIR/Rh.MessageFormat.CldrGenerator"
 # Predefined output directories
 OUTPUT_DIR="$SRC_DIR/Rh.MessageFormat.CldrData/Generated"
 SPELLOUT_OUTPUT_DIR="$SRC_DIR/Rh.MessageFormat.CldrData.Spellout/Generated"
+RELATIVE_TIME_OUTPUT_DIR="$SRC_DIR/Rh.MessageFormat.CldrData.RelativeTime/Generated"
+LISTS_OUTPUT_DIR="$SRC_DIR/Rh.MessageFormat.CldrData.Lists/Generated"
+DATE_RANGE_OUTPUT_DIR="$SRC_DIR/Rh.MessageFormat.CldrData.DateRange/Generated"
+UNITS_OUTPUT_DIR="$SRC_DIR/Rh.MessageFormat.CldrData.Units/Generated"
 
 # Default working directory (OS temp folder + subfolder)
 if [[ -n "$TMPDIR" ]]; then
@@ -106,6 +110,10 @@ mkdir -p "$WORKING_DIR"
 echo "Working directory: $WORKING_DIR"
 echo "Output directory: $OUTPUT_DIR"
 echo "Spellout output directory: $SPELLOUT_OUTPUT_DIR"
+echo "Relative time output directory: $RELATIVE_TIME_OUTPUT_DIR"
+echo "Lists output directory: $LISTS_OUTPUT_DIR"
+echo "Date range output directory: $DATE_RANGE_OUTPUT_DIR"
+echo "Units output directory: $UNITS_OUTPUT_DIR"
 
 # Function to fetch latest version from GitHub API
 fetch_latest_version() {
@@ -203,6 +211,10 @@ CMD_ARGS=(
     --cldr-root "$CLDR_ROOT"
     --output "$OUTPUT_DIR"
     --spellout-output "$SPELLOUT_OUTPUT_DIR"
+    --relative-time-output "$RELATIVE_TIME_OUTPUT_DIR"
+    --lists-output "$LISTS_OUTPUT_DIR"
+    --date-range-output "$DATE_RANGE_OUTPUT_DIR"
+    --units-output "$UNITS_OUTPUT_DIR"
 )
 
 if [[ -n "$LOCALES" ]]; then

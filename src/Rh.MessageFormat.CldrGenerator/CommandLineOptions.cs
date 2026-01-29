@@ -13,6 +13,18 @@ public class CommandLineOptions
     [Option('s', "spellout-output", Required = false, HelpText = "Output directory for generated spellout classes (e.g., './src/Rh.MessageFormat.CldrData.Spellout/Generated'). If not specified, spellout generation is skipped.")]
     public string? SpelloutOutputDirectory { get; set; }
 
+    [Option("relative-time-output", Required = false, HelpText = "Output directory for generated relative time classes. If not specified, relative time generation is skipped.")]
+    public string? RelativeTimeOutputDirectory { get; set; }
+
+    [Option("lists-output", Required = false, HelpText = "Output directory for generated list pattern classes. If not specified, list pattern generation is skipped.")]
+    public string? ListsOutputDirectory { get; set; }
+
+    [Option("date-range-output", Required = false, HelpText = "Output directory for generated date range classes. If not specified, date range generation is skipped.")]
+    public string? DateRangeOutputDirectory { get; set; }
+
+    [Option("units-output", Required = false, HelpText = "Output directory for generated unit classes. If not specified, unit generation is skipped.")]
+    public string? UnitsOutputDirectory { get; set; }
+
     [Option('l', "locales", Required = false, HelpText = "Comma-separated list of locales to include (e.g., 'en-US, es-MX, de-DE'). If not specified, all .NET-supported locales are included.")]
     public string? Locales { get; set; }
 }
