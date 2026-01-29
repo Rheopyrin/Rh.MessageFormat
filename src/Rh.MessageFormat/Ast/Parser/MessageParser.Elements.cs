@@ -35,6 +35,7 @@ internal sealed partial class MessageParser
             Formatters.RelativeTime => CreateRelativeTimeElement(variable, arguments, span),
             Formatters.Duration => CreateDurationElement(variable, arguments, span),
             Formatters.NumberRange => CreateNumberRangeElement(variable, arguments, span),
+            Formatters.Spellout => CreateSpelloutElement(variable, arguments, span),
             _ => new CustomFormatterElement(variable, formatter, arguments?.Trim(), span) // Custom formatter
         };
     }
@@ -381,5 +382,36 @@ internal sealed partial class MessageParser
         }
 
         return new NumberRangeElement(variable, endVariable, NumberRangeStyle.Default, span);
+    }
+
+    private SpelloutElement CreateSpelloutElement(string variable, string? arguments, SourceSpan span)
+    {
+        if (string.IsNullOrWhiteSpace(arguments))
+        {
+            return new SpelloutElement(variable, SpelloutStyle.Cardinal, span);
+        }
+
+        var trimmed = arguments.Trim();
+
+        // Check for predefined styles using case-insensitive comparison
+        if (string.Equals(trimmed, "cardinal", StringComparison.OrdinalIgnoreCase))
+        {
+            return new SpelloutElement(variable, SpelloutStyle.Cardinal, span);
+        }
+        if (string.Equals(trimmed, "ordinal", StringComparison.OrdinalIgnoreCase))
+        {
+            return new SpelloutElement(variable, SpelloutStyle.Ordinal, span);
+        }
+        if (string.Equals(trimmed, "verbose", StringComparison.OrdinalIgnoreCase))
+        {
+            return new SpelloutElement(variable, SpelloutStyle.Verbose, span);
+        }
+        if (string.Equals(trimmed, "year", StringComparison.OrdinalIgnoreCase))
+        {
+            return new SpelloutElement(variable, SpelloutStyle.Year, span);
+        }
+
+        // Custom rule set name (e.g., "%spellout-cardinal-feminine")
+        return new SpelloutElement(variable, trimmed, span);
     }
 }

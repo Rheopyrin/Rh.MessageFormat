@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Rh.MessageFormat.Formatting.Spellout;
 
 namespace Rh.MessageFormat.Abstractions.Interfaces;
 
@@ -22,6 +23,14 @@ public interface ICldrDataProvider
     /// <param name="data">The locale data if found.</param>
     /// <returns>True if locale data was found, false otherwise.</returns>
     bool TryGetLocaleData(string locale, out ICldrLocaleData? data);
+
+    /// <summary>
+    /// Tries to get spellout data (RBNF rules) for a locale.
+    /// </summary>
+    /// <param name="locale">The locale identifier.</param>
+    /// <param name="data">The spellout data if found.</param>
+    /// <returns>True if spellout data was found, false otherwise.</returns>
+    bool TryGetSpelloutData(string locale, out SpelloutData? data);
 
     /// <summary>
     /// Gets the list of all available locales.

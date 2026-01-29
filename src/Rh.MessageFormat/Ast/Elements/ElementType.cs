@@ -20,5 +20,6 @@ internal enum ElementType : byte
     RelativeTime = 12,
     DateRange = 13,
     Duration = 14,
-    NumberRange = 15
+    NumberRange = 15,
+    Spellout = 16
 }

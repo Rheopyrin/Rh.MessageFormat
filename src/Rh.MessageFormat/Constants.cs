@@ -23,6 +23,7 @@ internal static class Constants
         public const string RelativeTime = "relativeTime";
         public const string Duration = "duration";
         public const string NumberRange = "numberRange";
+        public const string Spellout = "spellout";
     }
 
     /// <summary>

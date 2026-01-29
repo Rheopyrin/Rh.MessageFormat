@@ -74,6 +74,23 @@ static async Task<int> RunAsync(CommandLineOptions options)
 
         Console.WriteLine();
         Console.WriteLine($"C# locale classes generated successfully to {outputDirectory}");
+
+        // Generate spellout data if output directory is specified
+        if (!string.IsNullOrEmpty(options.SpelloutOutputDirectory))
+        {
+            var spelloutOutputDirectory = Path.GetFullPath(options.SpelloutOutputDirectory);
+            Directory.CreateDirectory(spelloutOutputDirectory);
+
+            Console.WriteLine();
+            Console.WriteLine($"Spellout output directory: {spelloutOutputDirectory}");
+
+            var spelloutGenerator = new SpelloutCodeGenerator(config);
+            await spelloutGenerator.GenerateAsync(cldrRoot, spelloutOutputDirectory);
+
+            Console.WriteLine();
+            Console.WriteLine($"Spellout classes generated successfully to {spelloutOutputDirectory}");
+        }
+
         return 0;
     }
     catch (Exception ex)

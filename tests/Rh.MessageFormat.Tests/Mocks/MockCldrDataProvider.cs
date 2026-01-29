@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Rh.MessageFormat.Abstractions.Interfaces;
+using Rh.MessageFormat.Formatting.Spellout;
 
 namespace Rh.MessageFormat.Tests.Mocks;
 
@@ -49,6 +50,14 @@ public class MockCldrDataProvider : ICldrDataProvider
             return true;
         }
 
+        data = null;
+        return false;
+    }
+
+    public bool TryGetSpelloutData(string locale, out SpelloutData? data)
+    {
+        // Mock implementation - no spellout data in tests by default
+        // Tests that need spellout data should use the real CldrDataProvider
         data = null;
         return false;
     }

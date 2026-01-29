@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Rh.MessageFormat.Abstractions.Interfaces;
+using Rh.MessageFormat.Formatting.Spellout;
 
 namespace Rh.MessageFormat.CldrData.Services;
 
@@ -15,6 +17,11 @@ public sealed partial class CldrDataProvider : ICldrDataProvider
     // Each locale maps to a lazy singleton - thread safety handled by Lazy<T> inside each class
 
     private IReadOnlyList<string>? _availableLocales;
+
+    /// <summary>
+    /// Static delegate for spellout data lookup. Set by Rh.MessageFormat.CldrData.Spellout package when loaded.
+    /// </summary>
+    public static Func<string, SpelloutData?>? SpelloutDataProvider { get; set; }
 
     /// <inheritdoc />
     public ICldrLocaleData? GetLocaleData(string locale)
@@ -38,6 +45,27 @@ public sealed partial class CldrDataProvider : ICldrDataProvider
         {
             data = factory();
             return true;
+        }
+
+        data = null;
+        return false;
+    }
+
+    /// <inheritdoc />
+    public bool TryGetSpelloutData(string locale, out SpelloutData? data)
+    {
+        if (string.IsNullOrEmpty(locale))
+        {
+            data = null;
+            return false;
+        }
+
+        // Use the registered spellout provider if available
+        var provider = SpelloutDataProvider;
+        if (provider != null)
+        {
+            data = provider(locale);
+            return data != null;
         }
 
         data = null;

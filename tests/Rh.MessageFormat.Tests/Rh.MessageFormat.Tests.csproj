@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Rh.MessageFormat\Rh.MessageFormat.csproj" />
+    <ProjectReference Include="..\..\src\Rh.MessageFormat.CldrData.Spellout\Rh.MessageFormat.CldrData.Spellout.csproj" />
   </ItemGroup>
 
 </Project>

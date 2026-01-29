@@ -11,6 +11,7 @@ A high-performance .NET implementation of the [ICU Message Format](https://unico
 - **ICU Message Format** - Full support for pluralization, selection, and nested messages
 - **CLDR Data** - Pre-compiled locale data for 200+ locales (plurals, ordinals, currencies, units, dates, lists)
 - **Rich Formatting** - Numbers, dates, durations, number ranges, lists, and relative time
+- **Spellout** - Number to words conversion (cardinal, ordinal, year) via optional RBNF package
 - **Number Skeletons** - ICU number skeleton support including compact notation, ordinals, and currency
 - **High Performance** - Hand-written parser, no regex, compiled plural rules, pattern caching
 - **Custom Formatters** - Extend with your own formatting functions
@@ -390,6 +391,69 @@ formatter.FormatMessage("Price range: {min, numberRange, max, ::currency/USD}", 
 // Result: "Price range: $10.00–$50.00"
 ```
 
+### Spellout (Number to Words)
+
+Convert numbers to written words using CLDR Rule-Based Number Format (RBNF) data. This feature requires the optional `Rh.MessageFormat.CldrData.Spellout` package.
+
+**Installation:**
+```bash
+dotnet add package Rh.MessageFormat.CldrData.Spellout
+```
+
+**Basic Usage:**
+```csharp
+// Cardinal numbers (default)
+formatter.FormatMessage("{n, spellout}", new { n = 42 });
+// Result: "forty-two"
+
+formatter.FormatMessage("{n, spellout, cardinal}", new { n = 123 });
+// Result: "one hundred twenty-three"
+
+// Ordinal numbers
+formatter.FormatMessage("{n, spellout, ordinal}", new { n = 1 });
+// Result: "first"
+
+formatter.FormatMessage("{n, spellout, ordinal}", new { n = 21 });
+// Result: "twenty-first"
+
+// Year formatting
+formatter.FormatMessage("{n, spellout, year}", new { n = 2000 });
+// Result: "two thousand"
+```
+
+**In Context:**
+```csharp
+formatter.FormatMessage("You have {count, spellout} items", new { count = 3 });
+// Result: "You have three items"
+
+formatter.FormatMessage("This is your {position, spellout, ordinal} visit", new { position = 5 });
+// Result: "This is your fifth visit"
+```
+
+**Locale Support:**
+
+Spellout rules are locale-specific. The package includes RBNF data for 80+ locales:
+
+```csharp
+var deFormatter = new MessageFormatter("de");
+deFormatter.FormatMessage("{n, spellout}", new { n = 42 });
+// Result: "zwei­und­vierzig"
+
+var frFormatter = new MessageFormatter("fr");
+frFormatter.FormatMessage("{n, spellout}", new { n = 21 });
+// Result: "vingt-et-un"
+```
+
+**Without the Spellout Package:**
+
+If the spellout package is not installed, the formatter falls back to standard numeric formatting:
+
+```csharp
+// Without Rh.MessageFormat.CldrData.Spellout installed:
+formatter.FormatMessage("{n, spellout}", new { n = 42 });
+// Result: "42" (falls back to number formatting)
+```
+
 ### Nested Messages
 
 Messages can be nested to any depth:
@@ -653,6 +717,7 @@ src/
 ├── Rh.MessageFormat/              # Main library
 ├── Rh.MessageFormat.Abstractions/ # Interfaces and models
 ├── Rh.MessageFormat.CldrData/     # Generated CLDR locale data
+├── Rh.MessageFormat.CldrData.Spellout/ # Optional RBNF spellout data
 ├── Rh.MessageFormat.CldrGenerator/ # CLDR data generator tool
 └── scripts/                       # Build scripts
 
@@ -669,6 +734,7 @@ tests/
 | [Rh.MessageFormat](https://www.nuget.org/packages/Rh.MessageFormat/) | Main library with all formatting features |
 | [Rh.MessageFormat.Abstractions](https://www.nuget.org/packages/Rh.MessageFormat.Abstractions/) | Interfaces for extensibility |
 | [Rh.MessageFormat.CldrData](https://www.nuget.org/packages/Rh.MessageFormat.CldrData/) | Pre-compiled CLDR locale data |
+| [Rh.MessageFormat.CldrData.Spellout](https://www.nuget.org/packages/Rh.MessageFormat.CldrData.Spellout/) | Optional RBNF spellout data for number-to-words |
 
 ## Performance
 
