@@ -38,7 +38,7 @@ internal sealed class SelectElement : MessageElement
     public override void Format(ref FormatterContext ctx, StringBuilder output)
     {
         var value = ctx.GetValue(_variable);
-        var key = value?.ToString() ?? "";
+        var key = ConvertToKey(value);
 
         // Find matching case
         var selectedCase = FindCase(key);
@@ -49,6 +49,19 @@ internal sealed class SelectElement : MessageElement
         }
 
         selectedCase.Format(ref ctx, output);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static string ConvertToKey(object? value)
+    {
+        // Handle booleans specially: C# ToString() returns "True"/"False",
+        // but users typically write lowercase "true"/"false" in select patterns
+        if (value is bool b)
+        {
+            return b ? "true" : "false";
+        }
+
+        return value?.ToString() ?? "";
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

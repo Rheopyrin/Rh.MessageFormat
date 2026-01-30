@@ -218,13 +218,23 @@ public class VariableHandlingTests
     }
 
     [Fact]
-    public void Select_BoolValue_ConvertsToString()
+    public void Select_BoolValue_True_MatchesLowercaseKey()
     {
         var args = new Dictionary<string, object?> { { "flag", true } };
 
-        var result = _formatter.FormatMessage("{flag, select, True {Yes} False {No} other {Unknown}}", args);
+        var result = _formatter.FormatMessage("{flag, select, true {Yes} false {No} other {Unknown}}", args);
 
         Assert.Equal("Yes", result);
+    }
+
+    [Fact]
+    public void Select_BoolValue_False_MatchesLowercaseKey()
+    {
+        var args = new Dictionary<string, object?> { { "flag", false } };
+
+        var result = _formatter.FormatMessage("{flag, select, true {Yes} false {No} other {Unknown}}", args);
+
+        Assert.Equal("No", result);
     }
 
     [Fact]
