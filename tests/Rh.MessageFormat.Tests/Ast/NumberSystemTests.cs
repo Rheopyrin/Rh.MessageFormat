@@ -156,4 +156,57 @@ public class NumberSystemTests
         Assert.Contains("২", result);  // Bengali 2 from day 23
         Assert.Contains("৩", result);  // Bengali 3 from day 23
     }
+
+    [Fact]
+    public void DateFormat_BengaliLocale_WithRealCldrData_UsesBengaliDigits()
+    {
+        // Test with real CLDR data provider (not mocks)
+        // This validates end-to-end integration
+        // Bengali locale uses "beng" as defaultNumberingSystem in CLDR
+        var formatter = new MessageFormatter("bn");
+
+        // Unix timestamp for 2025-01-01 00:00:00 UTC
+        var timestamp = 1735689600000L;
+        var result = formatter.FormatMessage("{d, date, medium}", new { d = timestamp });
+
+        // Should contain Bengali digits (CLDR defaultNumberingSystem = "beng")
+        Assert.Contains(BengaliOne, result);  // Bengali 1
+        Assert.Contains("২", result);  // Bengali 2 from 2025
+        Assert.Contains("০", result);  // Bengali 0 from 2025
+        Assert.Contains("৫", result);  // Bengali 5 from 2025
+
+        // Verify Bengali year digits are present
+        Assert.Contains("২০২৫", result);  // Bengali 2025
+    }
+
+    [Fact]
+    public void DateFormat_ArabicLocale_WithRealCldrData_UsesLatinDigits()
+    {
+        // Test with real CLDR data provider (not mocks)
+        // IMPORTANT: Arabic locale in CLDR uses "latn" (Latin) as defaultNumberingSystem!
+        // The "native" system is "arab" but it's NOT the default.
+        // JavaScript/ICU may use native numbering for date/time, which differs from CLDR default.
+        var formatter = new MessageFormatter("ar");
+
+        var timestamp = 1735689600000L;
+        var result = formatter.FormatMessage("{d, date, medium}", new { d = timestamp });
+
+        // CLDR says Arabic uses Latin digits by default (defaultNumberingSystem: "latn")
+        // So output will contain Latin digits, not Arabic-Indic
+        Assert.Contains("2025", result);  // Latin digits as per CLDR
+    }
+
+    [Fact]
+    public void DateFormat_BengaliBDLocale_WithRealCldrData_FallsBackToBengaliDigits()
+    {
+        // Test locale fallback: bn-BD should fallback to bn which uses Bengali digits
+        var formatter = new MessageFormatter("bn-BD");
+
+        var timestamp = 1735689600000L;
+        var result = formatter.FormatMessage("{d, date, medium}", new { d = timestamp });
+
+        // Should contain Bengali digits (fallback from bn-BD to bn which has defaultNumberingSystem = "beng")
+        Assert.Contains(BengaliOne, result);  // Bengali 1
+        Assert.Contains("২০২৫", result);  // Bengali 2025
+    }
 }

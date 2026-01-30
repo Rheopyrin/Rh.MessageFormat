@@ -220,11 +220,8 @@ internal ref struct FormatterContext
         if (string.IsNullOrEmpty(input))
             return input;
 
-        // Get locale's default numbering system
-        if (!_cldrDataProvider.TryGetLocaleData(_locale, out var localeData) || localeData == null)
-            return input;
-
-        var numberingSystem = localeData.DefaultNumberingSystem;
+        // Try to get numbering system with locale fallback
+        var numberingSystem = GetNumberingSystemWithFallback();
         if (string.IsNullOrEmpty(numberingSystem) || numberingSystem == "latn")
             return input;
 
@@ -233,5 +230,41 @@ internal ref struct FormatterContext
             return input;
 
         return NumberSystemTransformer.Transform(input, digits);
+    }
+
+    /// <summary>
+    /// Gets the numbering system for the locale with fallback to base locale.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private string? GetNumberingSystemWithFallback()
+    {
+        // Try exact locale
+        if (_cldrDataProvider.TryGetLocaleData(_locale, out var localeData) && localeData != null)
+        {
+            var ns = localeData.DefaultNumberingSystem;
+            if (!string.IsNullOrEmpty(ns) && ns != "latn")
+                return ns;
+        }
+
+        // Try base locale (e.g., "bn" from "bn-BD")
+        var baseLocale = LocaleHelper.GetBaseLocale(_locale);
+        if (baseLocale != null && _cldrDataProvider.TryGetLocaleData(baseLocale, out localeData) && localeData != null)
+        {
+            var ns = localeData.DefaultNumberingSystem;
+            if (!string.IsNullOrEmpty(ns) && ns != "latn")
+                return ns;
+        }
+
+        // Try fallback locale
+        if (!string.IsNullOrEmpty(_fallbackLocale) &&
+            !string.Equals(_locale, _fallbackLocale, StringComparison.OrdinalIgnoreCase))
+        {
+            if (_cldrDataProvider.TryGetLocaleData(_fallbackLocale, out localeData) && localeData != null)
+            {
+                return localeData.DefaultNumberingSystem;
+            }
+        }
+
+        return null;
     }
 }
