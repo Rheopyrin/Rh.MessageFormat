@@ -34,6 +34,9 @@ public class CldrPaths
     public string ListPatternsFile { get; set; } = string.Empty;
     public string WeekDataJson { get; set; } = string.Empty;
     public string RbnfFolder { get; set; } = string.Empty;
+    public string NumberSystemsJson { get; set; } = string.Empty;
+    public string NumbersFolder { get; set; } = string.Empty;
+    public string NumbersFile { get; set; } = string.Empty;
 }
 
 public class CldrOutputFiles

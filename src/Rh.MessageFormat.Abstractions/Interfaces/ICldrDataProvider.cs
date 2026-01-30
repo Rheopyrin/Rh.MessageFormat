@@ -73,4 +73,12 @@ public interface ICldrDataProvider
     /// Gets the list of all available locales.
     /// </summary>
     IReadOnlyList<string> AvailableLocales { get; }
+
+    /// <summary>
+    /// Tries to get digit characters for a numbering system.
+    /// </summary>
+    /// <param name="numberingSystem">The system identifier (e.g., "beng", "arab").</param>
+    /// <param name="digits">The 10 digits if found (index 0-9).</param>
+    /// <returns>True if found, false otherwise.</returns>
+    bool TryGetNumberSystemDigits(string numberingSystem, out string digits);
 }

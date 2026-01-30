@@ -65,6 +65,9 @@ public partial class LocaleDataCollector
         // Collect ordinal suffixes from RBNF data
         await CollectOrdinalSuffixesAsync(result, ct);
 
+        // Collect number system data
+        await CollectNumberSystemsAsync(result, ct);
+
         // Create regional variant entries for explicitly requested locales
         CreateRegionalVariantEntries(result);
 

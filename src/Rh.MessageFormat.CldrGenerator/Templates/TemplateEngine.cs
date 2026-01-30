@@ -93,6 +93,8 @@ public class LocaleTemplateData
     public string WeekInfoCode { get; init; } = "";
     public bool HasIntervalFormats { get; init; }
     public string IntervalFormatsCode { get; init; } = "";
+    public bool HasNumberingSystem { get; init; }
+    public string DefaultNumberingSystem { get; init; } = "";
 }
 
 /// <summary>

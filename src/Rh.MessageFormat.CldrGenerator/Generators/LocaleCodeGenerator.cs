@@ -91,6 +91,10 @@ public class LocaleCodeGenerator
 
         Console.WriteLine($"Generated {generatedClasses} unique locale classes ({reusedClasses} locales reuse existing classes).");
 
+        // Generate NumberSystems.g.cs with digit mappings
+        var numberSystemGenerator = new NumberSystemCodeGenerator(_config);
+        await numberSystemGenerator.GenerateAsync(collector.NumberSystemDigits, outputDir, ct);
+
         // Generate the provider registry with all locales (including those reusing classes)
         await GenerateProviderRegistryAsync(templateEngine, outputDir, locales, ct);
 

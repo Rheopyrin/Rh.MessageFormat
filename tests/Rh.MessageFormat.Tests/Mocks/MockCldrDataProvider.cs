@@ -91,6 +91,22 @@ public class MockCldrDataProvider : ICldrDataProvider
         return false;
     }
 
+    public bool TryGetNumberSystemDigits(string numberingSystem, out string digits)
+    {
+        // Mock implementation - basic number system support
+        // Only include common systems used in tests
+        digits = numberingSystem switch
+        {
+            "arab" => "٠١٢٣٤٥٦٧٨٩",
+            "beng" => "০১২৩৪৫৬৭৮৯",
+            "deva" => "०१२३४५६७८९",
+            "thai" => "๐๑๒๓๔๕๖๗๘๙",
+            "mymr" => "၀၁၂၃၄၅၆၇၈၉",
+            _ => string.Empty
+        };
+        return !string.IsNullOrEmpty(digits);
+    }
+
     #region Static Factory Methods
 
     /// <summary>

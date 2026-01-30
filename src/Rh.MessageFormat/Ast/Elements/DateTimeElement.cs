@@ -91,6 +91,10 @@ internal sealed class DateTimeElement : MessageElement
 
         var dateTime = ConvertToDateTime(value);
         var formatted = FormatDateTime(dateTime, ref ctx);
+
+        // Apply numbering system transformation
+        formatted = ctx.TransformDigits(formatted);
+
         output.Append(formatted);
     }
 

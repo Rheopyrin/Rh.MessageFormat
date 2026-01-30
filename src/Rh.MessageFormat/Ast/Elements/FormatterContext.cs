@@ -6,6 +6,7 @@ using Rh.MessageFormat.Abstractions.Interfaces;
 using Rh.MessageFormat.Abstractions.Models;
 using Rh.MessageFormat.Custom;
 using Rh.MessageFormat.Exceptions;
+using Rh.MessageFormat.Formatting;
 
 namespace Rh.MessageFormat.Ast.Elements;
 
@@ -206,5 +207,31 @@ internal ref struct FormatterContext
 
         handler = null!;
         return false;
+    }
+
+    /// <summary>
+    /// Transforms Latin digits in the input to the locale's default numbering system.
+    /// </summary>
+    /// <param name="input">The input string containing Latin digits.</param>
+    /// <returns>The transformed string, or the original if no transformation is needed.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public string TransformDigits(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return input;
+
+        // Get locale's default numbering system
+        if (!_cldrDataProvider.TryGetLocaleData(_locale, out var localeData) || localeData == null)
+            return input;
+
+        var numberingSystem = localeData.DefaultNumberingSystem;
+        if (string.IsNullOrEmpty(numberingSystem) || numberingSystem == "latn")
+            return input;
+
+        // Get digits for the numbering system
+        if (!_cldrDataProvider.TryGetNumberSystemDigits(numberingSystem, out var digits))
+            return input;
+
+        return NumberSystemTransformer.Transform(input, digits);
     }
 }

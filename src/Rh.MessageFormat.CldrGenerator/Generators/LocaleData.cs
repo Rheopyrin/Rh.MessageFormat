@@ -71,6 +71,11 @@ public class LocaleData
     /// Interval format patterns for date ranges.
     /// </summary>
     public LocaleIntervalFormatData? IntervalFormats { get; set; }
+
+    /// <summary>
+    /// Default numbering system for this locale (e.g., "latn", "beng", "arab").
+    /// </summary>
+    public string? DefaultNumberingSystem { get; set; }
 }
 
 public class LocaleCurrencyData

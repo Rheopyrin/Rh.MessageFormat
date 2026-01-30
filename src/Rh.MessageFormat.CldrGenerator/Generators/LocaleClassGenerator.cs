@@ -49,7 +49,10 @@ public class LocaleClassGenerator
             WeekInfoCode = GenerateWeekInfoCode(),
             // IntervalFormats moved to optional package: Rh.MessageFormat.CldrData.DateRange
             HasIntervalFormats = false,
-            IntervalFormatsCode = string.Empty
+            IntervalFormatsCode = string.Empty,
+            HasNumberingSystem = !string.IsNullOrEmpty(_data.DefaultNumberingSystem)
+                                 && _data.DefaultNumberingSystem != "latn",
+            DefaultNumberingSystem = EscapeString(_data.DefaultNumberingSystem ?? "latn")
         };
     }
 

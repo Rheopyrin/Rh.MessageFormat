@@ -75,6 +75,12 @@ public interface ICldrLocaleData
     WeekData WeekInfo => default;
 
     /// <summary>
+    /// Gets the default numbering system for this locale (e.g., "latn", "beng", "arab").
+    /// Returns "latn" by default for backward compatibility.
+    /// </summary>
+    string DefaultNumberingSystem => "latn";
+
+    /// <summary>
     /// Tries to get list pattern data for the specified type.
     /// Moved to optional Rh.MessageFormat.CldrData.Lists package.
     /// </summary>

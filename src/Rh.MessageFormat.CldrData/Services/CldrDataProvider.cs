@@ -190,4 +190,16 @@ public sealed partial class CldrDataProvider : ICldrDataProvider
             return _availableLocales;
         }
     }
+
+    /// <inheritdoc />
+    public bool TryGetNumberSystemDigits(string numberingSystem, out string digits)
+    {
+        if (string.IsNullOrEmpty(numberingSystem))
+        {
+            digits = string.Empty;
+            return false;
+        }
+
+        return Generated.NumberSystems.TryGetDigits(numberingSystem, out digits!);
+    }
 }

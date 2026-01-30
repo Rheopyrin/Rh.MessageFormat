@@ -133,4 +133,8 @@ internal sealed class {{ ClassName }} : ICldrLocaleData
 
     public IntervalFormatData IntervalFormats => _intervalFormats;
 {{~ end ~}}
+{{~ if HasNumberingSystem ~}}
+
+    public string DefaultNumberingSystem => "{{ DefaultNumberingSystem }}";
+{{~ end ~}}
 }

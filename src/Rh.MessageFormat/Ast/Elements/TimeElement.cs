@@ -90,6 +90,10 @@ internal sealed class TimeElement : MessageElement
 
         var time = ConvertToDateTime(value);
         var formatted = FormatTime(time, ref ctx);
+
+        // Apply numbering system transformation
+        formatted = ctx.TransformDigits(formatted);
+
         output.Append(formatted);
     }
 

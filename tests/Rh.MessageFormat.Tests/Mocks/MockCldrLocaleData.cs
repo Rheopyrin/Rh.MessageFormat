@@ -21,6 +21,7 @@ public class MockCldrLocaleData : ICldrLocaleData
     public QuarterData Quarters { get; set; }
     public WeekData WeekInfo { get; set; }
     public IntervalFormatData IntervalFormats { get; set; }
+    public string DefaultNumberingSystem { get; set; } = "latn";
 
     /// <summary>
     /// Function to compute plural category. Defaults to simple English rules.
@@ -222,6 +223,15 @@ public class MockCldrLocaleData : ICldrLocaleData
     public MockCldrLocaleData WithIntervalFormatFallback(string fallbackPattern)
     {
         IntervalFormats = new IntervalFormatData(fallbackPattern);
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the default numbering system for this locale.
+    /// </summary>
+    public MockCldrLocaleData WithNumberingSystem(string numberingSystem)
+    {
+        DefaultNumberingSystem = numberingSystem;
         return this;
     }
 
@@ -580,6 +590,60 @@ public class MockCldrLocaleData : ICldrLocaleData
             })
             // French ordinals: 1 is "one", all others are "other"
             .WithOrdinalRule(ctx => ctx.I == 1 ? "one" : "other");
+    }
+
+    /// <summary>
+    /// Creates Bengali locale data with Bengali numbering system.
+    /// </summary>
+    public static MockCldrLocaleData CreateBengali()
+    {
+        return new MockCldrLocaleData { Locale = "bn" }
+            .WithDatePatterns(new DatePatternData(
+                new DateFormats("EEEE, d MMMM, yyyy", "d MMMM, yyyy", "d MMM, yyyy", "d/M/yy"),
+                new TimeFormats("h:mm:ss tt zzzz", "h:mm:ss tt z", "h:mm:ss tt", "h:mm tt"),
+                new DateTimeFormats("{1} {0}", "{1} {0}", "{1} {0}", "{1} {0}")
+            ))
+            .WithNumberingSystem("beng")
+            .WithPluralRule(ctx => ctx.I == 0 || ctx.I == 1 ? "one" : "other");
+    }
+
+    /// <summary>
+    /// Creates Arabic locale data with Arabic numbering system.
+    /// </summary>
+    public static MockCldrLocaleData CreateArabic()
+    {
+        return new MockCldrLocaleData { Locale = "ar" }
+            .WithDatePatterns(new DatePatternData(
+                new DateFormats("EEEE، d MMMM yyyy", "d MMMM yyyy", "dd\u200F/MM\u200F/yyyy", "d\u200F/M\u200F/yyyy"),
+                new TimeFormats("h:mm:ss tt zzzz", "h:mm:ss tt z", "h:mm:ss tt", "h:mm tt"),
+                new DateTimeFormats("{1} {0}", "{1} {0}", "{1} {0}", "{1} {0}")
+            ))
+            .WithNumberingSystem("arab")
+            .WithPluralRule(ctx =>
+            {
+                if (ctx.N == 0) return "zero";
+                if (ctx.N == 1) return "one";
+                if (ctx.N == 2) return "two";
+                var mod100 = ctx.I % 100;
+                if (mod100 >= 3 && mod100 <= 10) return "few";
+                if (mod100 >= 11 && mod100 <= 99) return "many";
+                return "other";
+            });
+    }
+
+    /// <summary>
+    /// Creates Thai locale data with Thai numbering system.
+    /// </summary>
+    public static MockCldrLocaleData CreateThai()
+    {
+        return new MockCldrLocaleData { Locale = "th" }
+            .WithDatePatterns(new DatePatternData(
+                new DateFormats("EEEEที่ d MMMM G yyyy", "d MMMM G yyyy", "d MMM yyyy", "d/M/yy"),
+                new TimeFormats("H นาฬิกา mm นาที ss วินาที zzzz", "H นาฬิกา mm นาที ss วินาที z", "HH:mm:ss", "HH:mm"),
+                new DateTimeFormats("{1} {0}", "{1} {0}", "{1} {0}", "{1} {0}")
+            ))
+            .WithNumberingSystem("thai")
+            .WithPluralRule(_ => "other");  // Thai has no grammatical number distinction
     }
 
     #endregion
