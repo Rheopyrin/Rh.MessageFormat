@@ -101,9 +101,26 @@ internal sealed class DateElement : MessageElement
             DateTime dt => dt,
             DateTimeOffset dto => dto.DateTime,
             DateOnly d => d.ToDateTime(TimeOnly.MinValue),
-            string s => DateTime.Parse(s, CultureInfo.InvariantCulture),
+            string s => ParseString(s),
+            // ICU standard: numeric values are interpreted as milliseconds since Unix epoch
+            long ms => DateTimeOffset.FromUnixTimeMilliseconds(ms).DateTime,
+            int ms => DateTimeOffset.FromUnixTimeMilliseconds(ms).DateTime,
+            double ms => DateTimeOffset.FromUnixTimeMilliseconds((long)ms).DateTime,
             _ => Convert.ToDateTime(value)
         };
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static DateTime ParseString(string s)
+    {
+        // Check if string is a numeric value (milliseconds since Unix epoch)
+        if (long.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var ms))
+        {
+            return DateTimeOffset.FromUnixTimeMilliseconds(ms).DateTime;
+        }
+
+        // Otherwise parse as date string
+        return DateTime.Parse(s, CultureInfo.InvariantCulture);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

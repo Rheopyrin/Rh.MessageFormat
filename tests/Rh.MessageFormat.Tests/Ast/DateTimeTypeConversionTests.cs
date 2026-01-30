@@ -74,6 +74,68 @@ public class DateTimeTypeConversionTests
         Assert.Equal("Date: !", result);
     }
 
+    [Fact]
+    public void Date_FromUnixMilliseconds_Long_FormatsCorrectly()
+    {
+        // 1704067200000 = January 1, 2024 00:00:00 UTC
+        var args = new Dictionary<string, object?> { { "d", 1704067200000L } };
+
+        var result = _formatter.FormatMessage("{d, date, short}", args);
+
+        Assert.Contains("2024", result);
+        Assert.Contains("1", result); // January
+    }
+
+    [Fact]
+    public void Date_FromUnixMilliseconds_Int_FormatsCorrectly()
+    {
+        // 86400000 = January 2, 1970 00:00:00 UTC (1 day after epoch)
+        var args = new Dictionary<string, object?> { { "d", 86400000 } };
+
+        var result = _formatter.FormatMessage("{d, date, short}", args);
+
+        Assert.Contains("1970", result);
+        Assert.Contains("1", result); // January
+        Assert.Contains("2", result); // Day 2
+    }
+
+    [Fact]
+    public void Date_FromUnixMilliseconds_Double_FormatsCorrectly()
+    {
+        // 1704067200000.0 = January 1, 2024 00:00:00 UTC
+        var args = new Dictionary<string, object?> { { "d", 1704067200000.0 } };
+
+        var result = _formatter.FormatMessage("{d, date, short}", args);
+
+        Assert.Contains("2024", result);
+        Assert.Contains("1", result); // January
+    }
+
+    [Fact]
+    public void Date_FromUnixMilliseconds_String_FormatsCorrectly()
+    {
+        // "1704067200000" = January 1, 2024 00:00:00 UTC as string
+        var args = new Dictionary<string, object?> { { "d", "1704067200000" } };
+
+        var result = _formatter.FormatMessage("{d, date, short}", args);
+
+        Assert.Contains("2024", result);
+        Assert.Contains("1", result); // January
+    }
+
+    [Fact]
+    public void Date_FromDateString_StillWorks()
+    {
+        // Regular date string should still work
+        var args = new Dictionary<string, object?> { { "d", "2024-06-15" } };
+
+        var result = _formatter.FormatMessage("{d, date, short}", args);
+
+        Assert.Contains("2024", result);
+        Assert.Contains("6", result); // June
+        Assert.Contains("15", result);
+    }
+
     #endregion
 
     #region Time Type Conversion Tests
