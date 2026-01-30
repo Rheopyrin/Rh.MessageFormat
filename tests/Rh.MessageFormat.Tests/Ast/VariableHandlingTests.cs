@@ -238,6 +238,26 @@ public class VariableHandlingTests
     }
 
     [Fact]
+    public void Select_NullValue_MatchesNullKey()
+    {
+        var args = new Dictionary<string, object?> { { "value", null } };
+
+        var result = _formatter.FormatMessage("{value, select, null {Nothing} other {Something}}", args);
+
+        Assert.Equal("Nothing", result);
+    }
+
+    [Fact]
+    public void Select_NullValue_FallsBackToOther_WhenNoNullCase()
+    {
+        var args = new Dictionary<string, object?> { { "value", null } };
+
+        var result = _formatter.FormatMessage("{value, select, a {A} b {B} other {Other}}", args);
+
+        Assert.Equal("Other", result);
+    }
+
+    [Fact]
     public void Select_EnumValue_ConvertsToString()
     {
         var args = new Dictionary<string, object?> { { "day", DayOfWeek.Monday } };

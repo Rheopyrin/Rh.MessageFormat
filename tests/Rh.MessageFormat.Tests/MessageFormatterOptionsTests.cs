@@ -268,6 +268,72 @@ public class MessageFormatterOptionsTests
 
     #endregion
 
+    #region IgnoreTag Option Tests
+
+    [Fact]
+    public void Default_IgnoreTag_IsFalse()
+    {
+        var options = MessageFormatterOptions.Default;
+
+        Assert.False(options.IgnoreTag);
+    }
+
+    [Fact]
+    public void Options_CanSetIgnoreTag()
+    {
+        var options = new MessageFormatterOptions
+        {
+            IgnoreTag = true
+        };
+
+        Assert.True(options.IgnoreTag);
+    }
+
+    [Fact]
+    public void Formatter_WithIgnoreTagFalse_ProcessesTags()
+    {
+        var options = TestOptions.WithEnglish();
+        options.IgnoreTag = false;
+        options.TagHandlers["b"] = content => $"**{content}**";
+
+        var formatter = new MessageFormatter("en", options);
+        var args = new Dictionary<string, object?>();
+
+        var result = formatter.FormatMessage("<b>bold</b>", args);
+
+        Assert.Equal("**bold**", result);
+    }
+
+    [Fact]
+    public void Formatter_WithIgnoreTagTrue_PreservesHtmlTags()
+    {
+        var options = TestOptions.WithEnglish();
+        options.IgnoreTag = true;
+
+        var formatter = new MessageFormatter("en", options);
+        var args = new Dictionary<string, object?> { { "name", "World" } };
+
+        var result = formatter.FormatMessage("<b>Hello</b> {name}!", args);
+
+        Assert.Equal("<b>Hello</b> World!", result);
+    }
+
+    [Fact]
+    public void Formatter_WithIgnoreTagTrue_PreservesAllHtmlTags()
+    {
+        var options = TestOptions.WithEnglish();
+        options.IgnoreTag = true;
+
+        var formatter = new MessageFormatter("en", options);
+        var args = new Dictionary<string, object?>();
+
+        var result = formatter.FormatMessage("<div><b>Hello</b> <i>World</i></div>", args);
+
+        Assert.Equal("<div><b>Hello</b> <i>World</i></div>", result);
+    }
+
+    #endregion
+
     #region Locale Override Tests
 
     [Fact]

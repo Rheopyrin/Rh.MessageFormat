@@ -10,6 +10,8 @@ namespace Rh.MessageFormat.Ast.Elements;
 /// </summary>
 internal sealed class SelectElement : MessageElement
 {
+    private const string NullKey = "null";
+
     private readonly string _variable;
     private readonly SelectCase[] _cases;
 
@@ -54,6 +56,12 @@ internal sealed class SelectElement : MessageElement
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string ConvertToKey(object? value)
     {
+        // Handle null specially: allow matching "null" case in select patterns
+        if (value is null)
+        {
+            return NullKey;
+        }
+
         // Handle booleans specially: C# ToString() returns "True"/"False",
         // but users typically write lowercase "true"/"false" in select patterns
         if (value is bool b)
@@ -61,7 +69,7 @@ internal sealed class SelectElement : MessageElement
             return b ? "true" : "false";
         }
 
-        return value?.ToString() ?? "";
+        return value.ToString() ?? NullKey;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

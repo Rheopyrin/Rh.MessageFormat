@@ -53,4 +53,7 @@ public sealed class MessageFormatterOptions : IMessageFormatterOptions
 
     /// <inheritdoc />
     public ParserCacheOptions ParserCache { get; set; }
+
+    /// <inheritdoc />
+    public bool IgnoreTag { get; set; }
 }

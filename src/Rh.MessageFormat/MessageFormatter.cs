@@ -140,9 +140,10 @@ public class MessageFormatter : IMessageFormatter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string FormatMessage(string pattern, IReadOnlyDictionary<string, object?> args)
     {
+        var ignoreTag = _options.IgnoreTag;
         var message = _parseCache != null
-            ? _parseCache.GetOrAdd(GetPatternHash(pattern, ignoreTag: false), _ => _parser.Parse(pattern))
-            : _parser.Parse(pattern);
+            ? _parseCache.GetOrAdd(GetPatternHash(pattern, ignoreTag), _ => _parser.Parse(pattern, ignoreTag))
+            : _parser.Parse(pattern, ignoreTag);
 
         var output = StringBuilderPool.Get();
         try

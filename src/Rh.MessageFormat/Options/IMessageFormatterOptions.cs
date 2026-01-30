@@ -46,4 +46,11 @@ public interface IMessageFormatterOptions
     /// Gets the parser cache options for caching parsed messages.
     /// </summary>
     ParserCacheOptions ParserCache { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether to ignore tag syntax in message patterns.
+    /// When true, tags like &lt;b&gt; are treated as literal text instead of rich text elements.
+    /// When false (default), tags are processed by registered tag handlers.
+    /// </summary>
+    bool IgnoreTag { get; }
 }
