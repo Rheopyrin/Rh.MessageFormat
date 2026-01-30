@@ -91,18 +91,33 @@ public partial class LocaleDataCollector
             return icuPattern;
 
         var result = icuPattern;
-        result = Regex.Replace(result, @"y{5,}", "yyyy");
-        result = Regex.Replace(result, @"y{4}", "yyyy");
-        result = Regex.Replace(result, @"y{3}", "yyyy");
-        result = Regex.Replace(result, @"y{2}", "yy");
-        result = Regex.Replace(result, @"y{1}(?!y)", "yyyy");
+
+        // Remove ICU optional section markers [...] - keep the content, remove brackets
+        result = Regex.Replace(result, @"\[([^\]]*)\]", "$1");
+
+        // Remove ICU numeric prefix '#' (used for non-padded numbers)
+        result = Regex.Replace(result, @"#(?=[yMdHhms])", "");
+
+        // Convert year patterns: ICU y -> .NET y
+        // Use a single regex to avoid double-replacement issues
+        result = Regex.Replace(result, @"y+", m => m.Length == 2 ? "yy" : "yyyy");
+
+        // Convert day of week patterns
         result = Regex.Replace(result, @"E{4,}", "dddd");
         result = Regex.Replace(result, @"E{1,3}", "ddd");
         result = Regex.Replace(result, @"c{4,}", "dddd");
         result = Regex.Replace(result, @"c{1,3}", "ddd");
+
+        // Convert day period patterns
         result = Regex.Replace(result, @"a+", "tt");
+        // ICU 'B' (flexible day period like "in the morning") -> .NET 'tt' (AM/PM)
+        result = Regex.Replace(result, @"B+", "tt");
+
+        // Convert era patterns
         result = Regex.Replace(result, @"G{4,}", "gg");
         result = Regex.Replace(result, @"G{1,3}", "g");
+
+        // Convert standalone month patterns (L -> M)
         result = Regex.Replace(result, @"L{4,}", "MMMM");
         result = Regex.Replace(result, @"L{3}", "MMM");
         result = Regex.Replace(result, @"L{2}", "MM");

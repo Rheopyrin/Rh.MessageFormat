@@ -124,6 +124,35 @@ public class DateTimeTypeConversionTests
     }
 
     [Fact]
+    public void Date_FromUnixMilliseconds_NoExtraZeroInYear()
+    {
+        // Verify that formatting doesn't add extra zeros before the year
+        // 1704067200000 = January 1, 2024 00:00:00 UTC
+        var args = new Dictionary<string, object?> { { "d", 1704067200000L } };
+
+        var result = _formatter.FormatMessage("{d, date, short}", args);
+
+        // Should be like "1/1/24" or "1/1/2024", NOT "1/1/02024"
+        Assert.DoesNotContain("02024", result);
+        Assert.DoesNotContain("002024", result);
+    }
+
+    [Fact]
+    public void Date_FromUnixMilliseconds_UkrainianLocale_NoExtraZeroInYear()
+    {
+        // Bug fix: Ukrainian locale was generating "dd.MM.yyyyy" instead of "dd.MM.yy"
+        // This caused dates like "01.01.02024" instead of "01.01.24"
+        var ukFormatter = new MessageFormatter("uk", TestOptions.WithCommonLocales());
+        var args = new Dictionary<string, object?> { { "expiringDate", "1704067200000" } };
+
+        var result = ukFormatter.FormatMessage("{expiringDate, date, short}", args);
+
+        // Should be "01.01.24", NOT "01.01.02024"
+        Assert.DoesNotContain("02024", result);
+        Assert.Contains("24", result); // 2-digit year
+    }
+
+    [Fact]
     public void Date_FromDateString_StillWorks()
     {
         // Regular date string should still work
