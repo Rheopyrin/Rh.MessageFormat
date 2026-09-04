@@ -224,7 +224,7 @@ fi
 # Run the .NET generator
 echo ""
 echo "Running CLDR generator..."
-dotnet run --project "$GENERATOR_DIR" -- "${CMD_ARGS[@]}"
+dotnet run --project "$GENERATOR_DIR" --framework net8.0 -- "${CMD_ARGS[@]}"
 
 echo ""
 echo "CLDR sync completed."
