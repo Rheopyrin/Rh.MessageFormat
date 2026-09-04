@@ -401,6 +401,55 @@ public class VariableFlattenerTests
         Assert.Empty(result);
     }
 
+    [Fact]
+    public void ObjectToDictionary_Record_ConvertsToDictionary()
+    {
+        var obj = new TestPersonRecord("John", "Doe");
+
+        var result = VariableFlattener.ObjectToDictionary(obj);
+
+        Assert.Equal("John", result["FirstName"]);
+        Assert.Equal("Doe", result["LastName"]);
+    }
+
+    [Fact]
+    public void ObjectToDictionary_ValueTuple_ReadsFields()
+    {
+        // Tuple element names are erased at runtime; fields are Item1/Item2.
+        var obj = ("John", 30);
+
+        var result = VariableFlattener.ObjectToDictionary(obj);
+
+        Assert.Equal(2, result.Count);
+        Assert.Equal("John", result["Item1"]);
+        Assert.Equal(30, result["Item2"]);
+    }
+
+    [Fact]
+    public void ObjectToDictionary_PocoWithPublicFields_ReadsFields()
+    {
+        var obj = new TestPersonWithFields { FirstName = "John", Age = 30 };
+
+        var result = VariableFlattener.ObjectToDictionary(obj);
+
+        Assert.Equal(2, result.Count);
+        Assert.Equal("John", result["FirstName"]);
+        Assert.Equal(30, result["Age"]);
+    }
+
+    [Fact]
+    public void ObjectToDictionary_ObjectTypedReference_StillConverts()
+    {
+        // Binds to the non-generic (RequiresUnreferencedCode) overload.
+        object obj = new TestPerson { FirstName = "John", LastName = "Doe", Age = 30 };
+
+#pragma warning disable IL2026
+        var result = VariableFlattener.ObjectToDictionary(obj);
+#pragma warning restore IL2026
+
+        Assert.Equal("John", result["FirstName"]);
+    }
+
     #endregion
 }
 
@@ -412,6 +461,20 @@ public class TestPerson
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
     public int Age { get; set; }
+}
+
+/// <summary>
+/// Test record for ObjectToDictionary tests.
+/// </summary>
+public record TestPersonRecord(string FirstName, string LastName);
+
+/// <summary>
+/// Test POCO with public fields for ObjectToDictionary tests.
+/// </summary>
+public class TestPersonWithFields
+{
+    public string? FirstName;
+    public int Age;
 }
 
 /// <summary>

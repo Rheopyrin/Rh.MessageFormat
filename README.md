@@ -477,16 +477,41 @@ var args = new Dictionary<string, object?> { ["name"] = "John", ["count"] = 5 };
 formatter.FormatMessage("Hello {name}, you have {count} messages", args);
 
 // Without variables (static text)
-formatter.FormatMessage("Hello World", (object?)null);
+formatter.FormatMessage("Hello World");
 ```
 
-All formatting methods support both overloads:
-- `FormatMessage(string pattern, object? args = null)` - accepts anonymous types, POCOs, or null
+All formatting methods support these overloads:
+- `FormatMessage<T>(string pattern, T args)` - accepts anonymous types, POCOs, records, or value tuples; safe for trimming and Native AOT
 - `FormatMessage(string pattern, IReadOnlyDictionary<string, object?> args)` - accepts dictionaries
-- `FormatComplexMessage(string pattern, object? values = null)` - accepts anonymous types, POCOs, or null
-- `FormatComplexMessage(string pattern, IReadOnlyDictionary<string, object?> values)` - accepts dictionaries
-- `FormatHtmlMessage(string pattern, object? values = null)` - accepts anonymous types, POCOs, or null
-- `FormatHtmlMessage(string pattern, IReadOnlyDictionary<string, object?> values)` - accepts dictionaries
+- `FormatMessage(string pattern)` - static text without variables
+- `FormatMessage(string pattern, object? args = null)` - accepts any object; **not** safe for trimming/Native AOT (see below)
+
+`FormatComplexMessage` and `FormatHtmlMessage` provide the same set of overloads.
+
+### Trimming and Native AOT
+
+The generic overloads (`FormatMessage<T>`, `FormatComplexMessage<T>`, `FormatHtmlMessage<T>`) are
+annotated with `[DynamicallyAccessedMembers]`, so the trimmer preserves the public properties and
+fields of the argument type at each call site. They bind automatically whenever the compiler knows
+the static type of the argument:
+
+```csharp
+// Trim/AOT safe - T is inferred as the anonymous type / POCO / record
+formatter.FormatMessage("Hello {FirstName}", new { FirstName = "Mike" });
+formatter.FormatMessage("Hello {FirstName}", new Person { FirstName = "Mike" });
+```
+
+The `object?`-based overloads are marked `[RequiresUnreferencedCode]`: when the argument is only
+statically known as `object`, the trimmer cannot tell which members to preserve, and trimmed or
+Native AOT builds emit an `IL2026` warning at the call site. In that situation pass a
+`IReadOnlyDictionary<string, object?>` instead.
+
+Two limitations to be aware of in trimmed/Native AOT applications:
+- Only the members of the argument type itself are statically preserved. Members of **nested**
+  complex objects may still be trimmed - use nested dictionaries with `FormatComplexMessage`
+  for nested values.
+- Value tuple element names are erased at runtime, so a tuple's values are exposed as
+  `{Item1}`, `{Item2}`, etc.
 
 ### FormatComplexMessage - Nested Object Support
 
