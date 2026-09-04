@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO.Hashing;
 using System.Runtime.CompilerServices;
@@ -69,6 +70,12 @@ public class MessageFormatter : IMessageFormatter
     ///     Uses XxHash128 of the pattern as key for memory efficiency.
     /// </summary>
     private readonly ConcurrentLru<UInt128, ParsedMessage>? _parseCache;
+
+    /// <summary>
+    ///     Shared empty arguments dictionary for messages without variables.
+    /// </summary>
+    private static readonly IReadOnlyDictionary<string, object?> EmptyArgs =
+        new Dictionary<string, object?>(0, StringComparer.Ordinal);
 
     #endregion
 
@@ -169,9 +176,63 @@ public class MessageFormatter : IMessageFormatter
     }
 
     /// <summary>
+    ///     Formats a message that has no arguments using the locale configured in the constructor.
+    /// </summary>
+    /// <param name="pattern">
+    ///     The pattern.
+    /// </param>
+    /// <returns>
+    ///     The formatted message.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public string FormatMessage(string pattern)
+    {
+        return FormatMessage(pattern, EmptyArgs);
+    }
+
+    /// <summary>
+    ///     Formats the message with the specified arguments using the locale configured in the constructor.
+    ///     This overload accepts any object (including anonymous types) and converts it to a dictionary.
+    ///     It is safe for trimming and Native AOT: the public properties and fields of
+    ///     <typeparamref name="T"/> are preserved at each call site.
+    /// </summary>
+    /// <remarks>
+    ///     Note for trimming/Native AOT: only the members of <typeparamref name="T"/> itself are
+    ///     statically preserved. Members of nested complex objects may be trimmed; use nested
+    ///     dictionaries for nesting in trimmed applications.
+    /// </remarks>
+    /// <typeparam name="T">
+    ///     The type of the arguments object. Its public properties and fields are preserved for trimming.
+    /// </typeparam>
+    /// <param name="pattern">
+    ///     The pattern.
+    /// </param>
+    /// <param name="args">
+    ///     The arguments as an object (anonymous type, POCO, record, or value tuple).
+    /// </param>
+    /// <returns>
+    ///     The formatted message.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public string FormatMessage<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)] T>(
+        string pattern, T args)
+    {
+        if (args is IReadOnlyDictionary<string, object?> dictionaryArgs)
+            return FormatMessage(pattern, dictionaryArgs);
+
+        return FormatMessage(pattern, VariableFlattener.ObjectToDictionary(args));
+    }
+
+    /// <summary>
     ///     Formats the message with the specified arguments using the locale configured in the constructor.
     ///     This overload accepts any object (including anonymous types) and converts it to a dictionary.
     /// </summary>
+    /// <remarks>
+    ///     This overload is not safe for trimming or Native AOT because the runtime type of
+    ///     <paramref name="args"/> is not statically visible to the trimmer. Prefer the generic
+    ///     <see cref="FormatMessage{T}(string, T)"/> overload, or pass a dictionary.
+    /// </remarks>
     /// <param name="pattern">
     ///     The pattern.
     /// </param>
@@ -181,6 +242,9 @@ public class MessageFormatter : IMessageFormatter
     /// <returns>
     ///     The formatted message.
     /// </returns>
+    [RequiresUnreferencedCode(
+        "Uses reflection over the runtime type of 'args', which the trimmer cannot analyze. " +
+        "Use the generic FormatMessage<T> overload or pass an IReadOnlyDictionary<string, object?> instead.")]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string FormatMessage(string pattern, object? args = null)
     {
@@ -225,9 +289,63 @@ public class MessageFormatter : IMessageFormatter
     }
 
     /// <summary>
+    ///     Formats a complex message that has no arguments.
+    /// </summary>
+    /// <param name="pattern">
+    ///     The message pattern. Use "__" (double underscore) to reference nested values.
+    /// </param>
+    /// <returns>
+    ///     The formatted message.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public string FormatComplexMessage(string pattern)
+    {
+        return FormatComplexMessage(pattern, EmptyArgs);
+    }
+
+    /// <summary>
+    ///     Formats a complex message with support for nested object values.
+    ///     This overload accepts any object (including anonymous types) and converts it to a dictionary.
+    ///     It is safe for trimming and Native AOT: the public properties and fields of
+    ///     <typeparamref name="T"/> are preserved at each call site.
+    /// </summary>
+    /// <remarks>
+    ///     Note for trimming/Native AOT: only the members of <typeparamref name="T"/> itself are
+    ///     statically preserved. Members of nested complex objects may be trimmed; use nested
+    ///     dictionaries for nesting in trimmed applications.
+    /// </remarks>
+    /// <typeparam name="T">
+    ///     The type of the values object. Its public properties and fields are preserved for trimming.
+    /// </typeparam>
+    /// <param name="pattern">
+    ///     The message pattern. Use "__" (double underscore) to reference nested values.
+    /// </param>
+    /// <param name="values">
+    ///     The values as an object (anonymous type, POCO, record, or value tuple).
+    /// </param>
+    /// <returns>
+    ///     The formatted message.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public string FormatComplexMessage<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)] T>(
+        string pattern, T values)
+    {
+        if (values is IReadOnlyDictionary<string, object?> dictionaryValues)
+            return FormatComplexMessage(pattern, dictionaryValues);
+
+        return FormatComplexMessage(pattern, VariableFlattener.ObjectToDictionary(values));
+    }
+
+    /// <summary>
     ///     Formats a complex message with support for nested object values.
     ///     This overload accepts any object (including anonymous types) and converts it to a dictionary.
     /// </summary>
+    /// <remarks>
+    ///     This overload is not safe for trimming or Native AOT because the runtime type of
+    ///     <paramref name="values"/> is not statically visible to the trimmer. Prefer the generic
+    ///     <see cref="FormatComplexMessage{T}(string, T)"/> overload, or pass a dictionary.
+    /// </remarks>
     /// <param name="pattern">
     ///     The message pattern. Use "__" (double underscore) to reference nested values.
     /// </param>
@@ -237,6 +355,9 @@ public class MessageFormatter : IMessageFormatter
     /// <returns>
     ///     The formatted message.
     /// </returns>
+    [RequiresUnreferencedCode(
+        "Uses reflection over the runtime type of 'values', which the trimmer cannot analyze. " +
+        "Use the generic FormatComplexMessage<T> overload or pass an IReadOnlyDictionary<string, object?> instead.")]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string FormatComplexMessage(string pattern, object? values = null)
     {
@@ -300,9 +421,65 @@ public class MessageFormatter : IMessageFormatter
     }
 
     /// <summary>
+    ///     Formats a message containing HTML markup that has no arguments.
+    ///     HTML tags in the message template are preserved.
+    /// </summary>
+    /// <param name="pattern">
+    ///     The message pattern containing HTML markup.
+    /// </param>
+    /// <returns>
+    ///     The formatted HTML message.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public string FormatHtmlMessage(string pattern)
+    {
+        return FormatHtmlMessage(pattern, EmptyArgs);
+    }
+
+    /// <summary>
+    ///     Formats a message containing HTML markup with safe variable substitution.
+    ///     This overload accepts any object (including anonymous types) and converts it to a dictionary.
+    ///     It is safe for trimming and Native AOT: the public properties and fields of
+    ///     <typeparamref name="T"/> are preserved at each call site.
+    /// </summary>
+    /// <remarks>
+    ///     Note for trimming/Native AOT: only the members of <typeparamref name="T"/> itself are
+    ///     statically preserved. Members of nested complex objects may be trimmed; use nested
+    ///     dictionaries for nesting in trimmed applications.
+    /// </remarks>
+    /// <typeparam name="T">
+    ///     The type of the values object. Its public properties and fields are preserved for trimming.
+    /// </typeparam>
+    /// <param name="pattern">
+    ///     The message pattern containing HTML markup.
+    /// </param>
+    /// <param name="values">
+    ///     The values as an object (anonymous type, POCO, record, or value tuple).
+    ///     All string values will be HTML-escaped.
+    /// </param>
+    /// <returns>
+    ///     The formatted HTML message with escaped variable values.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public string FormatHtmlMessage<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)] T>(
+        string pattern, T values)
+    {
+        if (values is IReadOnlyDictionary<string, object?> dictionaryValues)
+            return FormatHtmlMessage(pattern, dictionaryValues);
+
+        return FormatHtmlMessage(pattern, VariableFlattener.ObjectToDictionary(values));
+    }
+
+    /// <summary>
     ///     Formats a message containing HTML markup with safe variable substitution.
     ///     This overload accepts any object (including anonymous types) and converts it to a dictionary.
     /// </summary>
+    /// <remarks>
+    ///     This overload is not safe for trimming or Native AOT because the runtime type of
+    ///     <paramref name="values"/> is not statically visible to the trimmer. Prefer the generic
+    ///     <see cref="FormatHtmlMessage{T}(string, T)"/> overload, or pass a dictionary.
+    /// </remarks>
     /// <param name="pattern">
     ///     The message pattern containing HTML markup.
     /// </param>
@@ -313,6 +490,9 @@ public class MessageFormatter : IMessageFormatter
     /// <returns>
     ///     The formatted HTML message with escaped variable values.
     /// </returns>
+    [RequiresUnreferencedCode(
+        "Uses reflection over the runtime type of 'values', which the trimmer cannot analyze. " +
+        "Use the generic FormatHtmlMessage<T> overload or pass an IReadOnlyDictionary<string, object?> instead.")]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string FormatHtmlMessage(string pattern, object? values = null)
     {
